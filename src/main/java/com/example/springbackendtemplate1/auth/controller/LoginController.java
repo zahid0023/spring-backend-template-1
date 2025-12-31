@@ -1,0 +1,62 @@
+package com.example.springbackendtemplate1.auth.controller;
+
+import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
+import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
+import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/auth")
+public class LoginController {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public LoginController(AuthenticationManager authenticationManager,
+                           JwtTokenProvider jwtTokenProvider) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUserName(),  // make sure field is 'username'
+                            request.getPassword()
+                    )
+            );
+
+            String token = jwtTokenProvider.generateToken(authentication);
+            return ResponseEntity.ok(new LoginResponse(token));
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid username or password");
+        } catch (DisabledException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("User account is disabled");
+
+        } catch (LockedException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.LOCKED)
+                    .body("User account is locked");
+        } catch (AccountExpiredException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("User account is expired");
+
+        } catch (AuthenticationException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Authentication failed");
+        }
+    }
+}
