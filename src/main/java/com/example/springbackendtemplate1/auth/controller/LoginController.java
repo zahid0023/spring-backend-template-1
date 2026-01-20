@@ -1,8 +1,12 @@
 package com.example.springbackendtemplate1.auth.controller;
 
 import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
+import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
+import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
+import com.example.springbackendtemplate1.auth.dto.response.ForgotPasswordResponse;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.service.PasswordResetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -16,11 +20,13 @@ public class LoginController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordResetService passwordResetService;
 
     public LoginController(AuthenticationManager authenticationManager,
-                           JwtTokenProvider jwtTokenProvider) {
+                           JwtTokenProvider jwtTokenProvider, PasswordResetService passwordResetService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/login")
@@ -57,6 +63,26 @@ public class LoginController {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("Authentication failed");
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        try {
+            ForgotPasswordResponse response = passwordResetService.forgotPassword(forgotPasswordRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ForgotPasswordResponse("Error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            passwordResetService.resetPassword(resetPasswordRequest.getToken(), resetPasswordRequest.getNewPassword());
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
 }

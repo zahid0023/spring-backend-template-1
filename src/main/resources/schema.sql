@@ -98,3 +98,23 @@ create table user_permissions
     deleted_at    timestamp with time zone,
     unique (user_id, permission_id)
 );
+
+create table reset_tokens
+(
+    id         bigserial
+        primary key,
+    user_id    bigint                                             not null
+        references users
+            on delete cascade,
+    token      varchar(500)                                       not null,
+    expires_at timestamp with time zone                           not null,
+    created_by bigint                                             not null,
+    created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    updated_by bigint                                             not null,
+    updated_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    version    bigint                   default 0                 not null,
+    is_active  boolean                  default true              not null,
+    is_deleted boolean                  default false             not null,
+    deleted_by bigint,
+    deleted_at timestamp with time zone
+);
