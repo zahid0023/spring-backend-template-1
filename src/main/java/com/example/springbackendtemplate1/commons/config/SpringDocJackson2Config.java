@@ -1,4 +1,4 @@
-package com.example.springbackendtemplate1.config;
+package com.example.springbackendtemplate1.commons.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

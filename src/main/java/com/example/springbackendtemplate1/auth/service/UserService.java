@@ -12,7 +12,7 @@ public interface UserService extends UserDetailsService {
 
     UserEntity getUserById(Long id);
 
-    SuccessResponse activateAdmin(UserEntity userEntity);
+    SuccessResponse activateUser(UserEntity userEntity);
 
     Boolean existsSuperAdmin(String username);
 

@@ -91,7 +91,7 @@ public class AdminBootstrapRunner implements ApplicationRunner {
         createAdminPermissions();
         createSuperAdmin();
         grantAdminPermissionsToSuperAdmin();
-        userService.activateAdmin(userService.getUserByUsername(SUPER_ADMIN));
+        userService.activateUser(userService.getUserByUsername(SUPER_ADMIN));
     }
 
     private void createAdminRole() {

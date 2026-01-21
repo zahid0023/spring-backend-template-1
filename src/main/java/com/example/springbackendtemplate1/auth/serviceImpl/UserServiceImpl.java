@@ -43,9 +43,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     // Regular user registration
     public SuccessResponse registerUser(RegistrationRequest request) {
         UserEntity userEntity = registerWithRole(request, "USER");
+        activateUser(userEntity);
         return new SuccessResponse(true, userEntity.getId());
     }
 
@@ -77,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public SuccessResponse activateAdmin(UserEntity userEntity) {
+    public SuccessResponse activateUser(UserEntity userEntity) {
         userEntity.setEnabled(true);
         userEntity.setLocked(false);
         userEntity.setExpired(false);

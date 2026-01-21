@@ -32,7 +32,7 @@ public class AdminController {
     @PutMapping("/{admin-id}/activate")
     public ResponseEntity<?> activateAdmin(@PathVariable("admin-id") Long adminId) {
         UserEntity userEntity = userService.getUserById(adminId);
-        return ResponseEntity.ok(userService.activateAdmin(userEntity));
+        return ResponseEntity.ok(userService.activateUser(userEntity));
     }
 
     @PreAuthorize("hasAuthority('ASSIGN_PERMISSIONS')")
