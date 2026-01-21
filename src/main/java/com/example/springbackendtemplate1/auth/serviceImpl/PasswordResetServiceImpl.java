@@ -2,11 +2,13 @@ package com.example.springbackendtemplate1.auth.serviceImpl;
 
 import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.response.ForgotPasswordResponse;
+import com.example.springbackendtemplate1.auth.dto.response.SuccessResponse;
 import com.example.springbackendtemplate1.auth.model.enitty.ResetTokenEntity;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.repository.ResetTokenRepository;
 import com.example.springbackendtemplate1.auth.repository.UserRepository;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,7 +55,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     }
 
     @Override
-    public void resetPassword(String token, String newPassword) {
+    @Transactional
+    public SuccessResponse resetPassword(String token, String newPassword) {
         ResetTokenEntity resetTokenEntity = resetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
 
@@ -66,6 +69,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         userRepository.save(user);
 
         resetTokenRepository.delete(resetTokenEntity);
+        return new SuccessResponse(true, 0L);
     }
 }
 

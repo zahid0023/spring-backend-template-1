@@ -2,6 +2,7 @@ package com.example.springbackendtemplate1.auth.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(
-            HttpServletRequest request,
+            @NonNull HttpServletRequest request,
             HttpServletResponse response,
-            AccessDeniedException accessDeniedException
+            @NonNull AccessDeniedException accessDeniedException
     ) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

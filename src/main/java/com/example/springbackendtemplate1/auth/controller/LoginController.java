@@ -7,6 +7,7 @@ import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.response.ForgotPasswordResponse;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
+import com.example.springbackendtemplate1.commons.dto.response.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -68,21 +69,13 @@ public class LoginController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        try {
-            ForgotPasswordResponse response = passwordResetService.forgotPassword(forgotPasswordRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ForgotPasswordResponse("Error: " + e.getMessage()));
-        }
+        ForgotPasswordResponse response = passwordResetService.forgotPassword(forgotPasswordRequest);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        try {
-            passwordResetService.resetPassword(resetPasswordRequest.getToken(), resetPasswordRequest.getNewPassword());
-            return ResponseEntity.ok("Password has been reset successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
-        }
+        passwordResetService.resetPassword(resetPasswordRequest.getToken(), resetPasswordRequest.getNewPassword());
+        return ResponseEntity.ok("Password has been reset successfully.");
     }
 }

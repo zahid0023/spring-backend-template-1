@@ -1,4 +1,4 @@
-create table roles
+create table if not exists roles
 (
     id         bigserial
         primary key,
@@ -15,7 +15,7 @@ create table roles
     deleted_at timestamp with time zone
 );
 
-create table permissions
+create table if not exists permissions
 (
     id          bigserial
         primary key,
@@ -33,7 +33,7 @@ create table permissions
     deleted_at  timestamp with time zone
 );
 
-create table users
+create table if not exists users
 (
     id         bigserial
         primary key,
@@ -57,7 +57,7 @@ create table users
     deleted_at timestamp with time zone
 );
 
-create table refresh_tokens
+create table if not exists refresh_tokens
 (
     id         bigserial
         primary key,
@@ -77,7 +77,7 @@ create table refresh_tokens
     deleted_at timestamp with time zone
 );
 
-create table user_permissions
+create table if not exists user_permissions
 (
     id            bigserial
         primary key,
@@ -99,7 +99,7 @@ create table user_permissions
     unique (user_id, permission_id)
 );
 
-create table reset_tokens
+create table if not exists reset_tokens
 (
     id         bigserial
         primary key,
@@ -118,3 +118,7 @@ create table reset_tokens
     deleted_by bigint,
     deleted_at timestamp with time zone
 );
+
+insert into roles(name, created_by, updated_by)
+values ('USER', 1, 1)
+on conflict do nothing;
