@@ -4,10 +4,10 @@ import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
 import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
 import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
-import com.example.springbackendtemplate1.auth.dto.response.ForgotPasswordResponse;
+import com.example.springbackendtemplate1.auth.dto.request.VerifyOtpRequest;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.dto.response.ResetTokenResponse;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
-import com.example.springbackendtemplate1.commons.dto.response.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -69,13 +69,20 @@ public class LoginController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        ForgotPasswordResponse response = passwordResetService.forgotPassword(forgotPasswordRequest);
-        return ResponseEntity.ok(response);
+        passwordResetService.forgotPassword(forgotPasswordRequest);
+        return ResponseEntity.ok("OTP has been sent to your email.");
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
+        String resetToken = passwordResetService.verifyOtpAndGetResetToken(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(new ResetTokenResponse(resetToken));
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        passwordResetService.resetPassword(resetPasswordRequest.getToken(), resetPasswordRequest.getNewPassword());
+        passwordResetService.resetPassword(resetPasswordRequest);
         return ResponseEntity.ok("Password has been reset successfully.");
     }
+
 }
