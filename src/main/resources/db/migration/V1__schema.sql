@@ -106,7 +106,7 @@ create table if not exists password_reset_otps
     user_id    bigint                                             not null
         references users
             on delete cascade,
-    otp        varchar(6)                                         not null,
+    otp        varchar(255)                                       not null,
     is_used    boolean                  default false             not null,
     expires_at timestamp with time zone                           not null,
     created_by bigint                                             not null,

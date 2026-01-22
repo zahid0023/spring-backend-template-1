@@ -22,7 +22,7 @@ public class OtpEntity extends AuditableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(name = "otp", nullable = false, length = 6)
+    @Column(name = "otp", nullable = false, length = 255)
     private String otp;
 
     @Column(name = "expires_at", nullable = false)

@@ -105,6 +105,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
         if (tokenEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
             tokenEntity.setIsUsed(true);
+            tokenEntity.setIsDeleted(true);
             resetTokenRepository.save(tokenEntity);
             throw new RuntimeException("Reset token expired");
         }
@@ -118,6 +119,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         userRepository.save(user);
 
         tokenEntity.setIsUsed(true);
+        tokenEntity.setIsDeleted(true);
         resetTokenRepository.save(tokenEntity);
 
         return new SuccessResponse(true, 0L);
