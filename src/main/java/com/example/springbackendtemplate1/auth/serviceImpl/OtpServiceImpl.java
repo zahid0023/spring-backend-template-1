@@ -41,7 +41,6 @@ public class OtpServiceImpl implements OtpService {
         otpEntity.setUser(user);
         otpEntity.setOtp(otp);
         otpEntity.setExpiresAt(otpExpiry);
-        otpEntity.setCreatedAt(OffsetDateTime.now().toInstant());
 
         otpRepository.save(otpEntity);
     }
