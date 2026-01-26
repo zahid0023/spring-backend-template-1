@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final UserRepository userRepository;
     private final OtpService otpService;
     private final ResetTokenRepository resetTokenRepository;
-    private final EmailService emailService;
+    private final EmailServiceImpl emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${reset.token.expiry.minutes}")
@@ -35,7 +36,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public PasswordResetServiceImpl(UserRepository userRepository,
                                     OtpService otpService,
                                     ResetTokenRepository resetTokenRepository,
-                                    EmailService emailService,
+                                    EmailServiceImpl emailService,
                                     PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.otpService = otpService;
@@ -54,8 +55,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
         try {
             emailService.sendOtp(user.getUsername(), otp);
-        } catch (MessagingException e) {
-            log.error("Failed to send OTP email: {}", e.getMessage());
+        } catch (MessagingException | UnsupportedEncodingException ex) {
+            log.error("Failed to send OTP email: {}", ex.getMessage());
             throw new RuntimeException("Failed to send OTP email");
         }
 
