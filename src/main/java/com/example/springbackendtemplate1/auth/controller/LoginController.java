@@ -69,8 +69,7 @@ public class LoginController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        passwordResetService.forgotPassword(forgotPasswordRequest);
-        return ResponseEntity.ok("OTP has been sent to your email.");
+        return ResponseEntity.ok(passwordResetService.forgotPassword(forgotPasswordRequest));
     }
 
     @PostMapping("/verify-otp")
