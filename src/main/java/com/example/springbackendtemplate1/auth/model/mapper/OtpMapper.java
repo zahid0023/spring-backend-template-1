@@ -14,7 +14,7 @@ public class OtpMapper {
         PasswordResetOtpEntity passwordResetOtpEntity = new PasswordResetOtpEntity();
         passwordResetOtpEntity.setUserEntity(userEntity);
         passwordResetOtpEntity.setOtp(passwordEncoder.encode(otp));
-        passwordResetOtpEntity.setResetToken(generateResetToken());
+        passwordResetOtpEntity.setResetToken(passwordEncoder.encode(generateResetToken()));
         passwordResetOtpEntity.setIsUsed(false);
         passwordResetOtpEntity.setExpiresAt(OffsetDateTime.now().plusMinutes(otpExpiryInMinutes));
         return passwordResetOtpEntity;
