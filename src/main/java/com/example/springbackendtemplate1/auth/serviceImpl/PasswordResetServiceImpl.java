@@ -17,10 +17,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class PasswordResetServiceImpl implements PasswordResetService {
@@ -49,9 +45,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     }
 
     private String generateOtpEntity(UserEntity userEntity) {
-        PasswordResetOtpEntity passwordResetOtpEntity = OtpMapper.toOtpEntity(userEntity, OtpGenerator.generate6DigitOtp(), otpExpiryTimeMinutes);
-        passwordResetOtpEntity = otpRepository.save(passwordResetOtpEntity);
-        return passwordResetOtpEntity.getOtp();
+        String plainOtp = OtpGenerator.generate6DigitOtp();
+        PasswordResetOtpEntity passwordResetOtpEntity = OtpMapper.toOtpEntity(userEntity, plainOtp, otpExpiryTimeMinutes,passwordEncoder);
+        otpRepository.save(passwordResetOtpEntity);
+        return plainOtp;
     }
 
     @Override
