@@ -47,4 +47,7 @@ public class UserEntity extends AuditableEntity {
     @OneToMany(mappedBy = "user")
     private Set<UserPermissionEntity> userPermissions = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "userEntity")
+    private Set<PasswordResetOtpEntity> passwordResetOtps = new LinkedHashSet<>();
+
 }

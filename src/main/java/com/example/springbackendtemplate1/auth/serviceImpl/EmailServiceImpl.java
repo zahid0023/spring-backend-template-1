@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
         this.senderName = senderName;
     }
 
-    public void sendOtp(String toEmail, String otp) throws MessagingException, UnsupportedEncodingException {
+    public void sendOtpEmail(String toEmail, String otp) throws MessagingException, UnsupportedEncodingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 

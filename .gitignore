@@ -35,4 +35,8 @@ build/
 src/main/resources/static/application-local.properties
 
 .env
+.env.*
 application-local.properties
+application-*.properties
+
+src/main/resources/application-local.properties
