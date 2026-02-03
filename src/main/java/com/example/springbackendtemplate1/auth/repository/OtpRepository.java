@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OtpRepository extends JpaRepository<@NonNull PasswordResetOtpEntity, @NonNull Long> {
-    Optional<PasswordResetOtpEntity> findFirstByUserEntityAndIsUsedFalseOrderByCreatedAtDesc(UserEntity userEntity);
+    Optional<PasswordResetOtpEntity> findByUserEntityAndIsUsedFalse(UserEntity userEntity);
 
     Optional<PasswordResetOtpEntity> findByResetToken(String resetToken);
 

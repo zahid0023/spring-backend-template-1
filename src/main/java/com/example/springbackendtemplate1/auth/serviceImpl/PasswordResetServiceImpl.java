@@ -8,6 +8,7 @@ import com.example.springbackendtemplate1.auth.model.enitty.OtpRateLimitEntity;
 import com.example.springbackendtemplate1.auth.model.enitty.PasswordResetOtpEntity;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.model.mapper.OtpMapper;
+import com.example.springbackendtemplate1.auth.model.mapper.OtpRateLimitMapper;
 import com.example.springbackendtemplate1.auth.repository.OtpRateLimitRepository;
 import com.example.springbackendtemplate1.auth.repository.OtpRepository;
 import com.example.springbackendtemplate1.auth.repository.UserRepository;
@@ -27,17 +28,15 @@ import java.util.List;
 @Service
 @Slf4j
 public class PasswordResetServiceImpl implements PasswordResetService {
+    private static final Integer MAX_REQUESTS = 5;
+    private static final Duration OTP_WINDOW = Duration.ofMinutes(60);
     private final OtpRepository otpRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final OtpRateLimitRepository otpRateLimitRepository;
-
     @Value("${OTP_EXPIRY_DURATION_MINUTES}")
     private Integer otpExpiryTimeMinutes;
-
-    private static final Integer MAX_REQUESTS = 5;
-    private static final Duration OTP_WINDOW = Duration.ofMinutes(60);
 
     public PasswordResetServiceImpl(OtpRepository otpRepository, ApplicationEventPublisher applicationEventPublisher, PasswordEncoder passwordEncoder, UserRepository userRepository, OtpRateLimitRepository otpRateLimitRepository) {
         this.otpRepository = otpRepository;
@@ -63,12 +62,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         OffsetDateTime windowStart = now.minus(OTP_WINDOW);
 
         OtpRateLimitEntity rateLimit = otpRateLimitRepository.findByUser(userEntity)
-                .orElseGet(() -> OtpRateLimitEntity.builder()
-                        .user(userEntity)
-                        .windowStart(now)
-                        .requestCount(0)
-                        .build()
-                );
+                .orElseGet(() -> OtpRateLimitMapper.toRateLimitEntity(userEntity, now));
 
         if (rateLimit.getWindowStart().isBefore(windowStart)) {
             rateLimit.setWindowStart(now);
@@ -107,7 +101,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Transactional
     public VerifyOtpResponse verifyOtpAndGetResetToken(UserEntity userEntity, String otp) {
         PasswordResetOtpEntity otpEntity = otpRepository
-                .findFirstByUserEntityAndIsUsedFalseOrderByCreatedAtDesc(userEntity)
+                .findByUserEntityAndIsUsedFalse(userEntity)
                 .orElseThrow(() -> new RuntimeException("Invalid OTP."));
 
         validateOtp(otp, otpEntity);
