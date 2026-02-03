@@ -30,13 +30,15 @@ import java.util.List;
 public class PasswordResetServiceImpl implements PasswordResetService {
     private static final Integer MAX_REQUESTS = 5;
     private static final Duration OTP_WINDOW = Duration.ofMinutes(60);
+
+    @Value("${OTP_EXPIRY_DURATION_MINUTES}")
+    private Integer otpExpiryTimeMinutes;
+
     private final OtpRepository otpRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final OtpRateLimitRepository otpRateLimitRepository;
-    @Value("${OTP_EXPIRY_DURATION_MINUTES}")
-    private Integer otpExpiryTimeMinutes;
 
     public PasswordResetServiceImpl(OtpRepository otpRepository, ApplicationEventPublisher applicationEventPublisher, PasswordEncoder passwordEncoder, UserRepository userRepository, OtpRateLimitRepository otpRateLimitRepository) {
         this.otpRepository = otpRepository;
