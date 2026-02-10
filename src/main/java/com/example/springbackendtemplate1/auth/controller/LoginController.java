@@ -36,40 +36,18 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUserName(),
-                            request.getPassword()
-                    )
-            );
 
-            String token = jwtTokenProvider.generateToken(authentication);
-            return ResponseEntity.ok(new LoginResponse(token));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password");
-        } catch (DisabledException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("User account is disabled");
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUserName(),
+                        request.getPassword()
+                )
+        );
 
-        } catch (LockedException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.LOCKED)
-                    .body("User account is locked");
-        } catch (AccountExpiredException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("User account is expired");
-
-        } catch (AuthenticationException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Authentication failed");
-        }
+        String token = jwtTokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new LoginResponse(token));
     }
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
