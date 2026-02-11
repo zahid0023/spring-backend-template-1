@@ -1,4 +1,4 @@
-create table roles
+create table if not exists roles
 (
     id         bigserial
         primary key,
@@ -15,7 +15,7 @@ create table roles
     deleted_at timestamp with time zone
 );
 
-create table permissions
+create table if not exists permissions
 (
     id          bigserial
         primary key,
@@ -33,7 +33,7 @@ create table permissions
     deleted_at  timestamp with time zone
 );
 
-create table users
+create table if not exists users
 (
     id         bigserial
         primary key,
@@ -57,7 +57,7 @@ create table users
     deleted_at timestamp with time zone
 );
 
-create table refresh_tokens
+create table if not exists refresh_tokens
 (
     id         bigserial
         primary key,
@@ -77,7 +77,7 @@ create table refresh_tokens
     deleted_at timestamp with time zone
 );
 
-create table user_permissions
+create table if not exists user_permissions
 (
     id            bigserial
         primary key,
@@ -98,3 +98,49 @@ create table user_permissions
     deleted_at    timestamp with time zone,
     unique (user_id, permission_id)
 );
+
+create table if not exists password_reset_otps
+(
+    id         bigserial
+        primary key,
+    user_id    bigint                                             not null
+        references users
+            on delete cascade,
+    otp        varchar(255)                                       not null,
+    is_used    boolean                  default false             not null,
+    expires_at timestamp with time zone                           not null,
+    created_by bigint                                             not null,
+    created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    updated_by bigint                                             not null,
+    updated_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    version    bigint                   default 0                 not null,
+    is_active  boolean                  default true              not null,
+    is_deleted boolean                  default false             not null,
+    deleted_by bigint,
+    deleted_at timestamp with time zone
+);
+
+create table if not exists reset_tokens
+(
+    id         bigserial
+        primary key,
+    user_id    bigint                                             not null
+        references users
+            on delete cascade,
+    token      varchar(128)                                       not null,
+    is_used    boolean                  default false             not null,
+    expires_at timestamp with time zone                           not null,
+    created_by bigint                                             not null,
+    created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    updated_by bigint                                             not null,
+    updated_at timestamp with time zone default CURRENT_TIMESTAMP not null,
+    version    bigint                   default 0                 not null,
+    is_active  boolean                  default true              not null,
+    is_deleted boolean                  default false             not null,
+    deleted_by bigint,
+    deleted_at timestamp with time zone
+);
+
+insert into roles(name, created_by, updated_by)
+values ('USER', 1, 1)
+on conflict do nothing;

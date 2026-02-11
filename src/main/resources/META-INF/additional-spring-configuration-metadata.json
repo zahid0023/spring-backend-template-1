@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "SENDER_NAME",
+      "type": "java.lang.String",
+      "description": "Description for SENDER_NAME."
+  }
+] }

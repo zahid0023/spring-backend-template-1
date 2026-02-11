@@ -2,9 +2,12 @@ package com.example.springbackendtemplate1.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -25,5 +28,17 @@ public class TestAuthController {
     @PostMapping("/merchant-only")
     public ResponseEntity<?> merchantOnlyAction() {
         return ResponseEntity.ok("Merchant access granted");
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/user-only")
+    public ResponseEntity<?> userOnlyAction() {
+        return ResponseEntity.ok("User access granted");
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/current-time")
+    public ResponseEntity<?> getCurrentTime() {
+        return ResponseEntity.ok("Current time is " + new Date());
     }
 }
