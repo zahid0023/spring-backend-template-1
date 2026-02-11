@@ -38,7 +38,7 @@ public class EmailServiceImpl implements EmailService {
 
         helper.setFrom(senderEmail, senderName);
         helper.setTo(InternetAddress.parse(toEmail));
-        helper.setSubject("Password Reset Request");
+        helper.setSubject(SUBJECT);
         helper.setText(otpEmailContent(otp), true);
 
         javaMailSender.send(mimeMessage);

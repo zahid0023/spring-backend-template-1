@@ -6,6 +6,7 @@ import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
 import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.request.VerifyOtpRequest;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
 import com.example.springbackendtemplate1.auth.service.UserService;
@@ -35,40 +36,18 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUserName(),
-                            request.getPassword()
-                    )
-            );
 
-            String token = jwtTokenProvider.generateToken(authentication);
-            return ResponseEntity.ok(new LoginResponse(token));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password");
-        } catch (DisabledException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("User account is disabled");
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUserName(),
+                        request.getPassword()
+                )
+        );
 
-        } catch (LockedException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.LOCKED)
-                    .body("User account is locked");
-        } catch (AccountExpiredException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("User account is expired");
-
-        } catch (AuthenticationException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Authentication failed");
-        }
+        String token = jwtTokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new LoginResponse(token));
     }
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
@@ -78,13 +57,16 @@ public class LoginController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
-        return null;
+        UserEntity userEntity = userService.getUserByUsername(request.getUserName());
+
+        VerifyOtpResponse response = passwordResetService.verifyOtpAndGetResetToken(userEntity, request.getOtp());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        passwordResetService.resetPassword(resetPasswordRequest);
-        return ResponseEntity.ok("Password has been reset successfully.");
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(passwordResetService.resetPassword(request));
     }
+
 
 }

@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -124,4 +128,57 @@ public class GlobalExceptionHandler {
 
         return root.getMessage();
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<@NonNull ApiErrorResponse> handleBadCredentials(
+            BadCredentialsException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                ex,
+                HttpStatus.UNAUTHORIZED,
+                "INVALID_CREDENTIALS",
+                request
+        );
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<@NonNull ApiErrorResponse> handleDisabledAccount(
+            DisabledException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                ex,
+                HttpStatus.FORBIDDEN,
+                "ACCOUNT_DISABLED",
+                request
+        );
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<@NonNull ApiErrorResponse> handleLockedAccount(
+            LockedException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                ex,
+                HttpStatus.LOCKED,
+                "ACCOUNT_LOCKED",
+                request
+        );
+    }
+
+    @ExceptionHandler(AccountExpiredException.class)
+    public ResponseEntity<@NonNull ApiErrorResponse> handleExpiredAccount(
+            AccountExpiredException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                ex,
+                HttpStatus.FORBIDDEN,
+                "ACCOUNT_EXPIRED",
+                request
+        );
+    }
+
 }
