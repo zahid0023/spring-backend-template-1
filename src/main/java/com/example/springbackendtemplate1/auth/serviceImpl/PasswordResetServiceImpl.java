@@ -51,6 +51,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Override
     @Transactional
     public SuccessResponse forgotPassword(UserEntity userEntity) {
+        invalidatePreviousOtps(userEntity);
+        enforceOtpRateLimit(userEntity);
         String otp = generateOtpEntity(userEntity);
         log.info("OTP generated for user: {}", userEntity.getUsername());
         applicationEventPublisher.publishEvent(new PasswordResetOtpEvent(userEntity.getUsername(), otp));
