@@ -2,13 +2,17 @@ package com.example.springbackendtemplate1.auth.serviceImpl;
 
 import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
 import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
+import com.example.springbackendtemplate1.auth.dto.request.RefreshTokenRequest;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.dto.response.RefreshTokenResponse;
+import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
 import com.example.springbackendtemplate1.auth.model.enitty.RefreshTokenEntity;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.model.mapper.RefreshTokenMapper;
 import com.example.springbackendtemplate1.auth.repository.RefreshTokenRepository;
 import com.example.springbackendtemplate1.auth.repository.UserRepository;
 import com.example.springbackendtemplate1.auth.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +20,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
+
 @Service
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     @Value("${jwt.refresh-token-expiration-days}")
@@ -37,7 +44,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public LoginResponse login(LoginRequest request) {
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword())
         );
@@ -53,4 +59,24 @@ public class AuthServiceImpl implements AuthService {
 
         return new LoginResponse(accessToken, refreshToken);
     }
+
+    @Transactional
+    @Override
+    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
+        RefreshTokenEntity tokenEntity = refreshTokenRepository.findByToken(request.getRefreshToken())
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        if (tokenEntity.getExpiresAt().isBefore(OffsetDateTime.now())) {
+            throw new RuntimeException("Refresh token expired");
+        }
+
+        UserEntity user = tokenEntity.getUser();
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(authentication);
+        return new RefreshTokenResponse(newAccessToken, request.getRefreshToken());
+    }
+
 }

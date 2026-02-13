@@ -1,10 +1,8 @@
 package com.example.springbackendtemplate1.auth.controller;
 
-import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
-import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
-import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
-import com.example.springbackendtemplate1.auth.dto.request.VerifyOtpRequest;
+import com.example.springbackendtemplate1.auth.dto.request.*;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.dto.response.RefreshTokenResponse;
 import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.service.AuthService;
@@ -54,4 +52,11 @@ public class LoginController {
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(passwordResetService.resetPassword(request));
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse response = authService.refreshAccessToken(request);
+        return ResponseEntity.ok(response);
+    }
+
 }
