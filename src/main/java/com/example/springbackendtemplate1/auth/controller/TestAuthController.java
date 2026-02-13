@@ -1,5 +1,6 @@
 package com.example.springbackendtemplate1.auth.controller;
 
+import com.example.springbackendtemplate1.auth.dto.response.CurrentTimeResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1")  
 public class TestAuthController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin-only")
@@ -39,6 +40,6 @@ public class TestAuthController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/current-time")
     public ResponseEntity<?> getCurrentTime() {
-        return ResponseEntity.ok("Current time is " + new Date());
+        return ResponseEntity.ok(new CurrentTimeResponse("Current Time is: " + new Date()));
     }
 }

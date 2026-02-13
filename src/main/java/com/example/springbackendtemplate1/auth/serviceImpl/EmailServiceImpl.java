@@ -25,8 +25,8 @@ public class EmailServiceImpl implements EmailService {
             + "display: inline-block; font-weight: bold; font-size: 16px; border-radius: 5px;";
 
     public EmailServiceImpl(JavaMailSender javaMailSender,
-                            @Value("${MAIL_USERNAME}") String senderEmail,
-                            @Value("${SENDER_NAME}") String senderName) {
+                            @Value("${spring.mail.username}") String senderEmail,
+                            @Value("${spring.mail.properties.mail.sender.name}") String senderName) {
         this.javaMailSender = javaMailSender;
         this.senderEmail = senderEmail;
         this.senderName = senderName;

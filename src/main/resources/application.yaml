@@ -1,27 +1,33 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USER_NAME}
     password: ${MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
+      mail.sender.name: ${MAIL_SENDER_NAME:?MAIL_SENDER_NAME must be set!}
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
-      mail.debug: true
+      mail.debug: ${MAIL_DEBUG:false}
 
+jwt:
+  secret: ${JWT_SECRET:?JWT_SECRET_must_be_set}
+  access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:?JWT_ACCESS_EXPIRATION_MINUTES must be set!}
+  refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:?JWT_REFRESH_EXPIRATION_DAYS must be set!}
+  otp.expiration-minutes: ${OTP_EXPIRATION_MINUTES:?OTP_EXPIRATION_MINUTES must be set!}

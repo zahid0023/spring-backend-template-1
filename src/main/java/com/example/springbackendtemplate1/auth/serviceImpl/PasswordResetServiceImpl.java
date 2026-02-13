@@ -31,7 +31,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private static final Integer MAX_REQUESTS = 5;
     private static final Duration OTP_WINDOW = Duration.ofMinutes(60);
 
-    @Value("${OTP_EXPIRY_DURATION_MINUTES}")
+    @Value("${jwt.otp.expiration-minutes}")
     private Integer otpExpiryTimeMinutes;
 
     private final OtpRepository otpRepository;

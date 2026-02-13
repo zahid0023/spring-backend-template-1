@@ -10,11 +10,9 @@ import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
 import com.example.springbackendtemplate1.auth.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,8 +42,9 @@ public class LoginController {
                 )
         );
 
-        String token = jwtTokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new LoginResponse(token));
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
+        return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
     }
 
 
@@ -67,6 +66,4 @@ public class LoginController {
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(passwordResetService.resetPassword(request));
     }
-
-
 }
