@@ -1,6 +1,5 @@
 package com.example.springbackendtemplate1.auth.controller;
 
-import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
 import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
 import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
 import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
@@ -8,43 +7,32 @@ import com.example.springbackendtemplate1.auth.dto.request.VerifyOtpRequest;
 import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
 import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
 import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.service.AuthService;
 import com.example.springbackendtemplate1.auth.service.PasswordResetService;
 import com.example.springbackendtemplate1.auth.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class LoginController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
     private final PasswordResetService passwordResetService;
     private final UserService userService;
 
-    public LoginController(AuthenticationManager authenticationManager,
-                           JwtTokenProvider jwtTokenProvider, PasswordResetService passwordResetService, UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+    public LoginController(AuthService authService, PasswordResetService passwordResetService, UserService userService) {
+        this.authService = authService;
         this.passwordResetService = passwordResetService;
         this.userService = userService;
     }
 
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUserName(),
-                        request.getPassword()
-                )
-        );
-
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
-        return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
 
