@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>resort-application-1</artifactId>
+    <artifactId>spring-backend-template-1</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>resort-application-1</name>
-    <description>resort-application-1</description>
+    <name>spring-backend-template-1</name>
+    <description>spring-backend-template-1</description>
     <url/>
     <licenses>
         <license/>
