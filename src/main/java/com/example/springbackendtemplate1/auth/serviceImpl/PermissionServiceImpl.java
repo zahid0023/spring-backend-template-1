@@ -1,14 +1,14 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.springbackendtemplate1.auth.dto.request.permission.CreatePermissionRequest;
-import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
-import com.example.springbackendtemplate1.auth.model.enitty.PermissionEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserPermissionEntity;
-import com.example.springbackendtemplate1.auth.model.mapper.PermissionMapper;
-import com.example.springbackendtemplate1.auth.repository.PermissionRepository;
-import com.example.springbackendtemplate1.auth.repository.UserPermissionRepository;
-import com.example.springbackendtemplate1.auth.service.PermissionService;
+import com.example.resortbackendapplication1.auth.dto.request.permission.CreatePermissionRequest;
+import com.example.resortbackendapplication1.auth.model.enitty.PermissionEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserPermissionEntity;
+import com.example.resortbackendapplication1.auth.model.mapper.PermissionMapper;
+import com.example.resortbackendapplication1.auth.repository.PermissionRepository;
+import com.example.resortbackendapplication1.auth.repository.UserPermissionRepository;
+import com.example.resortbackendapplication1.auth.service.PermissionService;
+import com.example.resortbackendapplication1.commons.dto.response.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -131,22 +131,18 @@ public class PermissionServiceImpl implements PermissionService {
 
     private void assignPermissionsToUser(UserEntity userEntity, Set<PermissionEntity> permissionEntities) {
         for (PermissionEntity permission : permissionEntities) {
-            userPermissionRepository.findByUserAndPermission(userEntity, permission)
-                    .ifPresentOrElse(
-                            existing -> {
-                                if (!Boolean.TRUE.equals(existing.getIsActive())) {
-                                    existing.setIsActive(true);
-                                    userPermissionRepository.save(existing);
-                                }
-                            },
-                            () -> {
-                                UserPermissionEntity up = new UserPermissionEntity();
-                                up.setUser(userEntity);
-                                up.setPermission(permission);
-                                up.setIsActive(true);
-                                userPermissionRepository.save(up);
-                            }
-                    );
+            boolean exists =
+                    userPermissionRepository
+                            .existsByUserAndPermission(userEntity, permission);
+
+            if (!exists) {
+                UserPermissionEntity up = new UserPermissionEntity();
+                up.setUser(userEntity);
+                up.setPermission(permission);
+                up.setIsActive(true);
+
+                userPermissionRepository.save(up);
+            }
         }
     }
 

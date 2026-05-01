@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.listener;
 
-import com.example.springbackendtemplate1.auth.event.PasswordResetOtpEvent;
-import com.example.springbackendtemplate1.auth.service.EmailService;
+import com.example.resortbackendapplication1.auth.event.PasswordResetOtpEvent;
+import com.example.resortbackendapplication1.auth.service.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

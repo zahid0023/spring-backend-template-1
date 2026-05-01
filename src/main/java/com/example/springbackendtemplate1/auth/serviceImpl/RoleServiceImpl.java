@@ -1,11 +1,11 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.springbackendtemplate1.auth.dto.request.role.CreateRoleRequest;
-import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
-import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
-import com.example.springbackendtemplate1.auth.model.mapper.RoleMapper;
-import com.example.springbackendtemplate1.auth.repository.RoleRepository;
-import com.example.springbackendtemplate1.auth.service.RoleService;
+import com.example.resortbackendapplication1.auth.dto.request.role.CreateRoleRequest;
+import com.example.resortbackendapplication1.auth.model.enitty.RoleEntity;
+import com.example.resortbackendapplication1.auth.model.mapper.RoleMapper;
+import com.example.resortbackendapplication1.auth.repository.RoleRepository;
+import com.example.resortbackendapplication1.auth.service.RoleService;
+import com.example.resortbackendapplication1.commons.dto.response.SuccessResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

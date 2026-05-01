@@ -1,7 +1,9 @@
 package com.example.springbackendtemplate1.auth.model.enitty;
 
-import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
-import jakarta.persistence.*;
+import com.example.resortbackendapplication1.commons.model.entity.AuditableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 

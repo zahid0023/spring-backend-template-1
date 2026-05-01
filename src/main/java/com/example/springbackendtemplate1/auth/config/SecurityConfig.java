@@ -1,8 +1,8 @@
 package com.example.springbackendtemplate1.auth.config;
 
-import com.example.springbackendtemplate1.auth.exception.CustomAccessDeniedHandler;
-import com.example.springbackendtemplate1.auth.exception.CustomAuthenticationEntryPoint;
-import com.example.springbackendtemplate1.auth.filter.JwtAuthenticationFilter;
+import com.example.resortbackendapplication1.auth.exception.CustomAccessDeniedHandler;
+import com.example.resortbackendapplication1.auth.exception.CustomAuthenticationEntryPoint;
+import com.example.resortbackendapplication1.auth.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

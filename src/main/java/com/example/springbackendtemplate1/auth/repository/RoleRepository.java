@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

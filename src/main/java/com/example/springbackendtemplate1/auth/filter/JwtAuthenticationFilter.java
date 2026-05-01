@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.filter;
 
-import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
-import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
+import com.example.resortbackendapplication1.auth.config.JwtTokenProvider;
+import com.example.resortbackendapplication1.auth.model.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

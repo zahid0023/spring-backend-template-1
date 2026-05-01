@@ -1,14 +1,14 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.springbackendtemplate1.auth.dto.request.RegistrationRequest;
-import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
-import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
-import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
-import com.example.springbackendtemplate1.auth.model.mapper.UserMapper;
-import com.example.springbackendtemplate1.auth.repository.RoleRepository;
-import com.example.springbackendtemplate1.auth.repository.UserRepository;
-import com.example.springbackendtemplate1.auth.service.UserService;
+import com.example.resortbackendapplication1.auth.dto.request.RegistrationRequest;
+import com.example.resortbackendapplication1.auth.model.dto.CustomUserDetails;
+import com.example.resortbackendapplication1.auth.model.enitty.RoleEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.resortbackendapplication1.auth.model.mapper.UserMapper;
+import com.example.resortbackendapplication1.auth.repository.RoleRepository;
+import com.example.resortbackendapplication1.auth.repository.UserRepository;
+import com.example.resortbackendapplication1.auth.service.UserService;
+import com.example.resortbackendapplication1.commons.dto.response.SuccessResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +55,10 @@ public class UserServiceImpl implements UserService {
      * Common registration method for any role
      */
     private UserEntity registerWithRole(RegistrationRequest request, String roleName) {
+        if (userRepository.existsByUsername(request.getUserName())) {
+            throw new IllegalArgumentException("Username already exists: " + request.getUserName());
+        }
+
         RoleEntity roleEntity = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new RuntimeException(roleName + " role not found"));
 

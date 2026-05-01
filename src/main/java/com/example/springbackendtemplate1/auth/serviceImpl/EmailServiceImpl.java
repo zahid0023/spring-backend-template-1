@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.springbackendtemplate1.auth.service.EmailService;
+import com.example.resortbackendapplication1.auth.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -10,8 +10,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.time.format.DateTimeFormatter;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailServiceImpl implements EmailService {

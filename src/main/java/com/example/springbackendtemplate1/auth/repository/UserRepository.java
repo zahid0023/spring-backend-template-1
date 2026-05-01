@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +28,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsernameWithAuthorities(String username);
 
     Boolean existsByRoleEntity_Name(String roleName);
+
+    Boolean existsByUsername(String username);
 }

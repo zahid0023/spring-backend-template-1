@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.config;
 
-import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
+import com.example.resortbackendapplication1.auth.model.dto.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -75,13 +75,9 @@ public class JwtTokenProvider {
     }
 
     public String extractUsername(String token) {
-        try {
-            Claims claims = Jwts.parser().verifyWith(signingKey).build()
-                    .parseSignedClaims(token).getPayload();
-            return claims.getSubject();
-        } catch (Exception e) {
-            log.warn("Failed to extract username from token: {}", e.getMessage());
-            return null;
-        }
+        Claims claims = Jwts.parser().verifyWith(signingKey).build()
+                .parseSignedClaims(token).getPayload();
+
+        return claims.getSubject();
     }
 }

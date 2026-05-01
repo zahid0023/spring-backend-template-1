@@ -1,19 +1,19 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
-import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
-import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
-import com.example.springbackendtemplate1.auth.event.PasswordResetOtpEvent;
-import com.example.springbackendtemplate1.auth.model.enitty.OtpRateLimitEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.PasswordResetOtpEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
-import com.example.springbackendtemplate1.auth.model.mapper.OtpMapper;
-import com.example.springbackendtemplate1.auth.model.mapper.OtpRateLimitMapper;
-import com.example.springbackendtemplate1.auth.repository.OtpRateLimitRepository;
-import com.example.springbackendtemplate1.auth.repository.OtpRepository;
-import com.example.springbackendtemplate1.auth.repository.UserRepository;
-import com.example.springbackendtemplate1.auth.service.PasswordResetService;
-import com.example.springbackendtemplate1.auth.util.OtpGenerator;
+import com.example.resortbackendapplication1.auth.dto.request.ResetPasswordRequest;
+import com.example.resortbackendapplication1.auth.dto.response.VerifyOtpResponse;
+import com.example.resortbackendapplication1.auth.event.PasswordResetOtpEvent;
+import com.example.resortbackendapplication1.auth.model.enitty.OtpRateLimitEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.PasswordResetOtpEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.resortbackendapplication1.auth.model.mapper.OtpMapper;
+import com.example.resortbackendapplication1.auth.model.mapper.OtpRateLimitMapper;
+import com.example.resortbackendapplication1.auth.repository.OtpRateLimitRepository;
+import com.example.resortbackendapplication1.auth.repository.OtpRepository;
+import com.example.resortbackendapplication1.auth.repository.UserRepository;
+import com.example.resortbackendapplication1.auth.service.PasswordResetService;
+import com.example.resortbackendapplication1.auth.util.OtpGenerator;
+import com.example.resortbackendapplication1.commons.dto.response.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,11 +40,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final UserRepository userRepository;
     private final OtpRateLimitRepository otpRateLimitRepository;
 
-    public PasswordResetServiceImpl(OtpRepository otpRepository,
-                                    ApplicationEventPublisher applicationEventPublisher,
-                                    PasswordEncoder passwordEncoder,
-                                    UserRepository userRepository,
-                                    OtpRateLimitRepository otpRateLimitRepository) {
+    public PasswordResetServiceImpl(OtpRepository otpRepository, ApplicationEventPublisher applicationEventPublisher, PasswordEncoder passwordEncoder, UserRepository userRepository, OtpRateLimitRepository otpRateLimitRepository) {
         this.otpRepository = otpRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.passwordEncoder = passwordEncoder;
@@ -54,15 +50,10 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     @Override
     @Transactional
-    public SuccessResponse forgotPassword(String username) {
-        // Always return success — never reveal whether the username exists
-        userRepository.findByUsername(username).ifPresent(userEntity -> {
-            enforceOtpRateLimit(userEntity);
-            invalidatePreviousOtps(userEntity);
-            String otp = generateOtpEntity(userEntity);
-            log.info("OTP generated for user: {}", userEntity.getUsername());
-            applicationEventPublisher.publishEvent(new PasswordResetOtpEvent(userEntity.getUsername(), otp));
-        });
+    public SuccessResponse forgotPassword(UserEntity userEntity) {
+        String otp = generateOtpEntity(userEntity);
+        log.info("OTP generated for user: {}", userEntity.getUsername());
+        applicationEventPublisher.publishEvent(new PasswordResetOtpEvent(userEntity.getUsername(), otp));
         return new SuccessResponse(true, 0L);
     }
 
@@ -108,12 +99,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
     @Override
     @Transactional
-    public VerifyOtpResponse verifyOtpAndGetResetToken(String username, String otp) {
-        // Use the same generic error for both unknown username and wrong/expired OTP
-        // so an attacker cannot distinguish between the two cases
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Invalid OTP."));
-
+    public VerifyOtpResponse verifyOtpAndGetResetToken(UserEntity userEntity, String otp) {
         PasswordResetOtpEntity otpEntity = otpRepository
                 .findByUserEntityAndIsUsedFalse(userEntity)
                 .orElseThrow(() -> new RuntimeException("Invalid OTP."));

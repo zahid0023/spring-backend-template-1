@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.dto;
 
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,10 +38,10 @@ public class CustomUserDetails implements UserDetails {
                 )
         );
 
-        // Permissions (must already be fetched) — only include active ones
-        userEntity.getUserPermissions().stream()
-                .filter(p -> Boolean.TRUE.equals(p.getIsActive()))
-                .forEach(p -> auths.add(new SimpleGrantedAuthority(p.getPermission().getName())));
+        // Permissions (must already be fetched)
+        userEntity.getUserPermissions().forEach(p ->
+                auths.add(new SimpleGrantedAuthority(p.getPermission().getName()))
+        );
 
         this.authorities = Collections.unmodifiableSet(auths);
     }
