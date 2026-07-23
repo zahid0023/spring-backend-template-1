@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.controller;
 
-import com.example.resortbackendapplication1.auth.dto.response.CurrentTimeResponse;
+import com.example.springbackendtemplate1.auth.dto.response.CurrentTimeResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

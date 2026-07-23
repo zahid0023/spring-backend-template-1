@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.resortbackendapplication1.auth.model.enitty.PasswordResetOtpEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.PasswordResetOtpEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 

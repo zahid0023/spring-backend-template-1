@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.dto;
 
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,7 +40,7 @@ public class CustomUserDetails implements UserDetails {
 
         // Permissions (must already be fetched)
         userEntity.getUserPermissions().forEach(p ->
-                auths.add(new SimpleGrantedAuthority(p.getPermission().getName()))
+                auths.add(new SimpleGrantedAuthority(p.getPermissionEntity().getName()))
         );
 
         this.authorities = Collections.unmodifiableSet(auths);

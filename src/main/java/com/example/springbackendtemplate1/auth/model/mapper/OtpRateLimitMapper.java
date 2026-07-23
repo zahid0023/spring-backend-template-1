@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.model.mapper;
 
-import com.example.resortbackendapplication1.auth.model.enitty.OtpRateLimitEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.OtpRateLimitEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import lombok.experimental.UtilityClass;
 
 import java.time.OffsetDateTime;

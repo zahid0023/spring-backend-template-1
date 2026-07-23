@@ -2,19 +2,33 @@ package com.example.springbackendtemplate1.imagehosting.enums;
 
 import lombok.Getter;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 public enum ImageHostingProvider {
 
-    S3(List.of("bucket", "region", "access_key", "secret_key")),
-    CLOUDINARY(List.of("cloud_name", "api_key", "api_secret"));
+    S3("Amazon S3", new LinkedHashMap<>() {{
+        put("bucket",     "Bucket Name");
+        put("region",     "AWS Region");
+        put("access_key", "Access Key ID");
+        put("secret_key", "Secret Access Key");
+    }}),
+    CLOUDINARY("Cloudinary", new LinkedHashMap<>() {{
+        put("cloud_name", "Cloud Name");
+        put("api_key",    "API Key");
+        put("api_secret", "API Secret");
+    }});
 
+    private final String label;
+    private final Map<String, String> keyLabels;
     private final List<String> requiredKeys;
 
-    ImageHostingProvider(List<String> requiredKeys) {
-        this.requiredKeys = requiredKeys;
+    ImageHostingProvider(String label, Map<String, String> keyLabels) {
+        this.label = label;
+        this.keyLabels = keyLabels;
+        this.requiredKeys = List.copyOf(keyLabels.keySet());
     }
 
     /**
@@ -35,7 +49,7 @@ public enum ImageHostingProvider {
         if (!missing.isEmpty()) {
             throw new IllegalArgumentException(
                     "Missing or blank required config keys for provider " + name() + ": " + missing
-                    + ". Required keys: " + requiredKeys);
+                            + ". Required keys: " + requiredKeys);
         }
     }
 }

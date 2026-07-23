@@ -1,7 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.enitty;
 
-import com.example.resortbackendapplication1.commons.model.entity.AuditableEntity;
-import com.example.resortbackendapplication1.model.entity.UserResortAccessEntity;
+import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -45,13 +44,10 @@ public class UserEntity extends AuditableEntity {
     @Column(name = "expired", nullable = false)
     private Boolean expired = false;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "userEntity")
     private Set<UserPermissionEntity> userPermissions = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "userEntity")
     private Set<PasswordResetOtpEntity> passwordResetOtps = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "userEntity")
-    private Set<UserResortAccessEntity> userResortAccessesEntities = new LinkedHashSet<>();
 
 }

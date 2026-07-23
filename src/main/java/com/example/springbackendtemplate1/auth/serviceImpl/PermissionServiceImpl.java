@@ -1,14 +1,14 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.resortbackendapplication1.auth.dto.request.permission.CreatePermissionRequest;
-import com.example.resortbackendapplication1.auth.model.enitty.PermissionEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserPermissionEntity;
-import com.example.resortbackendapplication1.auth.model.mapper.PermissionMapper;
-import com.example.resortbackendapplication1.auth.repository.PermissionRepository;
-import com.example.resortbackendapplication1.auth.repository.UserPermissionRepository;
-import com.example.resortbackendapplication1.auth.service.PermissionService;
-import com.example.resortbackendapplication1.commons.dto.response.SuccessResponse;
+import com.example.springbackendtemplate1.auth.dto.request.permission.CreatePermissionRequest;
+import com.example.springbackendtemplate1.auth.model.enitty.PermissionEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserPermissionEntity;
+import com.example.springbackendtemplate1.auth.model.mapper.PermissionMapper;
+import com.example.springbackendtemplate1.auth.repository.PermissionRepository;
+import com.example.springbackendtemplate1.auth.repository.UserPermissionRepository;
+import com.example.springbackendtemplate1.auth.service.PermissionService;
+import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -107,7 +107,7 @@ public class PermissionServiceImpl implements PermissionService {
         // Check if granter has ASSIGN_PERMISSIONS
         boolean hasAssignPermission = granter.getUserPermissions().stream()
                 .filter(UserPermissionEntity::getIsActive)
-                .anyMatch(up -> "ASSIGN_PERMISSIONS".equals(up.getPermission().getName()));
+                .anyMatch(up -> "ASSIGN_PERMISSIONS".equals(up.getPermissionEntity().getName()));
 
         if (!hasAssignPermission) {
             // If they don't have ASSIGN_PERMISSIONS at all, all permissions are unauthorized
@@ -119,7 +119,7 @@ public class PermissionServiceImpl implements PermissionService {
         // Collect all permissions that the granter actually has
         Set<Long> granterPermissionIds = granter.getUserPermissions().stream()
                 .filter(UserPermissionEntity::getIsActive)
-                .map(up -> up.getPermission().getId())
+                .map(up -> up.getPermissionEntity().getId())
                 .collect(Collectors.toSet());
 
         // Find permissions that are not in granter's set
@@ -133,12 +133,12 @@ public class PermissionServiceImpl implements PermissionService {
         for (PermissionEntity permission : permissionEntities) {
             boolean exists =
                     userPermissionRepository
-                            .existsByUserAndPermission(userEntity, permission);
+                            .existsByUserEntityAndPermissionEntity(userEntity, permission);
 
             if (!exists) {
                 UserPermissionEntity up = new UserPermissionEntity();
-                up.setUser(userEntity);
-                up.setPermission(permission);
+                up.setUserEntity(userEntity);
+                up.setPermissionEntity(permission);
                 up.setIsActive(true);
 
                 userPermissionRepository.save(up);

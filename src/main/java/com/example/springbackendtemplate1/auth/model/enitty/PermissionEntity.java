@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.enitty;
 
-import com.example.resortbackendapplication1.commons.model.entity.AuditableEntity;
+import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -27,7 +27,7 @@ public class PermissionEntity extends AuditableEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "permission")
-    private Set<UserPermissionEntity> userPermissions = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "permissionEntity")
+    private Set<UserPermissionEntity> userPermissionEntities = new LinkedHashSet<>();
 
 }

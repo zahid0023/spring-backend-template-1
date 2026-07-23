@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.serviceImpl;
 
-import com.example.resortbackendapplication1.auth.service.EmailService;
+import com.example.springbackendtemplate1.auth.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;

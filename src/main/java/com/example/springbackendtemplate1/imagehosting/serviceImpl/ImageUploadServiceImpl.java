@@ -66,7 +66,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
                                 .sortOrder(meta.getSortOrder())
                                 .build();
                     })
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception ex) {
             uploadedPublicIds.forEach(publicId -> {
                 try {

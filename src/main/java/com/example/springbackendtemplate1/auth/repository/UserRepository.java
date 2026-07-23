@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                 select distinct u from UserEntity u
                 join fetch u.roleEntity
                 left join fetch u.userPermissions up
-                left join fetch up.permission
+                left join fetch up.permissionEntity
                 where u.username = :username
             """)
     Optional<UserEntity> findByUsernameWithAuthorities(String username);

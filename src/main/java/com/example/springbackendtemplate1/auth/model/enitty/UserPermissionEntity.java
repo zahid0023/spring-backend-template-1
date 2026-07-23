@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.enitty;
 
-import com.example.resortbackendapplication1.commons.model.entity.AuditableEntity;
+import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -18,13 +18,13 @@ public class UserPermissionEntity extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private UserEntity userEntity;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "permission_id", nullable = false)
-    private PermissionEntity permission;
+    private PermissionEntity permissionEntity;
 
     @NotNull
     @ColumnDefault("true")

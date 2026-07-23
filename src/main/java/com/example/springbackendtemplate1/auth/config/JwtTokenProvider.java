@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.config;
 
-import com.example.resortbackendapplication1.auth.model.dto.CustomUserDetails;
+import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

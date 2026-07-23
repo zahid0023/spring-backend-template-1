@@ -45,7 +45,7 @@ public abstract class AuditableEntity {
     @PrePersist
     protected void onCreate() {
         if (createdBy == null) {
-            createdBy = 0L; // SYSTEM
+            createdBy = 1L; // SYSTEM
         }
 
         if (updatedBy == null) {

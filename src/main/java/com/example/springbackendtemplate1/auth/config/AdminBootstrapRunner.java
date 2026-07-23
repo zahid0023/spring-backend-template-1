@@ -1,12 +1,12 @@
 package com.example.springbackendtemplate1.auth.config;
 
-import com.example.resortbackendapplication1.auth.dto.request.RegistrationRequest;
-import com.example.resortbackendapplication1.auth.dto.request.permission.CreatePermissionRequest;
-import com.example.resortbackendapplication1.auth.dto.request.role.CreateRoleRequest;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
-import com.example.resortbackendapplication1.auth.service.PermissionService;
-import com.example.resortbackendapplication1.auth.service.RoleService;
-import com.example.resortbackendapplication1.auth.service.UserService;
+import com.example.springbackendtemplate1.auth.dto.request.RegistrationRequest;
+import com.example.springbackendtemplate1.auth.dto.request.permission.CreatePermissionRequest;
+import com.example.springbackendtemplate1.auth.dto.request.role.CreateRoleRequest;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.service.PermissionService;
+import com.example.springbackendtemplate1.auth.service.RoleService;
+import com.example.springbackendtemplate1.auth.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

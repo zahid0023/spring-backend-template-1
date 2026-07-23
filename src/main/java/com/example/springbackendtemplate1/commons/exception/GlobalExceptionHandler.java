@@ -30,14 +30,43 @@ public class GlobalExceptionHandler {
 
         log.warn("Data integrity violation: {}", rootMessage);
 
+        String userMessage = resolveConstraintMessage(rootMessage);
+
         ApiErrorResponse response = new ApiErrorResponse(
                 request.getHeader("X-Request-Id"),
                 HttpStatus.CONFLICT.value(),
                 "DATA_INTEGRITY_VIOLATION",
-                rootMessage
+                userMessage
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    private String resolveConstraintMessage(String rootMessage) {
+        if (rootMessage == null) return "A data integrity constraint was violated.";
+        if (rootMessage.contains("uk_resort_facility_groups_resort_platform")) {
+            return "This facility group is already assigned to the resort.";
+        }
+        if (rootMessage.contains("facility_group_scope_assignments_pkey")) {
+            return "This facility scope is already assigned to the facility group.";
+        }
+        if (rootMessage.contains("facility_scope_assignments_pkey")) {
+            return "This facility scope is already assigned to the facility.";
+        }
+        return rootMessage;
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<@NonNull ApiErrorResponse> handleIllegalState(
+            IllegalStateException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                ex,
+                HttpStatus.CONFLICT,
+                "CONFLICT",
+                request
+        );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

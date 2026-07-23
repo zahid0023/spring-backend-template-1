@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.enitty;
 
-import com.example.resortbackendapplication1.commons.model.entity.AuditableEntity;
+import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;

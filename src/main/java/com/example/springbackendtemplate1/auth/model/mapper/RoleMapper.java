@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.model.mapper;
 
-import com.example.resortbackendapplication1.auth.dto.request.role.CreateRoleRequest;
-import com.example.resortbackendapplication1.auth.model.enitty.RoleEntity;
+import com.example.springbackendtemplate1.auth.dto.request.role.CreateRoleRequest;
+import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

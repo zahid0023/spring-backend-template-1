@@ -1,13 +1,13 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.resortbackendapplication1.auth.model.enitty.PermissionEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
-import com.example.resortbackendapplication1.auth.model.enitty.UserPermissionEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.PermissionEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.enitty.UserPermissionEntity;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserPermissionRepository extends JpaRepository<@NonNull UserPermissionEntity, @NonNull Long> {
-    boolean existsByUserAndPermission(
+    boolean existsByUserEntityAndPermissionEntity(
             UserEntity userEntity,
             PermissionEntity permissionEntity
     );

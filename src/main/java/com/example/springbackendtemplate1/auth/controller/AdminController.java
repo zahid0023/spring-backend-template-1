@@ -1,10 +1,10 @@
 package com.example.springbackendtemplate1.auth.controller;
 
-import com.example.resortbackendapplication1.auth.dto.request.RegistrationRequest;
-import com.example.resortbackendapplication1.auth.dto.request.permission.AssignPermissionRequest;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
-import com.example.resortbackendapplication1.auth.service.PermissionService;
-import com.example.resortbackendapplication1.auth.service.UserService;
+import com.example.springbackendtemplate1.auth.dto.request.RegistrationRequest;
+import com.example.springbackendtemplate1.auth.dto.request.permission.AssignPermissionRequest;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.service.PermissionService;
+import com.example.springbackendtemplate1.auth.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

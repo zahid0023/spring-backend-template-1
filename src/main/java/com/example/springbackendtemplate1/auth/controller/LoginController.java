@@ -1,15 +1,15 @@
 package com.example.springbackendtemplate1.auth.controller;
 
-import com.example.resortbackendapplication1.auth.config.JwtTokenProvider;
-import com.example.resortbackendapplication1.auth.dto.request.ForgotPasswordRequest;
-import com.example.resortbackendapplication1.auth.dto.request.LoginRequest;
-import com.example.resortbackendapplication1.auth.dto.request.ResetPasswordRequest;
-import com.example.resortbackendapplication1.auth.dto.request.VerifyOtpRequest;
-import com.example.resortbackendapplication1.auth.dto.response.LoginResponse;
-import com.example.resortbackendapplication1.auth.dto.response.VerifyOtpResponse;
-import com.example.resortbackendapplication1.auth.model.enitty.UserEntity;
-import com.example.resortbackendapplication1.auth.service.PasswordResetService;
-import com.example.resortbackendapplication1.auth.service.UserService;
+import com.example.springbackendtemplate1.auth.config.JwtTokenProvider;
+import com.example.springbackendtemplate1.auth.dto.request.ForgotPasswordRequest;
+import com.example.springbackendtemplate1.auth.dto.request.LoginRequest;
+import com.example.springbackendtemplate1.auth.dto.request.ResetPasswordRequest;
+import com.example.springbackendtemplate1.auth.dto.request.VerifyOtpRequest;
+import com.example.springbackendtemplate1.auth.dto.response.LoginResponse;
+import com.example.springbackendtemplate1.auth.dto.response.VerifyOtpResponse;
+import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.service.PasswordResetService;
+import com.example.springbackendtemplate1.auth.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
