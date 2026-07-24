@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public interface OtpRateLimitRepository extends JpaRepository<@NonNull OtpRateLimitEntity,@NonNull Long> {
     Optional<OtpRateLimitEntity> findByUser(UserEntity user);
 }

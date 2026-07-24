@@ -12,6 +12,8 @@ import org.hibernate.annotations.ColumnDefault;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static com.example.springbackendtemplate1.commons.model.entity.EntityRelationshipHelper.*;
+
 @Getter
 @Setter
 @Entity
@@ -28,6 +30,34 @@ public class UnitTypeEntity extends AuditableEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
-    @OneToMany(mappedBy = "unitTypeEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "unitTypeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UnitTypeLocaleEntity> unitTypeLocaleEntities = new LinkedHashSet<>();
+
+    // -------------------------------------------------------------------------
+    // Unit Type Locale relationship helpers
+    // -------------------------------------------------------------------------
+
+    public void addUnitTypeLocaleEntity(UnitTypeLocaleEntity entity) {
+        addChild(unitTypeLocaleEntities, entity, UnitTypeLocaleEntity::assignUnitTypeEntity, this);
+    }
+
+    public void removeUnitTypeLocaleEntity(UnitTypeLocaleEntity entity) {
+        removeChild(unitTypeLocaleEntities, entity, (child, ignored) -> child.unassignUnitTypeEntity());
+    }
+
+    @OneToMany(mappedBy = "unitTypeEntity")
+    private Set<UnitEntity> unitEntities = new LinkedHashSet<>();
+
+    // -------------------------------------------------------------------------
+    // Unit relationship helpers
+    // -------------------------------------------------------------------------
+
+    public void addUnitEntity(UnitEntity entity) {
+        addChild(unitEntities, entity, UnitEntity::assignUnitTypeEntity, this);
+    }
+
+    public void removeUnitEntity(UnitEntity entity) {
+        removeChild(unitEntities, entity, (child, ignored) -> child.unassignUnitTypeEntity());
+    }
+
 }

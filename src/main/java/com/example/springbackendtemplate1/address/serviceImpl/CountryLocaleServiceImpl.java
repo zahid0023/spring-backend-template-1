@@ -28,7 +28,8 @@ public class CountryLocaleServiceImpl implements CountryLocaleService {
     public SuccessResponse create(CountryEntity countryEntity,
                                   LocaleEntity localeEntity,
                                   CreateCountryLocaleRequest request) {
-        CountryLocaleEntity entity = CountryLocaleMapper.create(request, countryEntity, localeEntity);
+        CountryLocaleEntity entity = CountryLocaleMapper.create(request, localeEntity);
+        countryEntity.addCountryLocaleEntity(entity);
         countryLocaleRepository.save(entity);
         log.info("CountryLocale created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

@@ -6,7 +6,6 @@ import com.example.springbackendtemplate1.unit.dto.request.unittype.unittypeloca
 import com.example.springbackendtemplate1.unit.dto.request.unittype.unittypelocale.UnitTypeLocaleRequest;
 import com.example.springbackendtemplate1.unit.dto.request.unittype.unittypelocale.UpdateUnitTypeLocaleRequest;
 import com.example.springbackendtemplate1.unit.model.dto.UnitTypeLocaleDto;
-import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeLocaleEntity;
 import lombok.experimental.UtilityClass;
 
@@ -14,11 +13,9 @@ import lombok.experimental.UtilityClass;
 public class UnitTypeLocaleMapper {
 
     public UnitTypeLocaleEntity create(CreateUnitTypeLocaleRequest request,
-                                       UnitTypeEntity unitTypeEntity,
                                        LocaleEntity localeEntity) {
         UnitTypeLocaleEntity entity = new UnitTypeLocaleEntity();
-        entity.setUnitTypeEntity(unitTypeEntity);
-        entity.setLocaleEntity(localeEntity);
+        entity.assignLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;
     }

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public interface OtpRepository extends JpaRepository<@NonNull PasswordResetOtpEntity, @NonNull Long> {
     Optional<PasswordResetOtpEntity> findByUserEntityAndIsUsedFalse(UserEntity userEntity);
 

@@ -4,7 +4,6 @@ import com.example.springbackendtemplate1.address.dto.request.city.citylocale.Ci
 import com.example.springbackendtemplate1.address.dto.request.city.citylocale.CreateCityLocaleRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.citylocale.UpdateCityLocaleRequest;
 import com.example.springbackendtemplate1.address.model.dto.CityLocaleDto;
-import com.example.springbackendtemplate1.address.model.entity.CityEntity;
 import com.example.springbackendtemplate1.address.model.entity.CityLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import lombok.experimental.UtilityClass;
@@ -13,10 +12,8 @@ import lombok.experimental.UtilityClass;
 public class CityLocaleMapper {
 
     public CityLocaleEntity create(CreateCityLocaleRequest request,
-                                   CityEntity cityEntity,
                                    LocaleEntity localeEntity) {
         CityLocaleEntity entity = new CityLocaleEntity();
-        entity.setCityEntity(cityEntity);
         entity.setLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;

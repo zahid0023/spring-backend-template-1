@@ -1,5 +1,7 @@
 package com.example.springbackendtemplate1.address.serviceImpl;
 
+import com.example.springbackendtemplate1.address.model.entity.CityLocaleEntity;
+import com.example.springbackendtemplate1.address.model.mapper.CityLocaleMapper;
 import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
 import com.example.springbackendtemplate1.address.dto.request.city.CityFilterRequest;
@@ -45,7 +47,13 @@ public class CityServiceImpl implements CityService {
     public SuccessResponse create(CreateCityRequest request,
                                   CountryEntity countryEntity,
                                   Map<Long, LocaleEntity> localeEntityMap) {
-        CityEntity entity = CityMapper.create(request, countryEntity, localeEntityMap);
+        CityEntity entity = CityMapper.create(request);
+        countryEntity.addCityEntity(entity);
+        request.getLocales().forEach(localeReq -> {
+            LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
+            CityLocaleEntity locale = CityLocaleMapper.create(localeReq, localeEntity);
+            entity.addCityLocaleEntity(locale);
+        });
         cityRepository.save(entity);
         log.info("City created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

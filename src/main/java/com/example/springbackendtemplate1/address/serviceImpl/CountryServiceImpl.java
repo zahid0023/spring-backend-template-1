@@ -1,5 +1,7 @@
 package com.example.springbackendtemplate1.address.serviceImpl;
 
+import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
+import com.example.springbackendtemplate1.address.model.mapper.CountryLocaleMapper;
 import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
 import com.example.springbackendtemplate1.address.dto.request.country.CountryFilterRequest;
@@ -44,7 +46,12 @@ public class CountryServiceImpl implements CountryService {
     @Transactional
     @Override
     public SuccessResponse create(CreateCountryRequest request, Map<Long, LocaleEntity> localeEntityMap) {
-        CountryEntity entity = CountryMapper.create(request, localeEntityMap);
+        CountryEntity entity = CountryMapper.create(request);
+        request.getLocales().forEach(localeReq -> {
+            LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
+            CountryLocaleEntity locale = CountryLocaleMapper.create(localeReq, localeEntity);
+            entity.addCountryLocaleEntity(locale);
+        });
         countryRepository.save(entity);
         log.info("Country created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

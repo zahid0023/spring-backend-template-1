@@ -1,18 +1,22 @@
 package com.example.springbackendtemplate1.unit.model.entity;
 
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
-import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static com.example.springbackendtemplate1.commons.model.entity.EntityRelationshipHelper.*;
 
 @Getter
 @Setter
@@ -20,10 +24,20 @@ import java.util.Set;
 @Table(name = "units")
 public class UnitEntity extends AuditableEntity {
 
+    @Setter(AccessLevel.NONE)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "unit_type_id", nullable = false)
     private UnitTypeEntity unitTypeEntity;
+
+    public void assignUnitTypeEntity(UnitTypeEntity unitTypeEntity) {
+        this.unitTypeEntity = unitTypeEntity;
+    }
+
+    public void unassignUnitTypeEntity() {
+        this.unitTypeEntity = null;
+    }
 
     @NotBlank
     @Size(max = 50)
@@ -50,6 +64,19 @@ public class UnitEntity extends AuditableEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
-    @OneToMany(mappedBy = "unitEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "unitEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UnitLocaleEntity> unitLocaleEntities = new LinkedHashSet<>();
+
+    // -------------------------------------------------------------------------
+    // Unit Locale relationship helpers
+    // -------------------------------------------------------------------------
+
+    public void addUnitLocaleEntity(UnitLocaleEntity entity) {
+        addChild(unitLocaleEntities, entity, UnitLocaleEntity::assignUnitEntity, this);
+    }
+
+    public void removeUnitLocaleEntity(UnitLocaleEntity entity) {
+        removeChild(unitLocaleEntities, entity, (child, ignored) -> child.unassignUnitEntity());
+    }
+
 }

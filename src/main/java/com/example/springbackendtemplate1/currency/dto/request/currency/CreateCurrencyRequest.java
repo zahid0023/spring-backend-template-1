@@ -1,13 +1,13 @@
 package com.example.springbackendtemplate1.currency.dto.request.currency;
 
 import com.example.springbackendtemplate1.currency.dto.request.currency.currencylocale.CreateCurrencyLocaleRequest;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 
@@ -16,12 +16,12 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateCurrencyRequest extends CurrencyRequest {
 
-    @NotBlank
     @Size(max = 3)
-    private String code;
+    private String numericCode;
 
     @NotNull
     private Long countryId;
 
+    @Valid
     private List<CreateCurrencyLocaleRequest> locales;
 }

@@ -7,10 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -28,10 +27,6 @@ public class CreateUnitRequest extends UnitRequest {
     @NotBlank
     @Size(max = 20)
     private String symbol;
-
-    private Boolean isBaseUnit;
-
-    private BigDecimal conversionFactor;
 
     @Valid
     private List<CreateUnitLocaleRequest> locales;

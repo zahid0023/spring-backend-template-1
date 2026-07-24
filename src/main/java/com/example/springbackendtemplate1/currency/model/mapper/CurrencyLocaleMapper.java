@@ -4,7 +4,6 @@ import com.example.springbackendtemplate1.currency.dto.request.currency.currency
 import com.example.springbackendtemplate1.currency.dto.request.currency.currencylocale.CurrencyLocaleRequest;
 import com.example.springbackendtemplate1.currency.dto.request.currency.currencylocale.UpdateCurrencyLocaleRequest;
 import com.example.springbackendtemplate1.currency.model.dto.CurrencyLocaleDto;
-import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import lombok.experimental.UtilityClass;
@@ -13,11 +12,9 @@ import lombok.experimental.UtilityClass;
 public class CurrencyLocaleMapper {
 
     public CurrencyLocaleEntity create(CreateCurrencyLocaleRequest request,
-                                       CurrencyEntity currencyEntity,
                                        LocaleEntity localeEntity) {
         CurrencyLocaleEntity entity = new CurrencyLocaleEntity();
-        entity.setCurrencyEntity(currencyEntity);
-        entity.setLocaleEntity(localeEntity);
+        entity.assignLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;
     }

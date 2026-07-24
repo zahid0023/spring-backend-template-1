@@ -29,7 +29,8 @@ public class CurrencyLocaleServiceImpl implements CurrencyLocaleService {
     public SuccessResponse create(CurrencyEntity currencyEntity,
                                   LocaleEntity localeEntity,
                                   CreateCurrencyLocaleRequest request) {
-        CurrencyLocaleEntity entity = CurrencyLocaleMapper.create(request, currencyEntity, localeEntity);
+        CurrencyLocaleEntity entity = CurrencyLocaleMapper.create(request, localeEntity);
+        currencyEntity.addCurrencyLocaleEntity(entity);
         currencyLocaleRepository.save(entity);
         log.info("CurrencyLocale created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

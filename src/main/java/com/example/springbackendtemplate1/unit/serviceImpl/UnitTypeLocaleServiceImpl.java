@@ -29,7 +29,8 @@ public class UnitTypeLocaleServiceImpl implements UnitTypeLocaleService {
     public SuccessResponse create(UnitTypeEntity unitTypeEntity,
                                   LocaleEntity localeEntity,
                                   CreateUnitTypeLocaleRequest request) {
-        UnitTypeLocaleEntity entity = UnitTypeLocaleMapper.create(request, unitTypeEntity, localeEntity);
+        UnitTypeLocaleEntity entity = UnitTypeLocaleMapper.create(request, localeEntity);
+        unitTypeEntity.addUnitTypeLocaleEntity(entity);
         unitTypeLocaleRepository.save(entity);
         log.info("UnitTypeLocale created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

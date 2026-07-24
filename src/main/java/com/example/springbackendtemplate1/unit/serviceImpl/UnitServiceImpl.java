@@ -6,9 +6,11 @@ import com.example.springbackendtemplate1.unit.dto.request.unit.UpdateUnitReques
 import com.example.springbackendtemplate1.unit.dto.response.units.UnitResponse;
 import com.example.springbackendtemplate1.unit.model.dto.UnitDto;
 import com.example.springbackendtemplate1.unit.model.entity.UnitEntity;
+import com.example.springbackendtemplate1.unit.model.entity.UnitLocaleEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.enums.UnitSearchField;
 import com.example.springbackendtemplate1.unit.model.enums.UnitSortField;
+import com.example.springbackendtemplate1.unit.model.mapper.UnitLocaleMapper;
 import com.example.springbackendtemplate1.unit.model.mapper.UnitMapper;
 import com.example.springbackendtemplate1.unit.repository.UnitRepository;
 import com.example.springbackendtemplate1.unit.service.UnitService;
@@ -47,7 +49,15 @@ public class UnitServiceImpl implements UnitService {
     public SuccessResponse create(CreateUnitRequest request,
                                   UnitTypeEntity unitTypeEntity,
                                   Map<Long, LocaleEntity> localeEntityMap) {
-        UnitEntity entity = UnitMapper.create(request, unitTypeEntity, localeEntityMap);
+        UnitEntity entity = UnitMapper.create(request);
+        unitTypeEntity.addUnitEntity(entity);
+        if (request.getLocales() != null) {
+            request.getLocales().forEach(localeReq -> {
+                LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
+                UnitLocaleEntity locale = UnitLocaleMapper.create(localeReq, localeEntity);
+                entity.addUnitLocaleEntity(locale);
+            });
+        }
         unitRepository.save(entity);
         log.info("Unit created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

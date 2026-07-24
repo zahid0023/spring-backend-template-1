@@ -1,5 +1,6 @@
 package com.example.springbackendtemplate1.address.model.dto;
 
+import com.example.springbackendtemplate1.currency.model.dto.CurrencyDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +27,5 @@ public class CountryDto {
 
     private List<CountryLocaleDto> locales;
     private List<CityDto> cities;
+    private List<CurrencyDto> currencies;
 }

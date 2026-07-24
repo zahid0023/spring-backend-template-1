@@ -29,7 +29,8 @@ public class CityLocaleServiceImpl implements CityLocaleService {
     public SuccessResponse create(CityEntity cityEntity,
                                   LocaleEntity localeEntity,
                                   CreateCityLocaleRequest request) {
-        CityLocaleEntity entity = CityLocaleMapper.create(request, cityEntity, localeEntity);
+        CityLocaleEntity entity = CityLocaleMapper.create(request, localeEntity);
+        cityEntity.addCityLocaleEntity(entity);
         cityLocaleRepository.save(entity);
         log.info("CityLocale created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

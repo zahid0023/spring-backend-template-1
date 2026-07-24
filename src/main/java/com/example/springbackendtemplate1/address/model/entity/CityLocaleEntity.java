@@ -3,8 +3,10 @@ package com.example.springbackendtemplate1.address.model.entity;
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -14,14 +16,22 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @Entity
-@Table(name = "city_locales")
+@Table(name = "city_locales", uniqueConstraints = @UniqueConstraint(columnNames = {"city_id", "locale_id"}))
 public class CityLocaleEntity extends AuditableEntity {
 
+    @Setter(AccessLevel.NONE)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "city_id", nullable = false)
     private CityEntity cityEntity;
+
+    public void assignCityEntity(CityEntity cityEntity) {
+        this.cityEntity = cityEntity;
+    }
+
+    public void unassignCityEntity() {
+        this.cityEntity = null;
+    }
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -29,18 +39,18 @@ public class CityLocaleEntity extends AuditableEntity {
     @JoinColumn(name = "locale_id", nullable = false)
     private LocaleEntity localeEntity;
 
+    @NotBlank
     @Size(max = 255)
-    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
     @NotNull
     @ColumnDefault("''")
     @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
-    private String description;
+    private String description = "";
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder;
+    private Integer sortOrder = 0;
 }

@@ -11,8 +11,10 @@ import com.example.springbackendtemplate1.currency.dto.request.currency.UpdateCu
 import com.example.springbackendtemplate1.currency.dto.response.currencies.CurrencyResponse;
 import com.example.springbackendtemplate1.currency.model.dto.CurrencyDto;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
+import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
 import com.example.springbackendtemplate1.currency.model.enums.CurrencySearchField;
 import com.example.springbackendtemplate1.currency.model.enums.CurrencySortField;
+import com.example.springbackendtemplate1.currency.model.mapper.CurrencyLocaleMapper;
 import com.example.springbackendtemplate1.currency.model.mapper.CurrencyMapper;
 import com.example.springbackendtemplate1.currency.repository.CurrencyRepository;
 import com.example.springbackendtemplate1.currency.service.CurrencyService;
@@ -47,7 +49,15 @@ public class CurrencyServiceImpl implements CurrencyService {
     public SuccessResponse create(CreateCurrencyRequest request,
                                   CountryEntity countryEntity,
                                   Map<Long, LocaleEntity> localeEntityMap) {
-        CurrencyEntity entity = CurrencyMapper.create(request, countryEntity, localeEntityMap);
+        CurrencyEntity entity = CurrencyMapper.create(request);
+        countryEntity.addCurrencyEntity(entity);
+        if (request.getLocales() != null) {
+            request.getLocales().forEach(localeReq -> {
+                LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
+                CurrencyLocaleEntity locale = CurrencyLocaleMapper.create(localeReq, localeEntity);
+                entity.addCurrencyLocaleEntity(locale);
+            });
+        }
         currencyRepository.save(entity);
         log.info("Currency created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());
