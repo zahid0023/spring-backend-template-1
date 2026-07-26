@@ -25,10 +25,11 @@ public class CountryLocaleServiceImpl implements CountryLocaleService {
 
     @Transactional
     @Override
-    public SuccessResponse create(CountryEntity countryEntity,
-                                  LocaleEntity localeEntity,
-                                  CreateCountryLocaleRequest request) {
-        CountryLocaleEntity entity = CountryLocaleMapper.create(request, localeEntity);
+    public SuccessResponse create(CreateCountryLocaleRequest request,
+                                  CountryEntity countryEntity,
+                                  LocaleEntity localeEntity) {
+        CountryLocaleEntity entity = CountryLocaleMapper.create(request);
+        entity.assignLocale(localeEntity);
         countryEntity.addCountryLocaleEntity(entity);
         countryLocaleRepository.save(entity);
         log.info("CountryLocale created with id: {}", entity.getId());

@@ -8,9 +8,9 @@ import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEnti
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 
 public interface CountryLocaleService {
-    SuccessResponse create(CountryEntity countryEntity,
-                           LocaleEntity localeEntity,
-                           CreateCountryLocaleRequest request);
+    SuccessResponse create(CreateCountryLocaleRequest request,
+                           CountryEntity countryEntity,
+                           LocaleEntity localeEntity);
 
     CountryLocaleEntity getEntityById(Long countryId, Long id);
 

@@ -17,6 +17,7 @@ import com.example.springbackendtemplate1.locale.repository.LocaleRepository;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
 import com.example.springbackendtemplate1.locale.specification.LocaleSpecification;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class LocaleServiceImpl implements LocaleService {
 
     @Override
     public PaginatedResponse<LocaleDto> getAll(LocaleFilterRequest request) {
-        Page<LocaleDto> page = localeRepository
+        Page<@NonNull LocaleDto> page = localeRepository
                 .findAll(LocaleSpecification.filter(request), request.toPageable(ALLOWED_SORT_FIELDS))
                 .map(LocaleMapper::toDto);
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);

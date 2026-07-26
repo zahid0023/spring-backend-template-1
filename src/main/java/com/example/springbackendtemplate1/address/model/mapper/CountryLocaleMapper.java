@@ -5,16 +5,14 @@ import com.example.springbackendtemplate1.address.dto.request.country.countryloc
 import com.example.springbackendtemplate1.address.dto.request.country.countrylocale.UpdateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.dto.CountryLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
-import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
+import com.example.springbackendtemplate1.locale.model.mapper.LocaleMapper;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CountryLocaleMapper {
 
-    public CountryLocaleEntity create(CreateCountryLocaleRequest request,
-                                      LocaleEntity localeEntity) {
+    public CountryLocaleEntity create(CreateCountryLocaleRequest request) {
         CountryLocaleEntity entity = new CountryLocaleEntity();
-        entity.setLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;
     }
@@ -32,7 +30,7 @@ public class CountryLocaleMapper {
     public CountryLocaleDto toDto(CountryLocaleEntity entity) {
         return CountryLocaleDto.builder()
                 .id(entity.getId())
-                .localeId(entity.getLocaleEntity().getId())
+                .locale(LocaleMapper.toDto(entity.getLocaleEntity()))
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .sortOrder(entity.getSortOrder())

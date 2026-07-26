@@ -5,23 +5,32 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum CitySortField {
-    ID("id"),
-    CODE("code"),
-    SORT_ORDER("sortOrder"),
-    CREATED_AT("createdAt");
+    ID("id", false),
+    CREATED_AT("createdAt", false),
+    CODE("code", false),
+    SORT_ORDER("sortOrder", false),
+    NAME("name", true);
 
     private final String fieldName;
+    private final boolean localeField;
 
-    CitySortField(String fieldName) {
+    CitySortField(String fieldName, boolean localeField) {
         this.fieldName = fieldName;
+        this.localeField = localeField;
     }
 
-    public String getFieldName() {
-        return fieldName;
-    }
+    public String getFieldName() { return fieldName; }
+    public boolean isLocaleField() { return localeField; }
 
     public static Set<String> allowedFields() {
         return Arrays.stream(values())
+                .map(CitySortField::getFieldName)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<String> localeSortFields() {
+        return Arrays.stream(values())
+                .filter(CitySortField::isLocaleField)
                 .map(CitySortField::getFieldName)
                 .collect(Collectors.toSet());
     }

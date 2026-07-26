@@ -25,19 +25,32 @@ public class CountryLocaleEntity extends AuditableEntity {
     @JoinColumn(name = "country_id", nullable = false)
     private CountryEntity countryEntity;
 
+    /** Internal — call via {@link CountryEntity#addCountryLocaleEntity}. */
     public void assignCountryEntity(CountryEntity countryEntity) {
         this.countryEntity = countryEntity;
     }
 
+    /** Internal — call via {@link CountryEntity#removeCountryLocaleEntity}. */
     public void unassignCountryEntity() {
         this.countryEntity = null;
     }
 
+    @Setter(AccessLevel.NONE)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "locale_id", nullable = false)
     private LocaleEntity localeEntity;
+
+    /** Internal — call via {@link LocaleEntity#addCountryLocaleEntity}. */
+    public void assignLocale(LocaleEntity localeEntity) {
+        this.localeEntity = localeEntity;
+    }
+
+    /** Internal — call via {@link LocaleEntity#removeCountryLocaleEntity}. */
+    public void unassignLocale() {
+        this.localeEntity = null;
+    }
 
     @NotBlank
     @Size(max = 255)

@@ -2,8 +2,6 @@ package com.example.springbackendtemplate1.address.repository;
 
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -22,26 +20,14 @@ public interface CountryRepository extends
             Boolean isDeleted
     );
 
-    List<@NonNull CountryEntity> findAllByIsActiveAndIsDeleted(
-            Boolean isActive,
-            Boolean isDeleted
-    );
-
-    Page<@NonNull CountryEntity> findAllByIsActiveAndIsDeleted(
-            Boolean isActive,
-            Boolean isDeleted,
-            Pageable pageable
-    );
-
     List<@NonNull CountryEntity> findAllByIdInAndIsActiveAndIsDeleted(
             Set<Long> ids,
             Boolean isActive,
             Boolean isDeleted
     );
 
-    Optional<CountryEntity> findByCodeAndIsDeleted(
-            String code,
-            Boolean isDeleted
-    );
+    boolean existsByCode(String code);
+
+    boolean existsByCodeAndIdNot(String code, Long id);
 
 }

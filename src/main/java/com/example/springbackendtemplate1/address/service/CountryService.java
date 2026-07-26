@@ -11,12 +11,12 @@ import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface CountryService {
+
     SuccessResponse create(CreateCountryRequest request,
-                           Map<Long, LocaleEntity> localeEntityMap);
+                           List<LocaleEntity> localeEntities);
 
     CountryEntity getEntityById(Long id);
 
@@ -27,7 +27,7 @@ public interface CountryService {
     SuccessResponse update(CountryEntity entity,
                            UpdateCountryRequest request);
 
-    SuccessResponse delete(Long id);
+    SuccessResponse delete(CountryEntity entity);
 
     List<CountryEntity> getAll(Set<Long> ids);
 }

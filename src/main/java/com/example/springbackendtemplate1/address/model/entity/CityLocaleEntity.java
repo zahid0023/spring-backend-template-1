@@ -33,11 +33,22 @@ public class CityLocaleEntity extends AuditableEntity {
         this.cityEntity = null;
     }
 
+    @Setter(AccessLevel.NONE)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "locale_id", nullable = false)
     private LocaleEntity localeEntity;
+
+    /** Internal — call via {@link LocaleEntity#addCityLocaleEntity}. */
+    public void assignLocale(LocaleEntity localeEntity) {
+        this.localeEntity = localeEntity;
+    }
+
+    /** Internal — call via {@link LocaleEntity#removeCityLocaleEntity}. */
+    public void unassignLocale() {
+        this.localeEntity = null;
+    }
 
     @NotBlank
     @Size(max = 255)

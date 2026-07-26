@@ -62,7 +62,8 @@ public class CountryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        return ResponseEntity.ok(countryService.delete(id));
+        CountryEntity entity = countryService.getEntityById(id);
+        return ResponseEntity.ok(countryService.delete(entity));
     }
 
     @GetMapping("/{country-id}/cities")

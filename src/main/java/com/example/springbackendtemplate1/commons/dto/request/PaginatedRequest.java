@@ -29,4 +29,14 @@ public class PaginatedRequest {
         }
         return PageRequest.of(page, size, Sort.by(sortDir, sortBy));
     }
+
+    public Pageable toPageable(Set<String> allowedSortFields, Set<String> localeSortFields) {
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new IllegalArgumentException("Invalid sort field: " + sortBy);
+        }
+        if (localeSortFields.contains(sortBy)) {
+            return PageRequest.of(page, size);   // sort applied via Specification join
+        }
+        return PageRequest.of(page, size, Sort.by(sortDir, sortBy));
+    }
 }

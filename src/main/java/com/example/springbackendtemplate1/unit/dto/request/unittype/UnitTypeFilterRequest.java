@@ -5,6 +5,7 @@ import com.example.springbackendtemplate1.commons.utils.Filterable;
 import com.example.springbackendtemplate1.commons.utils.SpecificationUtils;
 import com.example.springbackendtemplate1.unit.model.enums.UnitTypeSearchField;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class UnitTypeFilterRequest extends PaginatedRequest implements Filterabl
     private String code;
 
     @Override
-    public List<Predicate> toPredicates(Root<?> root, CriteriaBuilder cb) {
+    public List<Predicate> toPredicates(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
         for (UnitTypeSearchField field : UnitTypeSearchField.values()) {
             SpecificationUtils.addLikeFilter(predicates, root, cb,

@@ -1,11 +1,11 @@
 package com.example.springbackendtemplate1.address.model.entity;
 
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
-import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import jakarta.persistence.*;
 import static com.example.springbackendtemplate1.commons.model.entity.EntityRelationshipHelper.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +30,7 @@ public class CountryEntity extends AuditableEntity {
     private String iso3Code;
 
     @Size(max = 10)
+    @Pattern(regexp = "^\\+?[0-9]{1,3}$")
     @Column(name = "phone_code", length = 10)
     private String phoneCode;
 
@@ -41,12 +42,6 @@ public class CountryEntity extends AuditableEntity {
     @OneToMany(mappedBy = "countryEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CountryLocaleEntity> countryLocaleEntities = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "countryEntity")
-    private Set<CityEntity> cityEntities = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "countryEntity")
-    private Set<CurrencyEntity> currencyEntities = new LinkedHashSet<>();
-
     // -------------------------------------------------------------------------
     // Country Locale relationship helpers
     // -------------------------------------------------------------------------
@@ -57,30 +52,6 @@ public class CountryEntity extends AuditableEntity {
 
     public void removeCountryLocaleEntity(CountryLocaleEntity entity) {
         removeChild(countryLocaleEntities, entity, (child, ignored) -> child.unassignCountryEntity());
-    }
-
-    // -------------------------------------------------------------------------
-    // City relationship helpers
-    // -------------------------------------------------------------------------
-
-    public void addCityEntity(CityEntity entity) {
-        addChild(cityEntities, entity, CityEntity::assignCountryEntity, this);
-    }
-
-    public void removeCityEntity(CityEntity entity) {
-        removeChild(cityEntities, entity, (child, ignored) -> child.unassignCountryEntity());
-    }
-
-    // -------------------------------------------------------------------------
-    // Currency relationship helpers
-    // -------------------------------------------------------------------------
-
-    public void addCurrencyEntity(CurrencyEntity entity) {
-        addChild(currencyEntities, entity, CurrencyEntity::assignCountryEntity, this);
-    }
-
-    public void removeCurrencyEntity(CurrencyEntity entity) {
-        removeChild(currencyEntities, entity, (child, ignored) -> child.unassignCountryEntity());
     }
 
 }

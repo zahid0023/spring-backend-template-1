@@ -30,7 +30,7 @@ public class LocaleEntity extends AuditableEntity {
 
     @NotBlank
     @Size(max = 50)
-    @Column(name = "code", nullable = false, length = 50)
+    @Column(name = "code", nullable = false, length = 50, unique = true)
     private String code;
 
     @NotBlank
@@ -63,11 +63,11 @@ public class LocaleEntity extends AuditableEntity {
     // -------------------------------------------------------------------------
 
     public void addCountryLocaleEntity(CountryLocaleEntity entity) {
-        addChild(countryLocaleEntities, entity, CountryLocaleEntity::setLocaleEntity, this);
+        addChild(countryLocaleEntities, entity, CountryLocaleEntity::assignLocale, this);
     }
 
     public void removeCountryLocaleEntity(CountryLocaleEntity entity) {
-        removeChild(countryLocaleEntities, entity, CountryLocaleEntity::setLocaleEntity);
+        removeChild(countryLocaleEntities, entity, (child, ignored) -> child.unassignLocale());
     }
 
     // -------------------------------------------------------------------------
@@ -75,11 +75,11 @@ public class LocaleEntity extends AuditableEntity {
     // -------------------------------------------------------------------------
 
     public void addCityLocaleEntity(CityLocaleEntity entity) {
-        addChild(cityLocaleEntities, entity, CityLocaleEntity::setLocaleEntity, this);
+        addChild(cityLocaleEntities, entity, CityLocaleEntity::assignLocale, this);
     }
 
     public void removeCityLocaleEntity(CityLocaleEntity entity) {
-        removeChild(cityLocaleEntities, entity, CityLocaleEntity::setLocaleEntity);
+        removeChild(cityLocaleEntities, entity, (child, ignored) -> child.unassignLocale());
     }
 
     // -------------------------------------------------------------------------

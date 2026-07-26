@@ -35,7 +35,7 @@ public class CityMapper {
 
         return CityDto.builder()
                 .id(entity.getId())
-                .country(includeCountry ? CountryMapper.toDto(entity.getCountryEntity(), false) : null)
+                .country(includeCountry ? CountryMapper.toDto(entity.getCountryEntity()) : null)
                 .code(entity.getCode())
                 .sortOrder(entity.getSortOrder())
                 .locales(cityLocaleDtos)

@@ -5,6 +5,7 @@ import com.example.springbackendtemplate1.commons.utils.Filterable;
 import com.example.springbackendtemplate1.commons.utils.SpecificationUtils;
 import com.example.springbackendtemplate1.locale.model.enums.LocaleSearchField;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class LocaleFilterRequest extends PaginatedRequest implements Filterable 
     private String name;
 
     @Override
-    public List<Predicate> toPredicates(Root<?> root, CriteriaBuilder cb) {
+    public List<Predicate> toPredicates(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
         for (LocaleSearchField field : LocaleSearchField.values()) {
             SpecificationUtils.addLikeFilter(predicates, root, cb,
