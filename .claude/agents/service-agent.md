@@ -161,8 +161,12 @@ create dependencies:
             e. If repository file is MISSING entirely → skip check, note it, continue.
                (repository-agent must be run first)
 
-4. GENERATE — write or edit Service interface and ServiceImpl based EXACTLY on caller input
-5. REPORT   — summarise what was created or updated; include any repository methods added
+4. GENERATE — produce Service interface and ServiceImpl code internally (do NOT write yet)
+5. WRITE    — for EACH file (Service interface first, then ServiceImpl):
+               MISSING → show FULL generated code, ask "Create {Entity}Service.java? 1-Yes / 2-No"
+               EXISTS  → show diff (- removed / + added lines with reasons), ask "Apply changes to {Entity}Service.java? 1-Yes / 2-No"
+               Write/Edit ONLY on 1-Yes — NEVER auto-write any file
+6. REPORT   — summarise what was created or updated; include any repository methods added
 ```
 
 ---

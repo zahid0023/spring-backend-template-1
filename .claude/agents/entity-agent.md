@@ -217,10 +217,17 @@ locales (FK target from prior migration) → LocaleEntity: UPDATE (add @OneToMan
 
 ---
 
-## Step 4b — Confirm changes to existing files
+## Step 4b — Confirm all file changes
 
-**Only applies when one or more entity files already exist and need changes.**
-New files (CREATE) go straight to Step 5 — no confirmation needed for brand-new files.
+**Applies to both new and existing files.**
+
+For **new files (CREATE)**: show the FULL generated entity code and ask:
+```
+Create {EntityName}.java? 1-Yes / 2-No
+```
+Write ONLY on 1-Yes.
+
+For **existing files (UPDATE)**: show a change table and ask permission. See format below.
 
 For each **existing** file that the plan marks for UPDATE:
 
@@ -230,20 +237,22 @@ For each **existing** file that the plan marks for UPDATE:
    - **New value** — what it will become
    - **Reason** — why this change is required (e.g. "schema specifies NOT NULL", "ValidatedSchema says @Pattern regexp differs", "missing relationship helper required by @OneToMany")
 
-2. Format:
+2. Format (use Unicode box-drawing — ┌─┬─┐/├─┼─┤/└─┴─┘, compute column widths from actual data):
 
 ```
-─── Proposed changes: CountryEntity.java ────────────────────
-Field / item      Current value              New value                    Reason
-────────────────────────────────────────────────────────────────────────────────
-phoneCode @Pattern  ^\\+[1-9]\\d{0,3}$      ^\\+[0-9]{1,3}$             ValidatedSchema specifies [0-9]{1,3}; current pattern is stricter and incorrect
-─────────────────────────────────────────────────────────────
+─── Proposed changes: CountryEntity.java ─────────────────────────────────────────────
+┌──────────────────────┬──────────────────────────┬─────────────────────┬─────────────────────────────────────────────────────────┐
+│ Field / item         │ Current value             │ New value           │ Reason                                                  │
+├──────────────────────┼──────────────────────────┼─────────────────────┼─────────────────────────────────────────────────────────┤
+│ phoneCode @Pattern   │ ^\\+[1-9]\\d{0,3}$        │ ^\\+[0-9]{1,3}$    │ ValidatedSchema specifies [0-9]{1,3}; current too strict │
+└──────────────────────┴──────────────────────────┴─────────────────────┴─────────────────────────────────────────────────────────┘
 
-─── Proposed changes: CountryLocaleEntity.java ──────────────
-Field / item              Current value   New value                        Reason
-────────────────────────────────────────────────────────────────────────────────────
-assignCountryEntity Javadoc  (missing)   /** Internal — call via ... */   Convention: all assign/unassign helpers must have Javadoc
-─────────────────────────────────────────────────────────────
+─── Proposed changes: CountryLocaleEntity.java ────────────────────────────────────────
+┌──────────────────────────┬───────────────┬──────────────────────────────┬──────────────────────────────────────────────────────┐
+│ Field / item             │ Current value │ New value                    │ Reason                                               │
+├──────────────────────────┼───────────────┼──────────────────────────────┼──────────────────────────────────────────────────────┤
+│ assignCountryEntity doc  │ (missing)     │ /** Internal — call via... */│ Convention: all assign/unassign helpers must have doc │
+└──────────────────────────┴───────────────┴──────────────────────────────┴──────────────────────────────────────────────────────┘
 
 Apply all changes? 1-Yes / 2-Skip all / 3-Pick individually
 ```

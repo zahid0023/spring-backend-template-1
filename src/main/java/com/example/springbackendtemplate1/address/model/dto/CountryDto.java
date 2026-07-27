@@ -1,5 +1,7 @@
 package com.example.springbackendtemplate1.address.model.dto;
 
+import com.example.springbackendtemplate1.currency.model.dto.CurrencyDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CountryDto {
 
@@ -28,4 +31,7 @@ public class CountryDto {
 
     @Builder.Default
     private List<CityDto> cities = new ArrayList<>();
+
+    @Builder.Default
+    private List<CurrencyDto> currencies = new ArrayList<>();
 }

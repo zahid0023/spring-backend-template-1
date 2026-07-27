@@ -25,6 +25,7 @@ You generate the mapper internally, then ask for permission before writing any f
 3. If the output file is MISSING: show the **full generated code**, then ask "Create {filename}? 1-Yes / 2-No". Write only on Yes.
 4. If the output file EXISTS: read it, show a **diff** (- removed, + added lines) with a reason for each change, then ask "Apply changes to {filename}? 1-Yes / 2-No". Edit only on Yes.
 5. NEVER write or edit a file without explicit user permission per file.
+6. Format ALL tables using Unicode box-drawing characters: ┌─┬─┐/├─┼─┤/└─┴─┘. Compute column widths from actual data.
 
 ---
 
@@ -98,11 +99,15 @@ Do NOT read Specification, SortField, SearchField, or other files.
 
 Read entity, DTO, and request files. Then internally build this list:
 
-| # | Method | Input | Output | Notes |
-|---|--------|-------|--------|-------|
-| 1 | `create` | `Create{Entity}Request` | `{Entity}Entity` | maps scalar fields only |
-| 2 | `update` | `{Entity}Entity` + `Update{Entity}Request` | `void` | applies base request fields |
-| 3 | `toDto` | `{Entity}Entity` | `{Entity}Dto` | maps all DTO fields |
+```
+┌───┬──────────┬─────────────────────────────────────────┬─────────────────┬─────────────────────────┐
+│ # │ Method   │ Input                                   │ Output          │ Notes                   │
+├───┼──────────┼─────────────────────────────────────────┼─────────────────┼─────────────────────────┤
+│ 1 │ create   │ Create{Entity}Request                   │ {Entity}Entity  │ maps scalar fields only │
+│ 2 │ update   │ {Entity}Entity + Update{Entity}Request  │ void            │ applies base req fields │
+│ 3 │ toDto    │ {Entity}Entity                          │ {Entity}Dto     │ maps all DTO fields     │
+└───┴──────────┴─────────────────────────────────────────┴─────────────────┴─────────────────────────┘
+```
 
 Always 3 methods. Report what each maps.
 

@@ -1,5 +1,6 @@
 package com.example.springbackendtemplate1.address.dto.request.country;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -11,11 +12,13 @@ import tools.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CountryRequest {
 
+    @NotBlank
     @Size(max = 10)
     private String iso3Code;
 
+    @NotBlank
     @Size(max = 10)
-    @Pattern(regexp = "^\\+?[0-9\\s\\-()]{1,10}$")
+    @Pattern(regexp = "^[A-Za-z]{1,3}$")
     private String phoneCode;
 
     @NotNull

@@ -14,6 +14,6 @@ public interface CountryRepository extends
 
     Optional<CountryEntity> findByIdAndIsActiveAndIsDeleted(Long id, Boolean isActive, Boolean isDeleted);
 
-    boolean existsByCode(String code);
+    boolean existsByCodeAndIsActiveAndIsDeleted(String code, Boolean isActive, Boolean isDeleted);
 
 }

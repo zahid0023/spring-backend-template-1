@@ -23,6 +23,27 @@ From orchestrator:
 
 ---
 
+## Workflow
+
+```
+1. READ      — read entity, CreateRequest, UpdateRequest, FilterRequest
+               do NOT read the target entity's existing ServiceImpl (to avoid bias)
+2. PLAN      — show a Unicode table of what will be generated:
+               columns: Method | Signature | @Transactional | Notes
+3. ASK       — "Proceed with generating {Entity}ServiceImpl? 1-Yes / 2-No"
+               WAIT for user reply — NEVER skip this step
+4. GENERATE  — produce ServiceImpl code internally
+5. WRITE     — check if file exists:
+               MISSING → show FULL generated code, ask "Create {Entity}ServiceImpl.java? 1-Yes / 2-No"
+               EXISTS  → show diff (- removed / + added lines with reasons), ask "Apply changes to {Entity}ServiceImpl.java? 1-Yes / 2-No"
+               Write/Edit ONLY on 1-Yes
+6. REPORT    — summarise what was created or updated
+```
+
+Format ALL tables using Unicode box-drawing characters: ┌─┬─┐/├─┼─┤/└─┴─┘. Compute column widths from actual data.
+
+---
+
 ## Core rules
 
 1. Mapper receives only `CreateRequest` — no entity params

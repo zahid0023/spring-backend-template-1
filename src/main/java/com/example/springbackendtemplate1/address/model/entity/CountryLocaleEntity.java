@@ -26,12 +26,12 @@ public class CountryLocaleEntity extends AuditableEntity {
     private CountryEntity countryEntity;
 
     /** Internal — call via {@link CountryEntity#addCountryLocaleEntity}. */
-    public void assignCountryEntity(CountryEntity countryEntity) {
+    public void assignCountry(CountryEntity countryEntity) {
         this.countryEntity = countryEntity;
     }
 
     /** Internal — call via {@link CountryEntity#removeCountryLocaleEntity}. */
-    public void unassignCountryEntity() {
+    public void unassignCountry() {
         this.countryEntity = null;
     }
 
@@ -57,8 +57,9 @@ public class CountryLocaleEntity extends AuditableEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", length = Integer.MAX_VALUE)
-    private String description;
+    @NotNull
+    @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
+    private String description = "";
 
     @NotNull
     @ColumnDefault("0")

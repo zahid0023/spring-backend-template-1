@@ -37,7 +37,7 @@ public class UserEntity extends AuditableEntity {
     private Boolean locked = true;
 
     @NotNull
-    @ColumnDefault("false")
+    @ColumnDefault("false") 
     @Column(name = "expired", nullable = false)
     private Boolean expired = false;
 

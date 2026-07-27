@@ -29,11 +29,11 @@ public class CityEntity extends AuditableEntity {
     @JoinColumn(name = "country_id", nullable = false)
     private CountryEntity countryEntity;
 
-    public void assignCountryEntity(CountryEntity countryEntity) {
+    public void assignCountry(CountryEntity countryEntity) {
         this.countryEntity = countryEntity;
     }
 
-    public void unassignCountryEntity() {
+    public void unassignCountry() {
         this.countryEntity = null;
     }
 

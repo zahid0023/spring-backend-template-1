@@ -17,7 +17,7 @@ import com.example.springbackendtemplate1.locale.repository.LocaleRepository;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
 import com.example.springbackendtemplate1.locale.specification.LocaleSpecification;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.NonNull;
+import org.jspecify.annotations.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -42,6 +42,9 @@ public class LocaleServiceImpl implements LocaleService {
     @Transactional
     @Override
     public SuccessResponse create(CreateLocaleRequest request) {
+        if (localeRepository.existsByCodeAndIsActiveAndIsDeleted(request.getCode(), true, false)) {
+            throw new IllegalStateException("Locale with code '" + request.getCode() + "' already exists");
+        }
         LocaleEntity entity = LocaleMapper.create(request);
         localeRepository.save(entity);
         log.info("Locale created with id: {}", entity.getId());
@@ -85,7 +88,10 @@ public class LocaleServiceImpl implements LocaleService {
     @Override
     public LocaleEntity getEntityById(Long id) {
         return localeRepository.findByIdAndIsActiveAndIsDeleted(id, true, false)
-                .orElseThrow(() -> new EntityNotFoundException("Locale not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.warn("Locale not found with id: {}", id);
+                    return new EntityNotFoundException("Locale not found with id: " + id);
+                });
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.example.springbackendtemplate1.address.dto.request.country.CreateCoun
 import com.example.springbackendtemplate1.address.dto.request.country.UpdateCountryRequest;
 import com.example.springbackendtemplate1.address.model.dto.CountryDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
+import com.example.springbackendtemplate1.currency.model.mapper.CurrencyMapper;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -36,6 +37,12 @@ public class CountryMapper {
                 .sortOrder(entity.getSortOrder())
                 .locales(entity.getCountryLocaleEntities().stream()
                         .map(CountryLocaleMapper::toDto)
+                        .toList())
+                .cities(entity.getCityEntities().stream()
+                        .map(city -> CityMapper.toDto(city, false))
+                        .toList())
+                .currencies(entity.getCurrencyEntities().stream()
+                        .map(CurrencyMapper::toDto)
                         .toList())
                 .build();
     }

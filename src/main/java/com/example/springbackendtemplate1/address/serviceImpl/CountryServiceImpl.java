@@ -44,7 +44,7 @@ public class CountryServiceImpl implements CountryService {
     @Transactional
     @Override
     public SuccessResponse create(CreateCountryRequest request, Map<Long, LocaleEntity> localeEntityMap) {
-        if (countryRepository.existsByCode(request.getCode())) {
+        if (countryRepository.existsByCodeAndIsActiveAndIsDeleted(request.getCode(), true, false)) {
             throw new IllegalStateException("Country with code '" + request.getCode() + "' already exists");
         }
 

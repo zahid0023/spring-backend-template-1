@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS countries
     id         bigserial PRIMARY KEY,
 
     code       varchar(10)                  NOT NULL UNIQUE,
-    iso3_code  varchar(10),
-    phone_code varchar(10),
-    sort_order int                          NOT NULL DEFAULT 0,
+    iso3_code  varchar(3)                   NOT NULL,
+    phone_code varchar(3)                   NOT NULL,
+    sort_order integer                      NOT NULL DEFAULT 0,
 
     created_by bigint references users (id) NOT NULL,
     created_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS country_locales
     locale_id   bigint                       NOT NULL REFERENCES locales (id) ON DELETE RESTRICT,
 
     name        varchar(255)                 NOT NULL,
-    description text,
+    description text                         NOT NULL DEFAULT '',
     sort_order  int                          NOT NULL DEFAULT 0,
 
     created_by  bigint references users (id) NOT NULL,

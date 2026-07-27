@@ -37,6 +37,7 @@ PHASE 2 — Analysis       (4 steps)
 PHASE 3 — Parent CRUD    (14 steps)
 PHASE 3b — Locale Child CRUD (8 steps per locale child — runs if cascade locale children exist)
 PHASE 4 — Verification   (3 steps, covers parent + all locale children)
+PHASE 5 — Documentation  (1 step)
 ```
 
 ---
@@ -154,6 +155,51 @@ Pass the answer to controller-agent as the `pattern` decision.
 
 ---
 
+## PHASE 5 — Documentation
+
+Runs after Phase 4 passes. Generates the Markdown API reference for the parent entity
+(which also covers all child controllers discovered in that module).
+
+| Step | Agent                    | Input         | Output                          |
+|------|--------------------------|---------------|---------------------------------|
+| D1   | apidocumentationagent    | Entity name   | docs/{entity-kebab}-api.md      |
+
+**Note:** `apidocumentationagent` reads all generated source files automatically.
+Pass only the entity name. It will discover child controllers on its own.
+
+---
+
+## Flow Audit Logging
+
+After EVERY pipeline step where a question was shown and answered, call `flowaudit-agent`
+in LOG mode to record the interaction. This includes:
+- Every agent questionnaire Q&A (user typed an answer)
+- Every confirm prompt (user typed 1/2/yes)
+- Every auto-decision made by main Claude WITHOUT asking the user (DECIDED_BY: CLAUDE-MAIN)
+- Every agent auto-skip ("no changes needed") (DECIDED_BY: AGENT)
+
+**Call pattern:**
+```
+flowaudit-agent LOG
+ENTITY      : {Entity}
+STEP        : {step number}
+PHASE       : {phase label}
+AGENT       : {agent name}
+QUESTION    : {verbatim question shown to user}
+OPTIONS     : {verbatim options shown, or N/A}
+USER_ANSWER : {exact user input, or N/A for CLAUDE-MAIN/AGENT decisions}
+DECISION    : {what was decided}
+DECIDED_BY  : {USER / CLAUDE-MAIN / AGENT}
+NOTES       : {optional extra context}
+```
+
+**When user finds a mismatch later:**
+User runs: `flowaudit correct {Entity}` — providing step number, what was wrong,
+who made the mistake, and what the correct answer should have been.
+flowaudit-agent finds the step in `docs/audit/{entity-kebab}-flowaudit.md` and annotates it.
+
+---
+
 ## Execution rules
 
 1. Run each agent one at a time — wait for completion before next
@@ -161,7 +207,8 @@ Pass the answer to controller-agent as the `pattern` decision.
 3. If an agent produces WARNINGs → log them, continue
 4. After Phase 3 completes → check RelationshipMap for cascade locale children → run Phase 3b if found
 5. After ALL generation phases complete → always run Phase 4 verification
-6. Report progress after each phase: "Phase 1 complete / Phase 2 complete / Phase 3 complete / ..."
+6. After Phase 4 passes → always run Phase 5 documentation
+7. Report progress after each phase: "Phase 1 complete / Phase 2 complete / Phase 3 complete / ..."
 
 ---
 
@@ -251,6 +298,9 @@ Locale child endpoints (pattern 2 — root-level):
   POST   /api/v1/{parentLowerPlural}/{parentId}/{localeLowerPlural}       → 201 CREATED
   PUT    /api/v1/{parentLowerPlural}/{parentId}/{localeLowerPlural}/{id}  → 200 OK
   DELETE /api/v1/{parentLowerPlural}/{parentId}/{localeLowerPlural}/{id}  → 200 OK
+
+Documentation:
+  docs/{entity-kebab}-api.md   CREATED
 
 Ready for frontend integration.
 ──────────────────────────────────────────────────────────────

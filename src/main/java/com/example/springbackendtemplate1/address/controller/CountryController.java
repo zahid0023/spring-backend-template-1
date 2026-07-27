@@ -4,7 +4,7 @@ import com.example.springbackendtemplate1.address.dto.request.city.CityFilterReq
 import com.example.springbackendtemplate1.address.dto.request.country.CountryFilterRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.CreateCountryRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.UpdateCountryRequest;
-import com.example.springbackendtemplate1.address.dto.request.country.countrylocale.CreateCountryLocaleRequest;
+import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.address.service.CityService;
 import com.example.springbackendtemplate1.commons.utils.LocaleUtils;

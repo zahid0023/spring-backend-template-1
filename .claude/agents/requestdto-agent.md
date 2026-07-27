@@ -44,7 +44,8 @@ You operate in **three phases**:
 - Base package  : `com.example.springbackendtemplate1`
 - Entities      : `src/main/java/com/example/springbackendtemplate1/{module}/model/entity/`
 - Requests      : `src/main/java/com/example/springbackendtemplate1/{module}/dto/request/{entityLower}/`
-- Child requests: `src/main/java/com/example/springbackendtemplate1/{module}/dto/request/{entityLower}/{entityLower}{child}/`
+- Child requests (locale): `src/main/java/com/example/springbackendtemplate1/{module}/dto/request/{entityLower}/locale/`
+  Rule: if the child entity name ends in `Locale` (e.g. CountryLocaleEntity), always use `.locale` sub-package — NEVER `{entityLower}locale` or `countrylocalerequest` or any other variant.
 
 ---
 
@@ -279,7 +280,7 @@ public class {Entity}Request {
 ```java
 package com.example.springbackendtemplate1.{module}.dto.request.{entityLower};
 
-import com.example.springbackendtemplate1.{module}.dto.request.{entityLower}.{child}locale.Create{Child}Request; // if nested
+import com.example.springbackendtemplate1.{module}.dto.request.{entityLower}.locale.Create{Child}Request; // if locale child (ends in Locale)
 import jakarta.validation.Valid;                   // only if @Valid on nested list
 import jakarta.validation.constraints.NotBlank;    // only if used
 import jakarta.validation.constraints.NotNull;     // only if used

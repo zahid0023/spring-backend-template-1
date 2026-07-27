@@ -26,13 +26,15 @@ public class CountryEntity extends AuditableEntity {
     @Column(name = "code", nullable = false, unique = true, length = 10)
     private String code;
 
+    @NotBlank
     @Size(max = 10)
-    @Column(name = "iso3_code", length = 10)
+    @Column(name = "iso3_code", nullable = false, length = 10)
     private String iso3Code;
 
+    @NotBlank
     @Size(max = 10)
-    @Pattern(regexp = "^\\+?[0-9\\s\\-()]{1,10}$")
-    @Column(name = "phone_code", length = 10)
+    @Pattern(regexp = "^[A-Za-z]{1,3}$")
+    @Column(name = "phone_code", nullable = false, length = 10)
     private String phoneCode;
 
     @NotNull
@@ -54,11 +56,11 @@ public class CountryEntity extends AuditableEntity {
     // -------------------------------------------------------------------------
 
     public void addCountryLocaleEntity(CountryLocaleEntity entity) {
-        addChild(countryLocaleEntities, entity, CountryLocaleEntity::assignCountryEntity, this);
+        addChild(countryLocaleEntities, entity, CountryLocaleEntity::assignCountry, this);
     }
 
     public void removeCountryLocaleEntity(CountryLocaleEntity entity) {
-        removeChild(countryLocaleEntities, entity, (child, ignored) -> child.unassignCountryEntity());
+        removeChild(countryLocaleEntities, entity, (child, ignored) -> child.unassignCountry());
     }
 
     // -------------------------------------------------------------------------
@@ -66,11 +68,11 @@ public class CountryEntity extends AuditableEntity {
     // -------------------------------------------------------------------------
 
     public void addCityEntity(CityEntity entity) {
-        addChild(cityEntities, entity, CityEntity::assignCountryEntity, this);
+        addChild(cityEntities, entity, CityEntity::assignCountry, this);
     }
 
     public void removeCityEntity(CityEntity entity) {
-        removeChild(cityEntities, entity, (child, ignored) -> child.unassignCountryEntity());
+        removeChild(cityEntities, entity, (child, ignored) -> child.unassignCountry());
     }
 
     // -------------------------------------------------------------------------

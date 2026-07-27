@@ -3,6 +3,7 @@ package com.example.springbackendtemplate1.address.dto.request.city;
 import com.example.springbackendtemplate1.address.dto.request.city.citylocale.CreateCityLocaleRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import tools.jackson.databind.PropertyNamingStrategies;
@@ -14,6 +15,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateCityRequest extends CityRequest {
+
+    @Size(max = 50)
+    private String code;
 
     @NotNull
     private Long countryId;

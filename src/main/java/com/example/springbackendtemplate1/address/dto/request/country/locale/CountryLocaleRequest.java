@@ -1,4 +1,4 @@
-package com.example.springbackendtemplate1.address.dto.request.country.countrylocale;
+package com.example.springbackendtemplate1.address.dto.request.country.locale;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,8 +15,10 @@ public class CountryLocaleRequest {
     @Size(max = 255)
     private String name;
 
+    @NotNull
     private String description;
 
     @NotNull
     private Integer sortOrder;
+
 }

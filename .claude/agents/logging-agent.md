@@ -47,11 +47,16 @@ Controllers do not log — all logging belongs in ServiceImpl.
 ```
 1. READ    — read {Entity}ServiceImpl.java
 2. CHECK   — is @Slf4j present? Are required log statements in create/update/delete?
-3. REPORT  — list what is missing
+3. REPORT  — if nothing missing: print "Logging already complete" and stop
+             if items missing: show a Unicode box-drawing table of what is missing:
+             columns: Item | Current state | Required state
 4. ASK     — "Add missing log statements? 1-Yes / 2-No"
-5. ADD     — add @Slf4j if missing, add log.info statements if missing
-6. REPORT  — summarise changes
+             WAIT for user reply — NEVER auto-add
+5. ADD     — add @Slf4j if missing, add log.info statements if missing (Edit only on 1-Yes)
+6. REPORT  — summarise changes applied
 ```
+
+Format ALL tables using Unicode box-drawing characters: ┌─┬─┐/├─┼─┤/└─┴─┘. Compute column widths from actual data.
 
 ---
 

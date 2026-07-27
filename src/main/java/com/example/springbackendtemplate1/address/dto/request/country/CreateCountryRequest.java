@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.address.dto.request.country;
 
-import com.example.springbackendtemplate1.address.dto.request.country.countrylocale.CreateCountryLocaleRequest;
+import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

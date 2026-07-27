@@ -2,8 +2,6 @@ package com.example.springbackendtemplate1.locale.repository;
 
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -21,20 +19,11 @@ public interface LocaleRepository extends JpaRepository<@NonNull LocaleEntity, @
             Boolean isDeleted
     );
 
-    List<LocaleEntity> findAllByIsActiveAndIsDeleted(
-            Boolean isActive,
-            Boolean isDeleted
-    );
-
-    Page<LocaleEntity> findAllByIsActiveAndIsDeleted(
-            Boolean isActive,
-            Boolean isDeleted,
-            Pageable pageable
-    );
-
-    List<LocaleEntity> findAllByIdInAndIsActiveAndIsDeleted(
+    List<@NonNull LocaleEntity> findAllByIdInAndIsActiveAndIsDeleted(
             Set<Long> ids,
             Boolean isActive,
             Boolean isDeleted
     );
+
+    boolean existsByCodeAndIsActiveAndIsDeleted(String code, Boolean isActive, Boolean isDeleted);
 }

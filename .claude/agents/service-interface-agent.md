@@ -93,18 +93,21 @@ public interface {Entity}Service {
 
 ## Preview & Write
 
+Format ALL tables using Unicode box-drawing characters: ┌─┬─┐/├─┼─┤/└─┴─┘. Compute column widths from actual data.
+
 If the file EXISTS, show a change summary table before writing:
 
 ```
-─── Change Summary: {Entity}Service.java ─────────────────────
-  Item                              Current file    Proposed     Action
-  ──────────────────────────────── ─────────────── ──────────── ──────────
-  create(...)                       Present         Present      No change
-  getEntityById(Long id)            Present         Present      No change
-  getById(Long id)                  Present         —            REMOVE
-  getAll(Set<Long> ids)             —               Present      ADD
-  import java.util.List             Present         —            REMOVE
-──────────────────────────────────────────────────────────────
+─── Change Summary: {Entity}Service.java ─────────────────────────────────────────
+┌──────────────────────────────┬───────────────┬──────────┬────────────┐
+│ Item                         │ Current file  │ Proposed │ Action     │
+├──────────────────────────────┼───────────────┼──────────┼────────────┤
+│ create(...)                  │ Present       │ Present  │ No change  │
+│ getEntityById(Long id)       │ Present       │ Present  │ No change  │
+│ getById(Long id)             │ Present       │ —        │ REMOVE     │
+│ getAll(Set<Long> ids)        │ —             │ Present  │ ADD        │
+│ import java.util.List        │ Present       │ —        │ REMOVE     │
+└──────────────────────────────┴───────────────┴──────────┴────────────┘
 
 Apply changes to {Entity}Service.java? 1-Yes / 2-No
 ```

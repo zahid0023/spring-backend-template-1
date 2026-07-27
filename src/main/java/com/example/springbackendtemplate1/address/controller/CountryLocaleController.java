@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.address.controller;
 
-import com.example.springbackendtemplate1.address.dto.request.country.countrylocale.CreateCountryLocaleRequest;
-import com.example.springbackendtemplate1.address.dto.request.country.countrylocale.UpdateCountryLocaleRequest;
+import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
+import com.example.springbackendtemplate1.address.dto.request.country.locale.UpdateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
