@@ -36,9 +36,6 @@ public class UserEntity extends AuditableEntity {
     @Column(name = "locked", nullable = false)
     private Boolean locked = true;
 
-    @OneToMany(mappedBy = "user")
-    private Set<RefreshTokenEntity> refreshTokens = new LinkedHashSet<>();
-
     @NotNull
     @ColumnDefault("false")
     @Column(name = "expired", nullable = false)
@@ -46,8 +43,5 @@ public class UserEntity extends AuditableEntity {
 
     @OneToMany(mappedBy = "userEntity")
     private Set<UserPermissionEntity> userPermissions = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "userEntity")
-    private Set<PasswordResetOtpEntity> passwordResetOtps = new LinkedHashSet<>();
 
 }
