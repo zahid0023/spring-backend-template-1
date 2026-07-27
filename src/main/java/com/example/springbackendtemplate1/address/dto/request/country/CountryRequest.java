@@ -15,7 +15,7 @@ public class CountryRequest {
     private String iso3Code;
 
     @Size(max = 10)
-    @Pattern(regexp = "^\\+?[0-9]{1,3}$")
+    @Pattern(regexp = "^\\+?[0-9\\s\\-()]{1,10}$")
     private String phoneCode;
 
     @NotNull

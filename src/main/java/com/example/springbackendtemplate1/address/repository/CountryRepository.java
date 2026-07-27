@@ -5,29 +5,15 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @SuppressWarnings("unused")
 public interface CountryRepository extends
         JpaRepository<@NonNull CountryEntity, @NonNull Long>,
         JpaSpecificationExecutor<@NonNull CountryEntity> {
 
-    Optional<CountryEntity> findByIdAndIsActiveAndIsDeleted(
-            Long id,
-            Boolean isActive,
-            Boolean isDeleted
-    );
-
-    List<@NonNull CountryEntity> findAllByIdInAndIsActiveAndIsDeleted(
-            Set<Long> ids,
-            Boolean isActive,
-            Boolean isDeleted
-    );
+    Optional<CountryEntity> findByIdAndIsActiveAndIsDeleted(Long id, Boolean isActive, Boolean isDeleted);
 
     boolean existsByCode(String code);
-
-    boolean existsByCodeAndIdNot(String code, Long id);
 
 }

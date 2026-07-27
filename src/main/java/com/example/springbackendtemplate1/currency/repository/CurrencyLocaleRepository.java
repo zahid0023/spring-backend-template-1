@@ -23,6 +23,13 @@ public interface CurrencyLocaleRepository extends
             Boolean isDeleted
     );
 
+    Optional<CurrencyLocaleEntity> findByCurrencyEntity_IdAndIdAndIsActiveAndIsDeleted(
+            Long currencyEntityId,
+            Long id,
+            Boolean isActive,
+            Boolean isDeleted
+    );
+
     List<CurrencyLocaleEntity> findAllByIsActiveAndIsDeleted(
             Boolean isActive,
             Boolean isDeleted

@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.currency.model.dto;
 
-import tools.jackson.annotation.JsonIgnoreProperties;
-import tools.jackson.annotation.JsonInclude;
+import com.example.springbackendtemplate1.address.model.dto.CountryDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,7 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrencyDto {
     private Long id;
     private String code;
@@ -26,6 +26,7 @@ public class CurrencyDto {
     private Integer decimalPlaces;
     private Boolean isDefault;
     private Integer sortOrder;
-    private Long countryId;
-    private List<CurrencyLocaleDto> locales;
+    private CountryDto country;
+    @Builder.Default
+    private List<CurrencyLocaleDto> locales = new ArrayList<>();
 }

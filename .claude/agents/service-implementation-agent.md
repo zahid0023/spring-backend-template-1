@@ -43,13 +43,12 @@ No `getById`, no `getAll`, no `getAll(Set)`.
 public SuccessResponse create(Create{Locale}Request request,
                                {Parent}Entity parentEntity,
                                LocaleEntity localeEntity) {
-    {Locale}Entity entity = {Locale}Mapper.create(request);   // scalar fields only
-    entity.assign{Parent}Entity(parentEntity);                 // service assigns parent ref — NOT mapper
-    entity.assignLocaleEntity(localeEntity);                   // service assigns locale ref — NOT mapper
-    parentEntity.add{Locale}Entity(entity);                    // service establishes relationship
-    {localeLower}Repository.save(entity);
-    log.info("{Locale} created with id: {}", entity.getId());
-    return new SuccessResponse(true, entity.getId());
+    {Locale}Entity {localeCamel}Entity = {Locale}Mapper.create(request);  // scalar fields only
+    localeEntity.add{Locale}Entity({localeCamel}Entity);                   // ref entity adds child via its helper
+    parentEntity.add{Locale}Entity({localeCamel}Entity);                   // parent adds child via aggregate root helper
+    {localeLower}Repository.save({localeCamel}Entity);
+    log.info("{Locale} created with id: {}", {localeCamel}Entity.getId());
+    return new SuccessResponse(true, {localeCamel}Entity.getId());
 }
 ```
 
@@ -67,9 +66,10 @@ public SuccessResponse create(Create{Entity}Request request, Map<Long, {Ref}Enti
     // 2. Cascade children
     if (request.getLocales() != null) {
         request.getLocales().forEach(localeReq -> {
-            {Child}Entity child = {Child}Mapper.create(localeReq);         // scalar only
-            child.assign{Ref}Entity(refEntityMap.get(localeReq.getRefId())); // service assigns ref
-            entity.add{Child}Entity(child);                                  // relationship
+            {Child}Entity {childCamel}Entity = {Child}Mapper.create(localeReq);   // scalar only
+            {Ref}Entity refEntity = refEntityMap.get(localeReq.getRefId());
+            refEntity.add{Child}Entity({childCamel}Entity);                        // ref entity adds child via its helper
+            entity.add{Child}Entity({childCamel}Entity);                           // parent adds child via aggregate root helper
         });
     }
 

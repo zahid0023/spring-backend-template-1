@@ -28,11 +28,13 @@ public class CurrencyLocaleEntity extends AuditableEntity {
     @JoinColumn(name = "currency_id", nullable = false)
     private CurrencyEntity currencyEntity;
 
-    public void assignCurrencyEntity(CurrencyEntity currencyEntity) {
+    /** Internal — call via {@link CurrencyEntity#addCurrencyLocaleEntity}. */
+    public void assignCurrency(CurrencyEntity currencyEntity) {
         this.currencyEntity = currencyEntity;
     }
 
-    public void unassignCurrencyEntity() {
+    /** Internal — call via {@link CurrencyEntity#removeCurrencyLocaleEntity}. */
+    public void unassignCurrency() {
         this.currencyEntity = null;
     }
 

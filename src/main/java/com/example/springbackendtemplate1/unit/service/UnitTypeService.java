@@ -29,6 +29,4 @@ public interface UnitTypeService {
                            UpdateUnitTypeRequest request);
 
     SuccessResponse delete(Long id);
-
-    List<UnitTypeEntity> getAll(Set<Long> ids);
 }

@@ -97,11 +97,4 @@ public class UnitTypeServiceImpl implements UnitTypeService {
         return unitTypeRepository.findByIdAndIsActiveAndIsDeleted(id, true, false)
                 .orElseThrow(() -> new EntityNotFoundException("UnitType not found with id: " + id));
     }
-
-    @Override
-    public List<UnitTypeEntity> getAll(Set<Long> ids) {
-        List<UnitTypeEntity> entities = unitTypeRepository.findAllByIdInAndIsActiveAndIsDeleted(ids, true, false);
-        EntityValidator.validateAllFound(ids, entities, UnitTypeEntity::getId, "UnitType");
-        return entities;
-    }
 }

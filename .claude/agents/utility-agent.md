@@ -33,11 +33,30 @@ Do NOT generate a utility class for:
 
 ```
 1. ANALYSE — review entity fields and business requirements
-2. ASK     — "Does {Entity} require a custom utility class? Here is what I found: {findings}.
-              1-Yes, generate {Entity}Utils.java
-              2-No, skip utility class"
-3. GENERATE — only if user confirms YES
-4. REPORT
+2. SHOW    — display findings as a table with WHY each area does or does not need a utility
+3. ASK     — 1-Yes generate / 2-No skip
+4. GENERATE — only if user confirms YES
+5. REPORT
+```
+
+## Assessment table format (always show before asking)
+
+Each row must explain WHY that area does or does not require a utility class:
+
+```
+─── Utility Assessment: {Entity} ─────────────────────────────
+  Area                  Finding                    Needs utility?   Why
+  ───────────────────── ────────────────────────── ──────────────   ──────────────────────────────────────────────────────────────
+  Code generation       Client provides code        No              No auto-generation needed — client sends the value directly
+  Phone formatting      Stored as-is                No              @Pattern annotation handles format validation; no transform needed
+  Locale map building   Handled by LocaleUtils      No              Existing LocaleUtils.resolveLocaleMap() covers this — no country-specific logic
+  Complex transforms    None found                  No              Mapper handles all field assignments; nothing beyond simple setters
+  Shared helpers        None identified             No              No method is reused across multiple classes in this module
+──────────────────────────────────────────────────────────────
+Overall recommendation: No utility class needed — all concerns are covered by commons/existing utilities.
+
+1 - Yes, generate {Entity}Utils.java
+2 - No, skip  ← Recommended
 ```
 
 ---

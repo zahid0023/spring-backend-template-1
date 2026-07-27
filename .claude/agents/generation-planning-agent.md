@@ -25,7 +25,23 @@ All analysis outputs:
 
 ---
 
+## Entity classification
+
+Before building the file list, classify each entity as **Aggregate Root** or **Child**:
+
+| Classification | Rule |
+|---|---|
+| Aggregate Root | Has NO @ManyToOne FK to a parent entity of the same aggregate, OR is the top-level entity users query directly |
+| Child | Has a @ManyToOne FK to an Aggregate Root in the SAME module (e.g. CityLocale → City, CountryLocale → Country) and is ONLY fetched via its parent — never queried independently |
+
+**Child entities NEVER get**: `FilterRequest`, `SearchField`, `SortField`, `Specification`
+— because they have no `getAll` endpoint; they are always fetched through their parent.
+
+---
+
 ## Files in the generation plan
+
+### Aggregate Root (15 files)
 
 | # | File | Path template |
 |---|------|--------------|
@@ -45,16 +61,34 @@ All analysis outputs:
 | 14 | `{Entity}ServiceImpl.java` | `{module}/serviceImpl/` |
 | 15 | `{Entity}Controller.java` | `{module}/controller/` |
 
+### Child entity (10 files — NO filter/search/sort/spec)
+
+| # | File | Path template |
+|---|------|--------------|
+| 1 | `{Entity}Entity.java` | `{module}/model/entity/` |
+| 2 | `{Entity}Dto.java` | `{module}/model/dto/` |
+| 3 | `{Entity}Response.java` | `{module}/dto/response/{parentLowerPlural}/` |
+| 4 | `Create{Entity}Request.java` | `{module}/dto/request/{parentLower}/` |
+| 5 | `Update{Entity}Request.java` | `{module}/dto/request/{parentLower}/` |
+| 6 | `{Entity}Mapper.java` | `{module}/model/mapper/` |
+| 7 | `{Entity}Repository.java` | `{module}/repository/` |
+| 8 | `{Entity}Service.java` | `{module}/service/` |
+| 9 | `{Entity}ServiceImpl.java` | `{module}/serviceImpl/` |
+| 10 | `{Entity}Controller.java` | `{module}/controller/` |
+
+SKIP for child: `{Entity}Request.java`, `{Entity}FilterRequest.java`, `{Entity}SearchField.java`, `{Entity}SortField.java`, `{Entity}Specification.java`
+
 ---
 
 ## Workflow
 
 ```
-1. COMPUTE — derive full paths for all 15 files from NamingConventions
-2. CHECK   — for each file, check if it already exists (MISSING / EXISTS)
-3. PLAN    — determine action: CREATE or UPDATE for each file
-4. CONFIRM — display GenerationPlan, ask user to confirm
-5. OUTPUT  — GenerationPlan block
+1. CLASSIFY — determine Aggregate Root vs Child for each entity in scope
+2. COMPUTE  — derive full paths for correct file set (15 for root, 10 for child)
+3. CHECK    — for each file, check if it already exists (MISSING / EXISTS)
+4. PLAN     — determine action: CREATE or UPDATE for each file
+5. CONFIRM  — display GenerationPlan, ask user to confirm
+6. OUTPUT   — GenerationPlan block
 ```
 
 ---

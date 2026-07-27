@@ -123,8 +123,46 @@ create dependencies:
 2. READ   — do NOT read the target entity's existing Service/ServiceImpl;
             you MAY read other existing Service/ServiceImpl files in the project
             to understand conventions and patterns
-3. GENERATE — write or edit Service interface and ServiceImpl based EXACTLY on caller input
-4. REPORT   — summarise what was created or updated
+3. REPOSITORY CHECK — before generating, check that every repository method the
+            ServiceImpl will call actually exists in the repository file:
+
+            a. Locate the repository file:
+               Glob: src/main/java/**/{Entity}Repository.java
+            b. Read it (if it exists)
+            c. Build a Required Methods list based on caller's YES decisions:
+
+               Service method YES          Repository method needed
+               ─────────────────────────── ──────────────────────────────────────────────────────
+               create (unique field check) existsBy{UniqueField}(...)
+                                           — only if entity has @Column(unique=true) field(s)
+                                           — detect: if entity has unique fields, service template
+                                             includes an existsBy check before save
+               getEntityById / getById     findByIdAndIsActiveAndIsDeleted(Long, Boolean, Boolean)
+               getAll(Set<Long>)           findAllByIdInAndIsActiveAndIsDeleted(Set<Long>, Boolean, Boolean)
+
+               Note: save(), findAll(spec, pageable) come from JpaRepository /
+               JpaSpecificationExecutor — always available, no check needed.
+
+            d. For each Required method NOT found in the repository file:
+               Show a prompt:
+
+               ┌─────────────────────────────────────────────────────────────────────────────┐
+               │  Repository gap detected                                                     │
+               │  ServiceImpl needs: {repositoryMethodSignature}                              │
+               │  This method is missing from {Entity}Repository.                             │
+               │  Should it be added?  1-Yes / 2-No                                          │
+               └─────────────────────────────────────────────────────────────────────────────┘
+
+               If 1-Yes → add the method to {Entity}Repository immediately (Edit the file),
+                          then continue.
+               If 2-No  → note it as a known gap; do NOT generate the service call that
+                          uses it (log a warning comment instead).
+
+            e. If repository file is MISSING entirely → skip check, note it, continue.
+               (repository-agent must be run first)
+
+4. GENERATE — write or edit Service interface and ServiceImpl based EXACTLY on caller input
+5. REPORT   — summarise what was created or updated; include any repository methods added
 ```
 
 ---
@@ -278,13 +316,14 @@ public class {Entity}ServiceImpl implements {Entity}Service {
 
         // 2. Cascade children — only if @OneToMany cascade=ALL children present:
         //    - mapper creates child with scalar fields only
-        //    - service assigns reference entity from map
-        //    - service establishes relationship via aggregate root helper
+        //    - ref entity (e.g. localeEntity) adds child via its own helper
+        //    - parent entity adds child via aggregate root helper
         if (request.getLocales() != null) {
             request.getLocales().forEach(localeReq -> {
-                {Child}Entity child = {Child}Mapper.create(localeReq);
-                child.assign{Ref}Entity(localeEntityMap.get(localeReq.getLocaleId()));
-                entity.add{Child}Entity(child);
+                {Child}Entity {childCamel}Entity = {Child}Mapper.create(localeReq);
+                {Ref}Entity refEntity = refEntityMap.get(localeReq.getRefId());
+                refEntity.add{Child}Entity({childCamel}Entity);           // ref entity adds child via its helper
+                entity.add{Child}Entity({childCamel}Entity);              // parent adds child via aggregate root helper
             });
         }
 
@@ -376,17 +415,17 @@ public class {Entity}ServiceImpl implements {Entity}Service {
     @Override
     public SuccessResponse create(Create{Entity}Request request, {Parent}Entity parentEntity[, {Ref}Entity refEntity]) {
         // 1. Mapper maps own scalar fields only — no entity params
-        {Entity}Entity entity = {Entity}Mapper.create(request);
+        {Entity}Entity {entityCamel}Entity = {Entity}Mapper.create(request);
 
-        // 2. Service assigns reference entity (e.g. localeEntity) if present
-        [entity.assign{Ref}Entity(refEntity);]
+        // 2. Ref entity (e.g. localeEntity) adds child via its own helper — NOT entity.assignRef()
+        [refEntity.add{Entity}({entityCamel}Entity);]
 
-        // 3. Service establishes parent relationship via aggregate root helper
-        parentEntity.add{Entity}(entity);
+        // 3. Parent adds child via aggregate root helper
+        parentEntity.add{Entity}({entityCamel}Entity);
 
-        {entityLower}Repository.save(entity);
-        log.info("{Entity} created with id: {}", entity.getId());
-        return new SuccessResponse(true, entity.getId());
+        {entityLower}Repository.save({entityCamel}Entity);
+        log.info("{Entity} created with id: {}", {entityCamel}Entity.getId());
+        return new SuccessResponse(true, {entityCamel}Entity.getId());
     }
 
     @Override
@@ -521,10 +560,16 @@ Include ONLY if `getAll(FilterRequest)` is YES. Omit for Child and when excluded
 ## Step 6 — Report format
 
 ```
-─── Target ────────────��─────────────────────────────────────────────────────────
+─── Target ───────────────────────────────────────────────────────────────────────
 Entity               : {Entity}Entity         FOUND
+{Entity}Repository   : FOUND / MISSING
 {Entity}Service      : MISSING → CREATED  /  FOUND → UPDATED
 {Entity}ServiceImpl  : MISSING → CREATED  /  FOUND → UPDATED
+
+─── Repository changes ───────────────────────────────────────────────────────────
+  existsByCode(String)                           ADDED    (unique-check for create)
+  findAllByIdInAndIsActiveAndIsDeleted(...)       ADDED    (needed by getAll(Set))
+  (or: No repository changes needed)
 
 ─── {Entity}Service (interface) ─────────────────────────────────────────────────
   create(...)              → SuccessResponse
@@ -535,7 +580,7 @@ Entity               : {Entity}Entity         FOUND
   delete({Entity}Entity)   → SuccessResponse
   getAll(Set<Long>)        → List<{Entity}Entity>
 
-──��� {Entity}ServiceImpl ────────────��──────────────────────────��─────────────────
+─── {Entity}ServiceImpl ──────────────────────────────────────────────────────────
   Injects  : {Entity}Repository
   Constants: ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS
   ...

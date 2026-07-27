@@ -87,13 +87,13 @@ Present the recommendation and let the user confirm or change it:
 Existing modules: locale, address, currency, unit, auth
 Recommended     : address
 
-Target module [address]: _
+Confirm [address]? yes — to confirm / or type a different module name
 ──────────────────────────────────────────────────────────────
 ```
 
 Wait for the user to reply.
-- If the user presses Enter / types nothing → use the recommended value as-is.
-- If the user types a name → use that name (existing module or new module, either is valid).
+- If the user types `yes` → use the recommended module name.
+- If the user types a different name → use that name (existing module or new module, either is valid).
 
 Save the final chosen name as `targetModule` in the output block.
 

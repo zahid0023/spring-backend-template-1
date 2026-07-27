@@ -25,4 +25,7 @@ public class CountryDto {
 
     @Builder.Default
     private List<CountryLocaleDto> locales = new ArrayList<>();
+
+    @Builder.Default
+    private List<CityDto> cities = new ArrayList<>();
 }

@@ -5,16 +5,14 @@ import com.example.springbackendtemplate1.address.dto.request.city.citylocale.Cr
 import com.example.springbackendtemplate1.address.dto.request.city.citylocale.UpdateCityLocaleRequest;
 import com.example.springbackendtemplate1.address.model.dto.CityLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CityLocaleEntity;
-import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
+import com.example.springbackendtemplate1.locale.model.mapper.LocaleMapper;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CityLocaleMapper {
 
-    public CityLocaleEntity create(CreateCityLocaleRequest request,
-                                   LocaleEntity localeEntity) {
+    public CityLocaleEntity create(CreateCityLocaleRequest request) {
         CityLocaleEntity entity = new CityLocaleEntity();
-        entity.setLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;
     }
@@ -32,7 +30,7 @@ public class CityLocaleMapper {
     public CityLocaleDto toDto(CityLocaleEntity entity) {
         return CityLocaleDto.builder()
                 .id(entity.getId())
-                .localeId(entity.getLocaleEntity().getId())
+                .locale(LocaleMapper.toDto(entity.getLocaleEntity()))
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .sortOrder(entity.getSortOrder())

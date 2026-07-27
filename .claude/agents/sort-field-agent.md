@@ -28,15 +28,14 @@ PHASE 1 — Questionnaire (interactive):
 2.  LOCATE      — find entity file + existing SortField file
 3.  READ        — read entity file to discover fields
 4.  BUILD LIST  — internally number all sort field candidates
-5.  SHOW HEADER — print file status header ONCE
-6.  ASK FIELD 1 — show fieldName + what sorting by it enables + who uses it, STOP
-7.  (on resume)  — record answer, ask field [N+1], STOP — repeat until all answered
-8.  After LAST   — show Summary & Confirmation table
-9.  After "yes"  — generate the file
+5.  SHOW TABLE  — show ALL fields at once in a single table with Rec + explanation, STOP
+6.  WAIT        — wait for ONE reply: "yes" to confirm all, or overrides like "1=2, 3=2"
+7.  SUMMARY     — show Summary & Confirmation table
+8.  After "yes" — generate the file
 
 PHASE 2 — Generate:
-10. GENERATE    — write or edit {Entity}SortField.java
-11. REPORT
+9.  GENERATE    — write or edit {Entity}SortField.java
+10. REPORT
 ```
 
 ---
@@ -65,87 +64,36 @@ Do NOT include: audit fields, FK fields, collection fields, boolean flags.
 
 ---
 
-## Step 3 — Header (show ONCE before first question)
+## Step 3 — Show all fields in one table (STOP and wait for reply)
+
+Show ALL sort field candidates in a single table. Each row must include:
+- Field number
+- Constant name + fieldName
+- Recommendation (Yes/No)
+- Brief explanation of what sorting by this field enables and why a client would use it
 
 ```
-─── {Entity}SortField ───────────────────────────────────────────────────────────
-{Entity}SortField : FOUND / MISSING
-Fields to review  : {TOTAL}
-─────────────────────────────────────────────────────────────────────────────────
+─── {Entity}SortField — which fields should be sortable? ────────────────────
+  Options: 1=Yes  2=No
+
+  #   Constant      fieldName     Rec    Explanation
+  ─── ───────────── ───────────── ────── ─────────────────────────────────────────────────────────────
+  1   ID            "id"          Yes    Sort by primary key — stable default, oldest/newest inserted
+  2   CREATED_AT    "createdAt"   Yes    Sort by creation date — "recently added" lists
+  3   SORT_ORDER    "sortOrder"   Yes    Sort by explicit display order — for ordered dropdowns/menus
+  4   CODE          "code"        Yes    Sort alphabetically by ISO code — A→Z table ordering
+  5   ISO3_CODE     "iso3Code"    No     ISO3 code rarely sorted on its own
+──────────────────────────────────────────────────────────────────────────────
+Type "yes" to confirm all recommendations, or override with field#=option# (e.g. "3=2, 5=1")
 ```
 
----
-
-## Step 4 — Questionnaire (ONE field at a time, STOP after each)
-
-### ID field
-
-```
-Sort field [1] of [TOTAL]
-
-  ID  ("id")
-
-  Allows clients to sort results by primary key (ascending = oldest first,
-  descending = newest inserted first).
-  Useful as a stable default sort order when no other sort is specified.
-
-  Include?
-    1 - Yes  ← Recommended — stable default sort
-    2 - No
-```
-
-### CREATED_AT field
-
-```
-Sort field [2] of [TOTAL]
-
-  CREATED_AT  ("createdAt")
-
-  Allows clients to sort results by creation timestamp (newest first / oldest first).
-  Common pattern for "recently added" lists.
-
-  Include?
-    1 - Yes  ← Recommended — standard audit-based sort
-    2 - No
-```
-
-### SORT_ORDER field (only if entity has sortOrder)
-
-```
-Sort field [3] of [TOTAL]
-
-  SORT_ORDER  ("sortOrder")
-
-  Allows clients to sort results by the explicit sortOrder column.
-  Used when records have a defined display order (e.g. dropdown items, menu entries).
-  Clients can set sortOrder values and then retrieve records in that order.
-
-  Include?
-    1 - Yes  ← Recommended — entity has a sortOrder column for explicit ordering
-    2 - No
-```
-
-### Scalar field (code, name, symbol, etc.)
-
-```
-Sort field [N] of [TOTAL]
-
-  {CONSTANT}  ("{fieldName}")
-
-  Allows clients to sort results alphabetically by {fieldName}.
-  Useful when clients display a sorted list and want to order by {fieldName}
-  (e.g. a table sorted A→Z by country code).
-
-  Include?
-    1 - Yes  ← Recommended  — {reason: e.g. "code is a natural identifier, A-Z sort is common"}
-    2 - No   ← Recommended  — {reason: e.g. "symbol is rarely sorted on its own"}
-```
+STOP and wait for one reply.
 
 ---
 
 ## Step 5 — Summary & Confirmation
 
-After all fields answered:
+After all fields answered, show the summary table. If the file already EXISTS, also show a Change Summary table comparing current vs proposed state:
 
 ```
 ─── SortField Summary: {Entity}SortField ────────────────────────────────────────
@@ -158,9 +106,19 @@ After all fields answered:
   4   CODE         "code"       Include
   5   NAME         "name"       Exclude
 
+─── Change Summary (existing file vs proposed) ───────────────────────────────────
+  Constant     fieldName    Current file    Proposed     Action
+  ──────────── ──────────── ─────────────── ──────────── ──────────
+  ID           "id"         Include         Include      No change
+  CREATED_AT   "createdAt"  Include         Include      No change
+  SORT_ORDER   "sortOrder"  Include         Include      No change
+  CODE         "code"       Include         Include      No change
+  ISO3_CODE    "iso3Code"   Include         Exclude      REMOVE
+  PHONE_CODE   "phoneCode"  Include         Exclude      REMOVE
+  NAME         "name"       Include         Include      No change  (locale — preserved)
+
 ─────────────────────────────────────────────────────────────────────────────────
-Proceed?
-  - "yes" to generate {Entity}SortField.java
+Apply changes? 1-Yes / 2-No
   - A field number to revisit it (e.g. "5")
 ```
 

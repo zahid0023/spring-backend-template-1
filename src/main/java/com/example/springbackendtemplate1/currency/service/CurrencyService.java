@@ -29,7 +29,7 @@ public interface CurrencyService {
 
     SuccessResponse update(CurrencyEntity entity, UpdateCurrencyRequest request);
 
-    SuccessResponse delete(Long id);
+    SuccessResponse delete(CurrencyEntity entity);
 
     List<CurrencyEntity> getAll(Set<Long> ids);
 }

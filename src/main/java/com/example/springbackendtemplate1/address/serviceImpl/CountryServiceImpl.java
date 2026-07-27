@@ -4,7 +4,6 @@ import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEnti
 import com.example.springbackendtemplate1.address.model.mapper.CountryLocaleMapper;
 import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
-import com.example.springbackendtemplate1.commons.utils.EntityValidator;
 import com.example.springbackendtemplate1.commons.utils.Pagination;
 import com.example.springbackendtemplate1.address.dto.request.country.CountryFilterRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.CreateCountryRequest;
@@ -26,15 +25,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 @Service
 @Slf4j
 public class CountryServiceImpl implements CountryService {
 
-    private static final Set<String> ALLOWED_SORT_FIELDS   = CountrySortField.allowedFields();
+    private static final Set<String> ALLOWED_SORT_FIELDS = CountrySortField.allowedFields();
     private static final Set<String> ALLOWED_SEARCH_FIELDS = CountrySearchField.allowedFields();
 
     private final CountryRepository countryRepository;
@@ -45,13 +43,22 @@ public class CountryServiceImpl implements CountryService {
 
     @Transactional
     @Override
-    public SuccessResponse create(CreateCountryRequest request, List<LocaleEntity> localeEntities) {
+    public SuccessResponse create(CreateCountryRequest request, Map<Long, LocaleEntity> localeEntityMap) {
+        if (countryRepository.existsByCode(request.getCode())) {
+            throw new IllegalStateException("Country with code '" + request.getCode() + "' already exists");
+        }
+
         CountryEntity entity = CountryMapper.create(request);
-        IntStream.range(0, request.getLocales().size()).forEach(i -> {
-            CountryLocaleEntity countryLocaleEntity = CountryLocaleMapper.create(request.getLocales().get(i));
-            countryLocaleEntity.assignLocale(localeEntities.get(i));
+
+        request.getLocales().forEach(localeReq -> {
+            CountryLocaleEntity countryLocaleEntity = CountryLocaleMapper.create(localeReq);
+
+            LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
+            localeEntity.addCountryLocaleEntity(countryLocaleEntity);
+
             entity.addCountryLocaleEntity(countryLocaleEntity);
         });
+
         countryRepository.save(entity);
         log.info("Country created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());
@@ -85,14 +92,6 @@ public class CountryServiceImpl implements CountryService {
         countryRepository.save(entity);
         log.info("Country updated with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());
-    }
-
-    @Override
-    public List<CountryEntity> getAll(Set<Long> ids) {
-        List<CountryEntity> entities = countryRepository
-                .findAllByIdInAndIsActiveAndIsDeleted(ids, true, false);
-        EntityValidator.validateAllFound(ids, entities, CountryEntity::getId, "Country");
-        return entities;
     }
 
     @Transactional

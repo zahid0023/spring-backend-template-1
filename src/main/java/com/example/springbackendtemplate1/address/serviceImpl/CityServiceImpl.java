@@ -51,8 +51,9 @@ public class CityServiceImpl implements CityService {
         countryEntity.addCityEntity(entity);
         request.getLocales().forEach(localeReq -> {
             LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
-            CityLocaleEntity locale = CityLocaleMapper.create(localeReq, localeEntity);
-            entity.addCityLocaleEntity(locale);
+            CityLocaleEntity cityLocaleEntity = CityLocaleMapper.create(localeReq);
+            localeEntity.addCityLocaleEntity(cityLocaleEntity);
+            entity.addCityLocaleEntity(cityLocaleEntity);
         });
         cityRepository.save(entity);
         log.info("City created with id: {}", entity.getId());

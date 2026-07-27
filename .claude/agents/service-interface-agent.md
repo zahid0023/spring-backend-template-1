@@ -88,3 +88,28 @@ public interface {Entity}Service {
 - `delete({Entity}Entity entity)` — controller pre-fetches, passes entity
 - `java.util.Set` needed if getAll(Set) YES
 - `java.util.Map` needed if dependency map in create
+
+---
+
+## Preview & Write
+
+If the file EXISTS, show a change summary table before writing:
+
+```
+─── Change Summary: {Entity}Service.java ─────────────────────
+  Item                              Current file    Proposed     Action
+  ──────────────────────────────── ─────────────── ──────────── ──────────
+  create(...)                       Present         Present      No change
+  getEntityById(Long id)            Present         Present      No change
+  getById(Long id)                  Present         —            REMOVE
+  getAll(Set<Long> ids)             —               Present      ADD
+  import java.util.List             Present         —            REMOVE
+──────────────────────────────────────────────────────────────
+
+Apply changes to {Entity}Service.java? 1-Yes / 2-No
+```
+
+If the file is MISSING, show the full generated code and ask:
+```
+Create {Entity}Service.java? 1-Yes / 2-No
+```

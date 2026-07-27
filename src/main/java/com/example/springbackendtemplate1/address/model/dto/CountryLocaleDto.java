@@ -15,7 +15,6 @@ import tools.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CountryLocaleDto {
     private Long id;
-    private CountryDto country;
     private LocaleDto locale;
     private String name;
     private String description;

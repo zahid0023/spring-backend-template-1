@@ -53,9 +53,12 @@ public class CurrencyServiceImpl implements CurrencyService {
         countryEntity.addCurrencyEntity(entity);
         if (request.getLocales() != null) {
             request.getLocales().forEach(localeReq -> {
+                CurrencyLocaleEntity currencyLocaleEntity = CurrencyLocaleMapper.create(localeReq);
+
                 LocaleEntity localeEntity = localeEntityMap.get(localeReq.getLocaleId());
-                CurrencyLocaleEntity locale = CurrencyLocaleMapper.create(localeReq, localeEntity);
-                entity.addCurrencyLocaleEntity(locale);
+                localeEntity.addCurrencyLocaleEntity(currencyLocaleEntity);
+
+                entity.addCurrencyLocaleEntity(currencyLocaleEntity);
             });
         }
         currencyRepository.save(entity);
@@ -96,8 +99,7 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Transactional
     @Override
-    public SuccessResponse delete(Long id) {
-        CurrencyEntity entity = getEntityById(id);
+    public SuccessResponse delete(CurrencyEntity entity) {
         entity.setIsDeleted(true);
         entity.setIsActive(false);
         currencyRepository.save(entity);

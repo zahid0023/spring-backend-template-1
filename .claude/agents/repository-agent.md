@@ -61,7 +61,14 @@ PHASE 3 — Preview & Write (read repository file HERE for the first time):
     If MISSING  → display the FULL generated code
                   ask "Create {Entity}Repository.java? 1-Yes / 2-No"
                   If Yes → write the file
-    If EXISTS   → show a diff (- removed, + added lines) and explain WHY each change
+    If EXISTS   → show a Change Summary TABLE (never raw diff lines):
+                  ─── Change Summary: {Entity}Repository.java ──────────────────
+                    Item                          Current file  Proposed    Action
+                    ───────────────────────────── ───────────── ─────────── ──────────
+                    findByIdAndIsActive...        Present       Present     No change
+                    existsByCode(String)          —             Present     ADD
+                    findAllByIdIn...              Present       —           REMOVE
+                  ─────────────────────────────────────────────────────────────
                   ask "Apply changes to {Entity}Repository.java? 1-Yes / 2-No"
                   If Yes → edit the file
 7.  REPORT — then move to the next repository
@@ -120,40 +127,27 @@ Methods to review  : {TOTAL}
 
 **MANDATORY: Show legend FIRST, then ALL methods in ONE table. STOP. Wait for ONE reply.**
 
-### Legend (always show before the table)
-
-```
-Options:
-  1=Yes — include this method in the repository
-  2=No  — exclude this method from the repository
-```
-
 ### Table format
 
-Always show the legend FIRST, then the table:
+Show ALL methods in ONE table. STOP and wait for ONE reply:
 
 ```
-Options:
-  1=Yes — include this method in the repository
-  2=No  — exclude this method from the repository
-
 ─── {Entity}Repository — which methods to include? ─────────────────────────────────────────────────────────────────────
   #   Method signature                                                                    Returns                    Rec    Reason
   ─── ───────────────────────────────────────────────────────────────────────────────── ──────────────────────────  ─────  ──────────────────────────────────────────────────────
-  1   findByIdAndIsActiveAndIsDeleted(Long id, Boolean isActive, Boolean isDeleted)      Optional<{Entity}Entity>   1=Yes  Fetch one active non-deleted record by primary key
-  2   findAllByIsActiveAndIsDeleted(Boolean isActive, Boolean isDeleted)                 List<{Entity}Entity>       1=Yes  Fetch all active non-deleted records as a flat list
-  3   findAllByIsActiveAndIsDeleted(Boolean isActive, Boolean isDeleted, Pageable p)     Page<{Entity}Entity>       1=Yes  Fetch active non-deleted records as a paginated result
-  4   findAllByIdInAndIsActiveAndIsDeleted(Set<Long> ids, Boolean isActive, Boolean isDeleted) List<{Entity}Entity> 1=Yes  Fetch multiple active non-deleted records by a set of IDs
-  5   findByCodeAndIsDeleted(String code, Boolean isDeleted)                             Optional<{Entity}Entity>   1=Yes  Lookup by unique field 'code' — includes soft-deleted for duplicate checking
+  1   findByIdAndIsActiveAndIsDeleted(Long id, Boolean isActive, Boolean isDeleted)      Optional<{Entity}Entity>   Yes    Fetch one active non-deleted record by primary key
+  2   findAllByIsActiveAndIsDeleted(Boolean isActive, Boolean isDeleted)                 List<{Entity}Entity>       Yes    Fetch all active non-deleted records as a flat list
+  3   findAllByIsActiveAndIsDeleted(Boolean isActive, Boolean isDeleted, Pageable p)     Page<{Entity}Entity>       Yes    Fetch active non-deleted records as a paginated result
+  4   findAllByIdInAndIsActiveAndIsDeleted(Set<Long> ids, Boolean isActive, Boolean isDeleted) List<{Entity}Entity> Yes    Fetch multiple active non-deleted records by a set of IDs
+  5   findByCodeAndIsDeleted(String code, Boolean isDeleted)                             Optional<{Entity}Entity>   Yes    Lookup by unique field 'code' — includes soft-deleted for duplicate checking
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Type "yes" to confirm all recommended, or specify per-method with #=option# (e.g. 1=1,4=1)
+Type "each" to include each method, or list the numbers to include (e.g. "1,2,4")
 ```
 
 ### Reply parsing rules
 
-- `"yes"` → apply the Rec column value to every method
-- `#=option#` overrides (e.g. `1=1,4=1`) → ONLY methods explicitly set to `1` are **Include**; every method NOT listed is **Exclude (2=No)**
-- Mixed example: `"yes"` is NOT valid when overrides are present; overrides are always exhaustive
+- `"each"` → include every method in the table
+- Numbers list (e.g. `1,2,4`) → ONLY the listed method numbers are **Include**; all others are **Exclude**
 
 ---
 

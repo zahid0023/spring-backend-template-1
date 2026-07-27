@@ -33,10 +33,10 @@ public class CountryLocaleController {
     public ResponseEntity<?> create(
             @PathVariable("country-id") Long countryId,
             @Valid @RequestBody CreateCountryLocaleRequest request) {
-        CountryEntity country = countryService.getEntityById(countryId);
+        CountryEntity countryEntity = countryService.getEntityById(countryId);
         LocaleEntity localeEntity = localeService.getEntityById(request.getLocaleId());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(countryLocaleService.create(country, localeEntity, request));
+                .body(countryLocaleService.create(request, countryEntity, localeEntity));
     }
 
     @PutMapping("/{id}")

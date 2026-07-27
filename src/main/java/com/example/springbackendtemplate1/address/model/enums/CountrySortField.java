@@ -8,8 +8,6 @@ public enum CountrySortField {
     ID("id", false),
     CREATED_AT("createdAt", false),
     CODE("code", false),
-    ISO3_CODE("iso3Code", false),
-    PHONE_CODE("phoneCode", false),
     SORT_ORDER("sortOrder", false),
     NAME("name", true);
 

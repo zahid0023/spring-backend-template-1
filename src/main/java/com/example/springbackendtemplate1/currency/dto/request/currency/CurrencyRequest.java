@@ -27,4 +27,7 @@ public class CurrencyRequest {
 
     @NotNull
     private Integer sortOrder;
+
+    @Size(max = 3)
+    private String numericCode;
 }

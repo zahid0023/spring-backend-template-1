@@ -29,11 +29,12 @@ public class CurrencyLocaleServiceImpl implements CurrencyLocaleService {
     public SuccessResponse create(CurrencyEntity currencyEntity,
                                   LocaleEntity localeEntity,
                                   CreateCurrencyLocaleRequest request) {
-        CurrencyLocaleEntity entity = CurrencyLocaleMapper.create(request, localeEntity);
-        currencyEntity.addCurrencyLocaleEntity(entity);
-        currencyLocaleRepository.save(entity);
-        log.info("CurrencyLocale created with id: {}", entity.getId());
-        return new SuccessResponse(true, entity.getId());
+        CurrencyLocaleEntity currencyLocaleEntity = CurrencyLocaleMapper.create(request);
+        localeEntity.addCurrencyLocaleEntity(currencyLocaleEntity);
+        currencyEntity.addCurrencyLocaleEntity(currencyLocaleEntity);
+        currencyLocaleRepository.save(currencyLocaleEntity);
+        log.info("CurrencyLocale created with id: {}", currencyLocaleEntity.getId());
+        return new SuccessResponse(true, currencyLocaleEntity.getId());
     }
 
     @Transactional(readOnly = true)

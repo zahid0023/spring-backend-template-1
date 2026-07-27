@@ -165,6 +165,53 @@ Pass the answer to controller-agent as the `pattern` decision.
 
 ---
 
+## Interactive Fix Flow (when files already exist and need fixes)
+
+When files already exist and need fixes, follow this MANDATORY flow — no exceptions:
+
+### Step A — Show full fix list as a single Unicode table FIRST
+Show ALL issues in one summary table before touching any file.
+Show fixes ONE AT A TIME — do NOT show all fixes at once without asking.
+
+Ask: "Show fixes one at a time? 1-Yes"
+Then present Fix 1, wait, then Fix 2, etc.
+
+### Step B — Per-fix format (MANDATORY for every fix)
+
+For EACH fix, show this exact Unicode table format, then ask permission:
+
+Header line (outside table): "Fix N of TOTAL — {FileName}.java"
+
+┌────────┬──────────────────────────────────────────────────────────────────────────────┐
+│ Issue  │ {What is wrong — what field/method/import is incorrect or missing}           │
+│        │ Impact: {concrete effect — compile error, runtime failure, data loss, etc}   │
+├────────┼──────────────────────────────────────────────────────────────────────────────┤
+│ Why    │ {Architectural or business reason this must be fixed — which rule or pattern  │
+│        │  it violates and why the correct approach is better}                         │
+├────────┼──────────────────────────────────────────────────────────────────────────────┤
+│ Change │ {Exactly what will be added, removed, or modified}                           │
+├────────┼──────────────────────────────────────────────────────────────────────────────┤
+│ Before │ {Current state — field list, method signature, or import}                   │
+│ After  │ {New state after fix is applied}                                             │
+└────────┴──────────────────────────────────────────────────────────────────────────────┘
+
+"Apply fix #N? 1-Yes / 2-Modify / 3-Skip"
+
+- 1-Yes    → apply the fix immediately, then show next fix
+- 2-Modify → ask what to change, update the fix, re-show the table, ask again
+- 3-Skip   → skip this fix, move to next
+
+WAIT for the answer. Only then show the next fix.
+NEVER show more than one fix at a time.
+NEVER apply a fix without explicit "1-Yes" from the user.
+
+### MANDATORY: ALL output must use Unicode box-drawing tables
+- NEVER use plain text lists or markdown (|---|) tables
+- ALWAYS use ┌─┬─┐ / ├─┼─┤ / └─┴─┘ / │ for ALL structured output
+- Compute column widths from actual data (pad with spaces to widest value per column)
+
+---
+
 ## Final report
 
 ```

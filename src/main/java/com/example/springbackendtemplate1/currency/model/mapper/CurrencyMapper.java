@@ -1,5 +1,6 @@
 package com.example.springbackendtemplate1.currency.model.mapper;
 
+import com.example.springbackendtemplate1.address.model.mapper.CountryMapper;
 import com.example.springbackendtemplate1.currency.dto.request.currency.CreateCurrencyRequest;
 import com.example.springbackendtemplate1.currency.dto.request.currency.CurrencyRequest;
 import com.example.springbackendtemplate1.currency.dto.request.currency.UpdateCurrencyRequest;
@@ -40,13 +41,13 @@ public class CurrencyMapper {
 
         return CurrencyDto.builder()
                 .id(entity.getId())
+                .country(CountryMapper.toDto(entity.getCountryEntity()))
                 .code(entity.getCode())
                 .numericCode(entity.getNumericCode())
                 .symbol(entity.getSymbol())
                 .decimalPlaces(entity.getDecimalPlaces())
                 .isDefault(entity.getIsDefault())
                 .sortOrder(entity.getSortOrder())
-                .countryId(entity.getCountryEntity().getId())
                 .locales(locales)
                 .build();
     }

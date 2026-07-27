@@ -5,16 +5,14 @@ import com.example.springbackendtemplate1.currency.dto.request.currency.currency
 import com.example.springbackendtemplate1.currency.dto.request.currency.currencylocale.UpdateCurrencyLocaleRequest;
 import com.example.springbackendtemplate1.currency.model.dto.CurrencyLocaleDto;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
-import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
+import com.example.springbackendtemplate1.locale.model.mapper.LocaleMapper;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CurrencyLocaleMapper {
 
-    public CurrencyLocaleEntity create(CreateCurrencyLocaleRequest request,
-                                       LocaleEntity localeEntity) {
+    public CurrencyLocaleEntity create(CreateCurrencyLocaleRequest request) {
         CurrencyLocaleEntity entity = new CurrencyLocaleEntity();
-        entity.assignLocaleEntity(localeEntity);
         applyCommonFields(entity, request);
         return entity;
     }
@@ -32,7 +30,7 @@ public class CurrencyLocaleMapper {
     public CurrencyLocaleDto toDto(CurrencyLocaleEntity entity) {
         return CurrencyLocaleDto.builder()
                 .id(entity.getId())
-                .localeId(entity.getLocaleEntity().getId())
+                .locale(LocaleMapper.toDto(entity.getLocaleEntity()))
                 .name(entity.getName())
                 .shortName(entity.getShortName())
                 .sortOrder(entity.getSortOrder())

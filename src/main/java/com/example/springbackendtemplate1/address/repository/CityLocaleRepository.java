@@ -23,6 +23,13 @@ public interface CityLocaleRepository extends
             Boolean isDeleted
     );
 
+    Optional<CityLocaleEntity> findByCityEntity_IdAndIdAndIsActiveAndIsDeleted(
+            Long cityEntityId,
+            Long id,
+            Boolean isActive,
+            Boolean isDeleted
+    );
+
     List<CityLocaleEntity> findAllByIsActiveAndIsDeleted(
             Boolean isActive,
             Boolean isDeleted

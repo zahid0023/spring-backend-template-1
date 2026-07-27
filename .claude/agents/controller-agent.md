@@ -105,9 +105,10 @@ Reason: {FK ID field} {is / is not} present in Create{Entity}Request
                            Write-only: POST, PUT/{id}, DELETE/{id}  (no GET endpoints)
                            parentId in the request body.
 
-  3 - Sub-resource child — /api/v1/{parentLowerPlural}/{parentId}/{entityLowerPlural}
+  3 - Sub-resource child — /api/v1/{parentLowerPlural}/{parent-lower-kebab-id}/{childSegment}
+                           Example: /api/v1/countries/{country-id}/locales
                            Write-only: POST, PUT/{id}, DELETE/{id}  (no GET endpoints)
-                           parentId from URL path variable.
+                           parentId from URL path variable (kebab-case path variable name).
 ─────────────────────────────────────────────────────────────────────────────────
 Confirm auto-detected pattern? 1-Yes / 2-Override
 ```
@@ -142,7 +143,16 @@ Proceed? 1-Yes / 2-Change pattern
 |---------|-----|
 | Aggregate root | `/api/v1/{entityLowerPlural}` |
 | Root-level child | `/api/v1/{entityLowerPlural}` |
-| Sub-resource child | `/api/v1/{parentLowerPlural}/{parentId}/{entityLowerPlural}` |
+| Sub-resource child | `/api/v1/{parentLowerPlural}/{parent-lower-kebab-id}/{childSegment}` |
+
+### Sub-resource URL rules
+- Path variable MUST use kebab-case: `{country-id}`, `{city-id}`, `{currency-id}` — never camelCase `{countryId}`
+- `@PathVariable` binding: `@PathVariable("country-id") Long countryId`
+- `{childSegment}` = strip the parent prefix from the entity name, then pluralize:
+  - `CountryLocale` → strip `Country` → `Locale` → `locales`
+  - `CityLocale` → strip `City` → `Locale` → `locales`
+  - `CountryImage` → strip `Country` → `Image` → `images`
+- Result example: `/api/v1/countries/{country-id}/locales`  (NOT `/api/v1/countries/{countryId}/country-locales`)
 
 ---
 
@@ -295,7 +305,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/{parentLowerPlural}/{parentId}/{entityLowerPlural}")
+@RequestMapping("/api/v1/{parentLowerPlural}/{parent-lower-kebab-id}/{childSegment}")
+// Example: @RequestMapping("/api/v1/countries/{country-id}/locales")
 public class {Entity}Controller {
 
     private final {Entity}Service {entityLower}Service;
@@ -310,18 +321,18 @@ public class {Entity}Controller {
 
     @PostMapping
     public ResponseEntity<?> create(
-            @PathVariable Long {parentId},
+            @PathVariable("{parent-lower-kebab-id}") Long {parentLower}Id,
+            // Example: @PathVariable("country-id") Long countryId
             @Valid @RequestBody Create{Entity}Request request) {
-        // fetch parent from path variable
-        {Parent}Entity parent = {parentLower}Service.getEntityById({parentId});
-        // LocaleEntity locale = localeService.getEntityById(request.getLocaleId());  // if needed
+        {Parent}Entity {parentLower}Entity = {parentLower}Service.getEntityById({parentLower}Id);
+        // LocaleEntity localeEntity = localeService.getEntityById(request.getLocaleId());  // if needed
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body({entityLower}Service.create(request, parent /*, locale */));
+                .body({entityLower}Service.create(request, {parentLower}Entity /*, localeEntity */));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(
-            @PathVariable Long {parentId},
+            @PathVariable("{parent-lower-kebab-id}") Long {parentLower}Id,
             @PathVariable Long id,
             @Valid @RequestBody Update{Entity}Request request) {
         {Entity}Entity entity = {entityLower}Service.getEntityById(id);
@@ -330,7 +341,7 @@ public class {Entity}Controller {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
-            @PathVariable Long {parentId},
+            @PathVariable("{parent-lower-kebab-id}") Long {parentLower}Id,
             @PathVariable Long id) {
         {Entity}Entity entity = {entityLower}Service.getEntityById(id);
         return ResponseEntity.ok({entityLower}Service.delete(entity));

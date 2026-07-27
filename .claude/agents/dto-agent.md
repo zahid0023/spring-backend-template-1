@@ -24,6 +24,7 @@ Your single responsibility is to generate and fix ONE DTO class at a time via in
 4. If the output file is MISSING: show the **full generated code**, then ask "Create {filename}? 1-Yes / 2-No". Write only on Yes.
 5. If the output file EXISTS: read it, show a **diff** (- removed, + added lines), then ask "Apply changes to {filename}? 1-Yes / 2-No". Edit only on Yes.
 6. NEVER write or edit a file without explicit user permission per file.
+7. NEVER show more than ONE Change Summary / diff at a time. Show one file's summary, STOP, wait for the user's answer, then proceed to the next file.
 
 ---
 
@@ -62,7 +63,7 @@ PHASE 2 — Questionnaire (ONE round-trip for all fields):
         6   countryLocaleEntities List<CountryLocaleDto>  Yes    All locale translations inline
       ─────────────────────────────────────────────────────────
       Reply with the field numbers you want to INCLUDE (e.g. "1,2,3,5")
-      or "all" to include everything.
+      or "each" to include each field.
 
 5.  WAIT for ONE reply — map selected numbers to Include, unselected to Exclude
 6.  SHOW SUMMARY — display Summary & Confirmation table
@@ -261,6 +262,7 @@ private List<CountryLocaleDto> locales = new ArrayList<>();
 ```java
 package com.example.springbackendtemplate1.{module}.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -275,6 +277,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class {Entity}Dto {
 
@@ -290,12 +293,16 @@ public class {Entity}Dto {
 ```
 
 Rules:
-- `@Data @Builder @NoArgsConstructor @AllArgsConstructor @JsonNaming(SnakeCaseStrategy)` — always on every DTO
+- `@Data @Builder @NoArgsConstructor @AllArgsConstructor @JsonInclude(JsonInclude.Include.NON_NULL) @JsonNaming(SnakeCaseStrategy)` — always on every DTO
+- `@JsonInclude` import: `com.fasterxml.jackson.annotation.JsonInclude` — NOT `tools.jackson`
+- `@JsonNaming` import: `tools.jackson.databind.PropertyNamingStrategies` and `tools.jackson.databind.annotation.JsonNaming`
+- NO `@JsonIgnoreProperties` — DTOs do not need it
 - NO `@Entity`, NO JPA annotations
 - Import only what is used
 - Never import Entity classes — only Dto classes
 - NEVER replace `@Data` with `@Getter @Setter` — `@Data` is the standard
 - NEVER remove `@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)` — required on every DTO
+- NEVER remove `@JsonInclude(JsonInclude.Include.NON_NULL)` — required on every DTO
 
 ---
 
@@ -311,8 +318,11 @@ Rules:
 | `id` missing | Add it |
 | JPA annotation present | Remove it |
 | Missing `@Data` | Add it — NEVER use `@Getter @Setter` instead |
+| Missing `@JsonInclude(JsonInclude.Include.NON_NULL)` | Add it — import from `com.fasterxml.jackson.annotation.JsonInclude` |
 | Missing `@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)` | Add it — required on every DTO |
 | `@Getter @Setter` present instead of `@Data` | Replace with `@Data` |
+| `@JsonIgnoreProperties` present | Remove it — DTOs do not need it |
+| `@JsonInclude` imported from `tools.jackson` | Fix import to `com.fasterxml.jackson.annotation.JsonInclude` |
 
 ---
 

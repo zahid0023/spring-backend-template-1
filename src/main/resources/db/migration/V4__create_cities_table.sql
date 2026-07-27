@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS cities
 (
     id         bigserial PRIMARY KEY,
     country_id bigint                       NOT NULL REFERENCES countries (id) ON DELETE RESTRICT,
-    code       varchar(50),
+    code       varchar(50)                  NOT NULL,
     sort_order int                          NOT NULL DEFAULT 0,
 
     created_by bigint references users (id) NOT NULL,

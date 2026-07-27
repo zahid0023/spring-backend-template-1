@@ -21,10 +21,7 @@ import static com.example.springbackendtemplate1.commons.model.entity.EntityRela
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "currencies",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"symbol", "country_id"})
-)
+@Table(name = "currencies")
 public class CurrencyEntity extends AuditableEntity {
 
     @NotBlank
@@ -63,11 +60,13 @@ public class CurrencyEntity extends AuditableEntity {
     @JoinColumn(name = "country_id", nullable = false)
     private CountryEntity countryEntity;
 
-    public void assignCountryEntity(CountryEntity countryEntity) {
+    /** Internal — call via {@link CountryEntity#addCurrencyEntity}. */
+    public void assignCountry(CountryEntity countryEntity) {
         this.countryEntity = countryEntity;
     }
 
-    public void unassignCountryEntity() {
+    /** Internal — call via {@link CountryEntity#removeCurrencyEntity}. */
+    public void unassignCountry() {
         this.countryEntity = null;
     }
 
@@ -75,15 +74,15 @@ public class CurrencyEntity extends AuditableEntity {
     private Set<CurrencyLocaleEntity> currencyLocaleEntities = new LinkedHashSet<>();
 
     // -------------------------------------------------------------------------
-    // Currency Locale relationship helpers
+    // CurrencyLocale relationship helpers
     // -------------------------------------------------------------------------
 
     public void addCurrencyLocaleEntity(CurrencyLocaleEntity entity) {
-        addChild(currencyLocaleEntities, entity, CurrencyLocaleEntity::assignCurrencyEntity, this);
+        addChild(currencyLocaleEntities, entity, CurrencyLocaleEntity::assignCurrency, this);
     }
 
     public void removeCurrencyLocaleEntity(CurrencyLocaleEntity entity) {
-        removeChild(currencyLocaleEntities, entity, (child, ignored) -> child.unassignCurrencyEntity());
+        removeChild(currencyLocaleEntities, entity, (child, ignored) -> child.unassignCurrency());
     }
 
 }
