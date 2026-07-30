@@ -1,5 +1,5 @@
 ---
-name: crudapi-repository-generation-agent
+name: crudapi-8-repository-generation-agent
 description: >
   Question-based Repository agent. Receives the entity's unique columns and FK
   fields as input from the caller — it does NOT read the entity file itself. Runs
@@ -79,7 +79,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve every method-name derived form yourself** — never wait for the caller
    to hand you pre-computed method signatures. `{module}` is carried through
-   unchanged from crudapi-schema-discovery-agent's own resolution.
+   unchanged from crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -96,7 +96,7 @@ Every invocation follows this exact order:
 
 ```
 Entity name    : {Entity}
-Module         : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module         : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Classification : ROOT / CHILD
 Unique columns : {list, e.g. code}
 @ManyToOne FKs : {list, e.g. countryEntity -> CountryEntity}

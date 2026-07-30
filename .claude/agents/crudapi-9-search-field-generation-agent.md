@@ -1,9 +1,9 @@
 ---
-name: crudapi-search-field-generation-agent
+name: crudapi-9-search-field-generation-agent
 description: >
   Question-based SearchField agent (ROOT entities, or CHILD entities with their own
   getAll — not locale/companion entities). Receives the list of
-  fields already confirmed searchable by crudapi-requestdto-generation-agent's Phase 2 as input from
+  fields already confirmed searchable by crudapi-6-requestdto-generation-agent's Phase 2 as input from
   the caller — it does NOT read the FilterRequest or entity files itself. Confirms
   the enum layout with the user, then checks whether {Entity}SearchField.java
   exists: creates it if missing, shows a diff and asks permission if it exists.
@@ -68,7 +68,7 @@ Every invocation follows this exact order:
 
 1. **Never read the FilterRequest or entity files.** The caller supplies the
    confirmed searchable String fields (with EXACT/LIKE decision and locale-or-direct
-   classification) as text in the prompt — this is the output of crudapi-requestdto-generation-agent's
+   classification) as text in the prompt — this is the output of crudapi-6-requestdto-generation-agent's
    Phase 2 questionnaire, already answered by the user. If not supplied, ask the
    caller for it.
 2. **Never read the target `{Entity}SearchField.java` before the confirm question is answered.**
@@ -81,7 +81,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve enum constant names and `{entityLower}` yourself** — never wait for
    the caller to hand you pre-computed forms. `{module}` is carried through
-   unchanged from crudapi-schema-discovery-agent's own resolution.
+   unchanged from crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -99,8 +99,8 @@ Every invocation follows this exact order:
 
 ```
 Entity name : {Entity}
-Module      : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
-Confirmed searchable String fields (from crudapi-requestdto-generation-agent Phase 2):
+Module      : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
+Confirmed searchable String fields (from crudapi-6-requestdto-generation-agent Phase 2):
   #   Field         Source          SearchType   FilterRequest getter
   1   code          direct          LIKE         {Entity}FilterRequest::getCode
   2   name          locale child    LIKE         {Entity}FilterRequest::getName

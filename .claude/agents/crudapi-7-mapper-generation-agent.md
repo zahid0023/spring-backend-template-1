@@ -1,5 +1,5 @@
 ---
-name: crudapi-mapper-generation-agent
+name: crudapi-7-mapper-generation-agent
 description: >
   Question-based Mapper agent. Receives the entity's scalar field list as input
   from the caller — it does NOT read the entity, DTO, or request files itself.
@@ -124,7 +124,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve `{entityLower}` and constructor/method naming yourself** — never wait
    for the caller to hand you pre-computed forms. `{module}` is carried through
-   unchanged from crudapi-schema-discovery-agent's own resolution.
+   unchanged from crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -142,7 +142,7 @@ Every invocation follows this exact order:
 
 ```
 Entity name  : {Entity}
-Module       : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module       : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Scalar fields (own fields only — no FK, no collections):
   #   Field         Java type
   1   code          String

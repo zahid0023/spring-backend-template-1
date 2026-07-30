@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+  mail:
+    username: test@example.com
+    password: test-password
+    properties:
+      mail.sender.name: Test Sender
+
+jwt:
+  secret: test-jwt-secret-key-for-integration-tests-only-0123456789
+  access-token-expiration-minutes: 15
+  refresh-token-expiration-days: 7
+  otp.expiration-minutes: 5

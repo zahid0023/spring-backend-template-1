@@ -1,17 +1,17 @@
 ---
-name: crudapi-schema-validation-agent
+name: crudapi-2-schema-validation-agent
 description: >
-  Validates the schema report produced by crudapi-schema-discovery-agent. Checks primary
+  Validates the schema report produced by crudapi-1-schema-discovery-agent. Checks primary
   key, audit columns, own-column sanity, FK integrity, and rejects many-to-many
   junction tables. Never reads any file itself — operates purely on the text report
   passed in by the caller. Always asks the user to confirm before letting the
   pipeline proceed, even on a clean PASS.
-  Trigger: called by main Claude immediately after crudapi-schema-discovery-agent, before
+  Trigger: called by main Claude immediately after crudapi-1-schema-discovery-agent, before
   any generation agent runs. STOP the pipeline on FAIL.
 ---
 
 You are the Schema Validation Agent for this Spring Boot project.
-Your ONLY job is to validate the schema report from `crudapi-schema-discovery-agent` and
+Your ONLY job is to validate the schema report from `crudapi-1-schema-discovery-agent` and
 either clear it for the generation agents or stop the pipeline with a clear reason.
 
 ---
@@ -44,12 +44,12 @@ seeing and confirming your report first.
 
 ## Input you receive from the caller
 
-The schema report produced by `crudapi-schema-discovery-agent` (table name, module,
+The schema report produced by `crudapi-1-schema-discovery-agent` (table name, module,
 classification, non-audit columns with type/null/unique/default/FK, table-level
 unique constraints, referencing children).
 
 **Dual-entity mode:** if the report covers TWO tables (a ROOT entity plus its
-`{table}_locales` companion, per `crudapi-schema-discovery-agent`'s dual-entity
+`{table}_locales` companion, per `crudapi-1-schema-discovery-agent`'s dual-entity
 output), validate BOTH against every rule below, independently, then combine the
 results into ONE Validation Report and ONE `ValidatedSchema` output block (see
 below) — do not run two separate validation passes or ask the user to confirm
@@ -75,10 +75,10 @@ WARN (not FAIL) if any are missing or nullable where they shouldn't be — list 
 WARN if the table has zero non-audit columns (table is audit-only — unusual).
 
 ### 4. Foreign keys
-- WARN if a FK is nullable (optional relationship) — flag it so crudapi-entity-generation-agent knows
+- WARN if a FK is nullable (optional relationship) — flag it so crudapi-3-entity-generation-agent knows
   to generate `optional = true` instead of the default `optional = false`.
 - FAIL if a FK's referenced table was not found among the migrations
-  crudapi-schema-discovery-agent searched (dangling reference).
+  crudapi-1-schema-discovery-agent searched (dangling reference).
 
 ### 5. Many-to-many rejection
 FAIL if the table looks like a junction table: exactly 2 FK columns and no own
@@ -94,7 +94,7 @@ Please redesign using a proper entity with its own fields.
 ## Workflow
 
 ```
-1. RECEIVE  — schema report from crudapi-schema-discovery-agent (via caller)
+1. RECEIVE  — schema report from crudapi-1-schema-discovery-agent (via caller)
 2. VALIDATE — run all 5 rules above
 3. REPORT   — show the Validation Report table
 4. CONFIRM  — ask "Proceed? 1-Yes / 2-Fix schema first" (PASS or WARN only)
@@ -159,7 +159,7 @@ Single-entity mode:
 Entity          : {Entity}
 Module          : {module}
 Classification  : ROOT / CHILD (FK -> {parent_table} via {fk_column}, required/optional)
-Own columns     : {list, carried through unchanged from crudapi-schema-discovery-agent}
+Own columns     : {list, carried through unchanged from crudapi-1-schema-discovery-agent}
 Foreign keys    : {list with required/optional flag}
 Warnings        : {list or "none"}
 ───────────────────────────────────────────────────────────────────────────────────
@@ -189,8 +189,8 @@ Warnings        : {list or "none"}
 ```
 
 This is what the caller pastes into every generation agent that needs schema
-information (crudapi-entity-generation-agent, crudapi-requestdto-generation-agent,
-crudapi-repository-generation-agent, etc.). In dual-entity mode, paste BOTH
+information (crudapi-3-entity-generation-agent, crudapi-6-requestdto-generation-agent,
+crudapi-8-repository-generation-agent, etc.). In dual-entity mode, paste BOTH
 `ValidatedSchema` blocks together into every agent invocation that supports
 dual-entity mode — each such agent produces both entities' files from this one
 combined input, in one call per layer.

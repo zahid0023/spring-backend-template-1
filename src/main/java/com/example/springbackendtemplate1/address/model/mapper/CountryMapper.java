@@ -38,16 +38,23 @@ public class CountryMapper {
                 .phoneCode(entity.getPhoneCode())
                 .sortOrder(entity.getSortOrder())
                 .locales(entity.getCountryLocaleEntities().stream()
+                        .filter(countryLocaleEntity -> Boolean.TRUE.equals(countryLocaleEntity.getIsActive())
+                                && Boolean.FALSE.equals(countryLocaleEntity.getIsDeleted()))
                         .map(CountryLocaleMapper::toDto)
                         .toList())
                 .build();
     }
 
     public CountryDto toDto(CountryEntity entity, Long localeId) {
-        CountryLocaleEntity matched = entity.getCountryLocaleEntities().stream()
+        List<CountryLocaleEntity> activeLocales = entity.getCountryLocaleEntities().stream()
+                .filter(countryLocaleEntity -> Boolean.TRUE.equals(countryLocaleEntity.getIsActive())
+                        && Boolean.FALSE.equals(countryLocaleEntity.getIsDeleted()))
+                .toList();
+
+        CountryLocaleEntity matched = activeLocales.stream()
                 .filter(countryLocaleEntity -> countryLocaleEntity.getLocaleEntity().getId().equals(localeId))
                 .findFirst()
-                .orElseGet(() -> entity.getCountryLocaleEntities().stream()
+                .orElseGet(() -> activeLocales.stream()
                         .filter(countryLocaleEntity -> "en".equals(countryLocaleEntity.getLocaleEntity().getCode()))
                         .findFirst()
                         .orElse(null));

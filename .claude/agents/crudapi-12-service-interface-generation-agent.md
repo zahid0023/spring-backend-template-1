@@ -1,5 +1,5 @@
 ---
-name: crudapi-service-interface-generation-agent
+name: crudapi-12-service-interface-generation-agent
 description: >
   Question-based Service interface agent. Receives the method decisions already
   confirmed with the user (main Claude runs that questionnaire in chat before
@@ -49,8 +49,8 @@ actually confirmed in the questionnaire, surface it before generating.
 
 If the caller confirms this ROOT uses the localization pattern (locale-scoped
 search + single-locale-with-English-fallback response, driven by the
-`Accept-Language` header — see crudapi-requestdto-generation-agent's and
-crudapi-mapper-generation-agent's Localization pattern sections), `getAll`'s
+`Accept-Language` header — see crudapi-6-requestdto-generation-agent's and
+crudapi-7-mapper-generation-agent's Localization pattern sections), `getAll`'s
 signature gains a `Long localeId` parameter:
 
 ```java
@@ -98,7 +98,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve `{entityLower}`/`{entityLowerPlural}` yourself** — never wait for the
    caller to hand you pre-computed forms. `{module}` is carried through unchanged
-   from crudapi-schema-discovery-agent's own resolution.
+   from crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -115,7 +115,7 @@ Every invocation follows this exact order:
 
 ```
 Entity         : {Entity}
-Module         : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module         : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Classification : ROOT / CHILD
 Methods (already confirmed with the user):
   create        : YES/NO   cascade children: NONE / {Child}

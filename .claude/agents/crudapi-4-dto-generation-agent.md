@@ -1,5 +1,5 @@
 ---
-name: crudapi-dto-generation-agent
+name: crudapi-4-dto-generation-agent
 description: >
   Question-based DTO agent. Receives the entity's field list (from the caller — it
   does NOT read {Entity}Entity.java itself), runs a field-by-field questionnaire on
@@ -79,7 +79,7 @@ Every invocation follows this exact order:
 7. **Resolve every DTO-side derived name yourself** — never wait for the caller to
    hand you a pre-computed nested-field name or plural. Derive them per the Naming
    Conventions below. `{module}` is carried through unchanged from
-   crudapi-schema-discovery-agent's own resolution (relaying it is not interference).
+   crudapi-1-schema-discovery-agent's own resolution (relaying it is not interference).
 
 `AuditableEntity` fields are always excluded: `createdBy, createdAt, updatedBy, updatedAt,
 deletedBy, deletedAt, isDeleted, isActive, version`.
@@ -101,7 +101,7 @@ deletedBy, deletedAt, isDeleted, isActive, version`.
 
 ```
 Entity name : {Entity}
-Module      : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module      : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Fields (in entity declaration order, excluding AuditableEntity fields):
   #   Field           Kind                        Java type
   1   code            scalar                      String

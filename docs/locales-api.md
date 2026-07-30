@@ -108,14 +108,17 @@ performs a case-insensitive partial match.
 
 ### Query Parameters
 
-| Parameter  | Type   | Default | Constraints                                    | Description                                        |
-|------------|--------|---------|------------------------------------------------|----------------------------------------------------|
-| `code`     | String | —       | —                                              | Filter by locale code (partial, case-insensitive)  |
-| `name`     | String | —       | —                                              | Filter by display name (partial, case-insensitive) |
-| `page`     | int    | `0`     | >= 0                                           | Zero-based page index                              |
-| `size`     | int    | `10`    | 1 – 50                                         | Number of items per page                           |
-| `sort_by`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name` | Field to sort by                                   |
-| `sort_dir` | String | `ASC`   | `ASC`, `DESC`                                  | Sort direction                                     |
+> **Note:** Query parameters are **camelCase** (Java field names via Spring's plain `DataBinder`), not
+> the snake_case used in JSON bodies (which goes through Jackson's `@JsonNaming` instead).
+
+| Parameter | Type   | Default | Constraints                                    | Description                                        |
+|-----------|--------|---------|-------------------------------------------------|-----------------------------------------------------|
+| `code`    | String | —       | —                                               | Filter by locale code (partial, case-insensitive)  |
+| `name`    | String | —       | —                                               | Filter by display name (partial, case-insensitive) |
+| `page`    | int    | `0`     | >= 0                                            | Zero-based page index                              |
+| `size`    | int    | `10`    | 1 – 50                                          | Number of items per page                           |
+| `sortBy`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name`  | Field to sort by                                   |
+| `sortDir` | String | `ASC`   | `ASC`, `DESC`                                   | Sort direction                                     |
 
 ### Response `200 OK`
 
@@ -235,6 +238,6 @@ All errors follow a common structure:
 
 | HTTP Status | Error Code         | Cause                                                                           |
 |-------------|--------------------|---------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT` | Missing required fields, or an unsupported `sort_by` value                      |
+| 400         | `INVALID_ARGUMENT` | Missing required fields, or an unsupported `sortBy` query value                  |
 | 404         | `ENTITY_NOT_FOUND` | Locale not found, or already deleted                                            |
 | 409         | `CONFLICT`         | `code` already in use by another active locale (checked explicitly in `create`) |

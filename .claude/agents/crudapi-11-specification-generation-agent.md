@@ -1,5 +1,5 @@
 ---
-name: crudapi-specification-generation-agent
+name: crudapi-11-specification-generation-agent
 description: >
   Question-based Specification agent (ROOT entities, or CHILD entities with their
   own getAll — not locale/companion entities). Receives only the
@@ -32,7 +32,7 @@ public class CountrySpecification {
 ```
 
 There is no field-level logic here at all — every bit of filtering complexity lives
-in `CountryFilterRequest.toPredicates()` (built by crudapi-requestdto-generation-agent) and the
+in `CountryFilterRequest.toPredicates()` (built by crudapi-6-requestdto-generation-agent) and the
 `CountrySearchField` enum. If you're ever tempted to add anything beyond this single
 delegating line, that's a sign the logic belongs in a different file — flag it to
 the user instead of adding it here.
@@ -42,7 +42,7 @@ the user instead of adding it here.
 ## Localization pattern — when the FilterRequest has locale-searchable fields
 
 If `{Entity}FilterRequest` has at least one locale-child searchable field (per
-crudapi-requestdto-generation-agent's Localization pattern — it will have NO
+crudapi-6-requestdto-generation-agent's Localization pattern — it will have NO
 `localeId` field, and its 3-arg `toPredicates` throws
 `UnsupportedOperationException`), `filter()` needs an extra `Long localeId`
 parameter, threaded straight through to `SpecificationUtils.build`:
@@ -90,7 +90,7 @@ Every invocation follows this exact order:
 5. NEVER write or edit without explicit confirmation.
 6. **Resolve `{entityLower}` yourself** — never wait for the caller to hand you a
    pre-computed form. `{module}` is carried through unchanged from
-   crudapi-schema-discovery-agent's own resolution.
+   crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -106,7 +106,7 @@ Every invocation follows this exact order:
 
 ```
 Entity name : {Entity}
-Module      : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module      : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Has locale-searchable fields on {Entity}FilterRequest (localization pattern) : YES/NO
 ```
 

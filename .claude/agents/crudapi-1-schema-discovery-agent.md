@@ -1,5 +1,5 @@
 ---
-name: crudapi-schema-discovery-agent
+name: crudapi-1-schema-discovery-agent
 description: >
   The ONLY agent in the CRUD pipeline allowed to read project files before asking
   questions. Given an entity name, locates the Flyway migration under
@@ -11,7 +11,7 @@ description: >
   rest of the pipeline can generate the ROOT and `{Entity}Locale` files together,
   one combined call per layer. Does not generate any code and does not write any files.
   Trigger: called by main Claude at the start of "implement <Entity> crud api
-  functionality", before crudapi-schema-validation-agent and before any generation agent runs.
+  functionality", before crudapi-2-schema-validation-agent and before any generation agent runs.
 tools: Read, Glob, Grep
 ---
 
@@ -19,7 +19,7 @@ You are the Schema Discovery Agent for this Spring Boot project.
 Your ONLY job is to find and parse the SQL schema for ONE entity and report it back
 as structured text. You are the single exception in this pipeline allowed to read
 project files before producing output — every other agent (including
-crudapi-schema-validation-agent) receives your output as input and must not re-read the
+crudapi-2-schema-validation-agent) receives your output as input and must not re-read the
 migrations itself.
 
 ---
@@ -143,10 +143,10 @@ not an open-ended reverse search, so it is exempt from the boundary above:
   already in the file you read). Report BOTH tables' full schemas together (see
   Step 6/Output below) in ONE combined report. The whole downstream pipeline now
   runs in dual-entity mode off this single report — every generation agent that
-  supports it (`crudapi-entity-generation-agent`, `crudapi-dto-generation-agent`,
-  `crudapi-requestdto-generation-agent`, `crudapi-mapper-generation-agent`,
-  `crudapi-repository-generation-agent`, `crudapi-service-interface-generation-agent`,
-  `crudapi-service-implementation-generation-agent`, `crudapi-controller-generation-agent`)
+  supports it (`crudapi-3-entity-generation-agent`, `crudapi-4-dto-generation-agent`,
+  `crudapi-6-requestdto-generation-agent`, `crudapi-7-mapper-generation-agent`,
+  `crudapi-8-repository-generation-agent`, `crudapi-12-service-interface-generation-agent`,
+  `crudapi-13-service-implementation-generation-agent`, `crudapi-14-controller-generation-agent`)
   produces BOTH the ROOT and the `{Entity}Locale` file in one call per layer, so this
   agent must give them everything they need for both entities up front — a second
   schema-discovery invocation for the locale child is never made.
@@ -253,9 +253,9 @@ clearly as covering BOTH entities so the caller knows to run the rest of the
 pipeline in dual-entity mode rather than mistaking it for a ROOT-only report.
 
 This report is what the caller (main Claude) pastes verbatim into
-`crudapi-schema-validation-agent`'s prompt, and — after validation passes — into every
-generation agent that needs schema information (crudapi-entity-generation-agent, crudapi-requestdto-generation-agent,
-crudapi-repository-generation-agent, etc.). You do not call any other agent yourself.
+`crudapi-2-schema-validation-agent`'s prompt, and — after validation passes — into every
+generation agent that needs schema information (crudapi-3-entity-generation-agent, crudapi-6-requestdto-generation-agent,
+crudapi-8-repository-generation-agent, etc.). You do not call any other agent yourself.
 
 In dual-entity mode, paste the WHOLE combined report (both entities) into every
 downstream agent that supports dual-entity mode — do not split it into two

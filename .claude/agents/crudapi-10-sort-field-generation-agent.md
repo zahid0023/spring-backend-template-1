@@ -1,5 +1,5 @@
 ---
-name: crudapi-sort-field-generation-agent
+name: crudapi-10-sort-field-generation-agent
 description: >
   Question-based SortField agent (ROOT entities, or CHILD entities with their own
   getAll — not locale/companion entities). Receives the entity's scalar
@@ -84,7 +84,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve enum constant names yourself** — never wait for the caller to hand you
    pre-computed forms. `{module}` is carried through unchanged from
-   crudapi-schema-discovery-agent's own resolution.
+   crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -100,12 +100,12 @@ Every invocation follows this exact order:
 
 ```
 Entity name : {Entity}
-Module      : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module      : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Scalar fields (own fields only — no FK, no collections):
   #   Field         Java type
   1   code          String
   2   sortOrder     Integer
-Locale child fields already confirmed searchable (from crudapi-search-field-generation-agent, if any):
+Locale child fields already confirmed searchable (from crudapi-9-search-field-generation-agent, if any):
   name -> localeField=true
 ```
 

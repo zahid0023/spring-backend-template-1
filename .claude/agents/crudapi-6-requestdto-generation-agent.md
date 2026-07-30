@@ -1,5 +1,5 @@
 ---
-name: crudapi-requestdto-generation-agent
+name: crudapi-6-requestdto-generation-agent
 description: >
   Question-based Request DTO + Filter agent. Receives the entity's field list and
   relationship map as input from the caller — it does NOT read the entity file
@@ -90,7 +90,7 @@ Every invocation follows this exact order:
 7. NEVER write or edit without explicit per-file confirmation.
 8. **Resolve every derived name yourself** — `{entityLower}`, FK-id field names, the
    locale sub-package, etc. are never handed to you pre-computed. `{module}` is the
-   one exception: it's carried through unchanged from crudapi-schema-discovery-agent's own
+   one exception: it's carried through unchanged from crudapi-1-schema-discovery-agent's own
    resolution.
 
 ---
@@ -111,7 +111,7 @@ Every invocation follows this exact order:
 
 ```
 Entity name    : {Entity}
-Module         : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module         : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Classification : ROOT / CHILD
 Fields (excluding AuditableEntity fields), in entity declaration order:
   #   Field           Kind                         Java type   Constraints
@@ -261,7 +261,7 @@ standard for any ROOT with locale-searchable fields, verify against
   `build(Filterable, Long localeId)` overload. If either is missing, flag it to
   the user instead of adding it yourself — it's shared commons infrastructure,
   outside this agent's file scope (`{Entity}FilterRequest` only).
-- `crudapi-specification-generation-agent`, the Service layer, and the
+- `crudapi-11-specification-generation-agent`, the Service layer, and the
   Controller all need matching updates for this to work end-to-end — flag to
   the caller (main Claude) that this FilterRequest now requires a `localeId`
   parameter threaded through `{Entity}Specification.filter()`,

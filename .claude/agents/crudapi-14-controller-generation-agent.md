@@ -1,5 +1,5 @@
 ---
-name: crudapi-controller-generation-agent
+name: crudapi-14-controller-generation-agent
 description: >
   Question-based Controller agent. Receives the entity's FK info and whether the FK
   ID is present in Create{Entity}Request as input from the caller — it does NOT
@@ -55,7 +55,7 @@ Concrete facts from the real files (`controller/CountryController.java`, `Countr
 
 If the caller confirms this ROOT uses the localization pattern (locale-scoped
 search + single-locale response, matching `{Entity}Service.getAll(request,
-Long localeId)` — see crudapi-service-interface-generation-agent's
+Long localeId)` — see crudapi-12-service-interface-generation-agent's
 Localization pattern), the aggregate-root controller's `getAll` endpoint reads
 the `Accept-Language` header and resolves it via `LocaleService` before
 calling the service:
@@ -119,7 +119,7 @@ Every invocation follows this exact order:
 7. **Resolve every URL/naming derived form yourself** (see Naming Conventions below)
    — never wait for the caller to hand you a pre-computed `{entityLower}`,
    `{parentLower}`, `{childSegment}`, or kebab-case path variable. `{module}` is the
-   one exception: it's carried through unchanged from crudapi-schema-discovery-agent's own
+   one exception: it's carried through unchanged from crudapi-1-schema-discovery-agent's own
    resolution.
 
 ---
@@ -143,7 +143,7 @@ the full `@RequestMapping` path per pattern.)
 
 ```
 Entity name        : {Entity}
-Module             : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module             : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Has @ManyToOne FK  : NO / YES -> {Parent}Entity
 FK id in Create{Entity}Request : N/A / YES / NO
 Service methods available : create, getEntityById, getById, getAll(filter), update, delete
@@ -334,7 +334,7 @@ package com.example.springbackendtemplate1.{module}.controller;
 
 **Reference pattern (Country/CountryLocale):** `CountryLocaleController` calls
 `countryLocaleService.getEntityById(countryId, id)` — the CHILD service's
-`getEntityById` is always 2-arg, parent-scoped (see crudapi-service-interface-generation-agent).
+`getEntityById` is always 2-arg, parent-scoped (see crudapi-12-service-interface-generation-agent).
 Never call a CHILD's `getEntityById` with just `(id)`.
 
 Pattern 2 (root-level child) has NO precedent in this codebase — Country/CountryLocale

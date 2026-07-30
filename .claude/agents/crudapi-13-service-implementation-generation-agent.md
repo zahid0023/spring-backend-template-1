@@ -1,13 +1,13 @@
 ---
-name: crudapi-service-implementation-generation-agent
+name: crudapi-13-service-implementation-generation-agent
 description: >
   Question-based ServiceImpl agent. Receives the same method decisions confirmed
-  for crudapi-service-interface-generation-agent, plus the relationship map for cascade children, as
+  for crudapi-12-service-interface-generation-agent, plus the relationship map for cascade children, as
   input from the caller — it does NOT read the entity, request, or existing
   ServiceImpl files itself. Shows the implementation plan and asks one confirm
   question, then checks whether {Entity}ServiceImpl.java exists: creates it if
   missing, shows a diff and asks permission if it exists.
-  Trigger: called by main Claude after crudapi-service-interface-generation-agent completes.
+  Trigger: called by main Claude after crudapi-12-service-interface-generation-agent completes.
   When given confirmed decisions for BOTH a ROOT entity and its {Entity}Locale
   companion, produces both implementations in one invocation.
 tools: Write, Edit, Glob, Read
@@ -72,7 +72,7 @@ Every invocation follows this exact order:
 6. NEVER write or edit without explicit confirmation.
 7. **Resolve `{entityLower}`, repository field name, and log-message wording yourself**
    — never wait for the caller to hand you pre-computed forms. `{module}` is carried
-   through unchanged from crudapi-schema-discovery-agent's own resolution.
+   through unchanged from crudapi-1-schema-discovery-agent's own resolution.
 
 ---
 
@@ -81,7 +81,7 @@ Every invocation follows this exact order:
 | Derived name | Rule |
 |---|---|
 | `{entityLower}Repository` (injected field) | camelCase of `{Entity}` + `Repository` (`Country` -> `countryRepository`) |
-| `add{Child}Entity` / `add{Entity}` helper calls | same suffix rule as crudapi-entity-generation-agent: `add{X}Entity` when `{X}` is a `@OneToMany` child, `add{X}` (no `Entity` suffix) when `{X}` is the entity itself being added to a ref/parent via that ref's own helper |
+| `add{Child}Entity` / `add{Entity}` helper calls | same suffix rule as crudapi-3-entity-generation-agent: `add{X}Entity` when `{X}` is a `@OneToMany` child, `add{X}` (no `Entity` suffix) when `{X}` is the entity itself being added to a ref/parent via that ref's own helper |
 | Log message entity label | `{Entity}` as given, unchanged (`"Country created with id: {}"`) |
 
 ---
@@ -107,7 +107,7 @@ Every invocation follows this exact order:
 Entity         : {Entity}
 Module         : {module}
 Classification : ROOT / CHILD
-Methods (same decisions confirmed for crudapi-service-interface-generation-agent) : ...
+Methods (same decisions confirmed for crudapi-12-service-interface-generation-agent) : ...
 Dependency params on create : [{list, e.g. Map<Long, LocaleEntity> localeEntityMap}]
 Cascade children (ROOT create only) : {Child}Entity via {Child}Mapper, ref entity = {Ref}Entity
 Unique field for create's existence check (if any) : code -> existsByCodeAndIsActiveAndIsDeleted
@@ -251,7 +251,7 @@ public List<{Entity}Entity> getAll(Set<Long> ids) {
 
 If the caller confirms this ROOT uses the localization pattern (matching the
 interface's `getAll(request, Long localeId)` signature from
-crudapi-service-interface-generation-agent), thread `localeId` into BOTH the
+crudapi-12-service-interface-generation-agent), thread `localeId` into BOTH the
 Specification call and the Mapper call instead of the plain form above:
 
 ```java
@@ -267,9 +267,9 @@ public PaginatedResponse<{Entity}Dto> getAll({Entity}FilterRequest request, Long
 Verify against `CountryServiceImpl.getAll(CountryFilterRequest, Long
 localeId)` — the exact reference. This depends on `{Entity}Specification`
 already having the matching `filter(request, localeId)` overload (see
-crudapi-specification-generation-agent's Localization pattern) and
+crudapi-11-specification-generation-agent's Localization pattern) and
 `{Entity}Mapper` already having the matching `toDto(entity, localeId)`
-overload (see crudapi-mapper-generation-agent's Localization pattern) — if
+overload (see crudapi-7-mapper-generation-agent's Localization pattern) — if
 either is missing, flag it to the caller rather than generating a call to a
 method that doesn't exist yet.
 

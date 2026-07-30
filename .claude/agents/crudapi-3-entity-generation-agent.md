@@ -1,5 +1,5 @@
 ---
-name: crudapi-entity-generation-agent
+name: crudapi-3-entity-generation-agent
 description: >
   Question-based Entity agent. Receives the table schema (columns, types, FKs) as
   input text from the caller — it does NOT read the SQL migration itself. Asks the
@@ -96,7 +96,7 @@ writing), but one combined round-trip covering both files instead of two.
       change → ask "Apply changes to {Entity}Entity.java? 1-Yes / 2-No" → edit only on Yes.
 6. NEVER write or edit without explicit per-file confirmation.
 7. **Resolve every derived name yourself** — `{module}` comes pre-resolved from
-   crudapi-schema-discovery-agent's own report (that agent owns module resolution, not main
+   crudapi-1-schema-discovery-agent's own report (that agent owns module resolution, not main
    Claude, so relaying it verbatim is not interference). Everything else — field
    names, parent/child field names, camelCase forms — is YOUR job to derive per the
    Naming Conventions below. Never wait for the caller to hand you a pre-computed
@@ -122,7 +122,7 @@ writing), but one combined round-trip covering both files instead of two.
 
 ```
 Entity name     : {Entity}
-Module          : {module}   (resolved by crudapi-schema-discovery-agent, not main Claude)
+Module          : {module}   (resolved by crudapi-1-schema-discovery-agent, not main Claude)
 Classification  : ROOT / CHILD (FK -> {Parent} via {fk_column})
 Columns         : (from schema-discovery output)
   #   Column       SQL type      Null?     Unique?  Default   FK -> table
@@ -131,7 +131,7 @@ Table-level UNIQUE constraints : ...
 
 Note what is deliberately NOT in this input: a ROOT's schema report never lists
 "children referencing it" — a SQL root table has no knowledge of its children (see
-crudapi-schema-discovery-agent's Scope boundary). The parent side of a
+crudapi-1-schema-discovery-agent's Scope boundary). The parent side of a
 `@OneToMany` only gets touched later, when the CHILD itself is generated — see
 "CHILD generation also touches the parent" below.
 
@@ -229,7 +229,7 @@ pass and this question is folded into the combined questionnaire instead.
 
 Triggered when the caller's input is a dual-entity schema report (see "Input —
 dual-entity mode" below): a ROOT entity plus its `{Entity}Locale` companion,
-together, from `crudapi-schema-discovery-agent`'s dual-entity output. In this
+together, from `crudapi-1-schema-discovery-agent`'s dual-entity output. In this
 mode you produce BOTH `{Entity}Entity.java` and `{Entity}LocaleEntity.java` in
 ONE invocation — this replaces, not supplements, the "CHILD generation also
 touches the parent" flow above (that flow is for touching an ALREADY-EXISTING

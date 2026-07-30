@@ -1,5 +1,5 @@
 ---
-name: crudapi-documentation-generation-agent
+name: crudapi-15-documentation-generation-agent
 description: >
   Documentation agent. Reads the already-generated source files for one entity
   (Controller, child Controllers, Entity, child Entities, Dto, child Dtos,
