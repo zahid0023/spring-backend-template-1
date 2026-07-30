@@ -5,8 +5,10 @@ import com.example.springbackendtemplate1.address.dto.request.country.CreateCoun
 import com.example.springbackendtemplate1.address.dto.request.country.UpdateCountryRequest;
 import com.example.springbackendtemplate1.address.model.dto.CountryDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
-import com.example.springbackendtemplate1.currency.model.mapper.CurrencyMapper;
+import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 @UtilityClass
 public class CountryMapper {
@@ -38,12 +40,25 @@ public class CountryMapper {
                 .locales(entity.getCountryLocaleEntities().stream()
                         .map(CountryLocaleMapper::toDto)
                         .toList())
-                .cities(entity.getCityEntities().stream()
-                        .map(city -> CityMapper.toDto(city, false))
-                        .toList())
-                .currencies(entity.getCurrencyEntities().stream()
-                        .map(CurrencyMapper::toDto)
-                        .toList())
+                .build();
+    }
+
+    public CountryDto toDto(CountryEntity entity, Long localeId) {
+        CountryLocaleEntity matched = entity.getCountryLocaleEntities().stream()
+                .filter(countryLocaleEntity -> countryLocaleEntity.getLocaleEntity().getId().equals(localeId))
+                .findFirst()
+                .orElseGet(() -> entity.getCountryLocaleEntities().stream()
+                        .filter(countryLocaleEntity -> "en".equals(countryLocaleEntity.getLocaleEntity().getCode()))
+                        .findFirst()
+                        .orElse(null));
+
+        return CountryDto.builder()
+                .id(entity.getId())
+                .code(entity.getCode())
+                .iso3Code(entity.getIso3Code())
+                .phoneCode(entity.getPhoneCode())
+                .sortOrder(entity.getSortOrder())
+                .locales(matched == null ? List.of() : List.of(CountryLocaleMapper.toDto(matched)))
                 .build();
     }
 }

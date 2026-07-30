@@ -9,4 +9,8 @@ import java.util.List;
 
 public interface Filterable {
     List<Predicate> toPredicates(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb);
+
+    default List<Predicate> toPredicates(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb, Long localeId) {
+        return toPredicates(root, query, cb);
+    }
 }

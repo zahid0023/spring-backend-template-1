@@ -78,10 +78,10 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public PaginatedResponse<CountryDto> getAll(CountryFilterRequest request) {
+    public PaginatedResponse<CountryDto> getAll(CountryFilterRequest request, Long localeId) {
         Page<@NonNull CountryDto> page = countryRepository
-                .findAll(CountrySpecification.filter(request), request.toPageable(ALLOWED_SORT_FIELDS))
-                .map(CountryMapper::toDto);
+                .findAll(CountrySpecification.filter(request, localeId), request.toPageable(ALLOWED_SORT_FIELDS, CountrySortField.localeSortFields()))
+                .map(entity -> CountryMapper.toDto(entity, localeId));
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }
 

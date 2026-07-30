@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS locales
 
     code       varchar(50)                  NOT NULL UNIQUE,
     name       varchar(255)                 NOT NULL,
-    sort_order integer                      NOT NULL,
+    sort_order integer                      NOT NULL DEFAULT 0,
 
     created_by bigint references users (id) NOT NULL,
     created_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,

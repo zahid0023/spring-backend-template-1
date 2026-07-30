@@ -8,9 +8,9 @@ import tools.jackson.databind.annotation.JsonNaming;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class LocaleResponse {
-    private final LocaleDto locale;
+    private final LocaleDto data;
 
-    public LocaleResponse(LocaleDto locale) {
-        this.locale = locale;
+    public LocaleResponse(LocaleDto data) {
+        this.data = data;
     }
 }

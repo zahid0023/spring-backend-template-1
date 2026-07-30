@@ -26,4 +26,10 @@ public interface LocaleRepository extends JpaRepository<@NonNull LocaleEntity, @
     );
 
     boolean existsByCodeAndIsActiveAndIsDeleted(String code, Boolean isActive, Boolean isDeleted);
+
+    Optional<LocaleEntity> findByCodeAndIsActiveAndIsDeleted(
+            String code,
+            Boolean isActive,
+            Boolean isDeleted
+    );
 }

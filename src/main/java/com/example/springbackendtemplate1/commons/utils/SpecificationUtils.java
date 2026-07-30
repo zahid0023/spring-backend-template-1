@@ -18,12 +18,16 @@ import java.util.List;
 public class SpecificationUtils {
 
     public <T> Specification<@NonNull T> build(Filterable filterable) {
+        return build(filterable, null);
+    }
+
+    public <T> Specification<@NonNull T> build(Filterable filterable, Long localeId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             addActiveFilter(predicates, root, cb);
-            predicates.addAll(filterable.toPredicates(root, query, cb));
+            predicates.addAll(filterable.toPredicates(root, query, cb, localeId));
             if (filterable instanceof LocaleSortable ls) {
-                LocaleJoinSortInfo info = ls.getLocaleSortInfo();
+                LocaleJoinSortInfo info = ls.getLocaleSortInfo(localeId);
                 if (info != null) {
                     addJoinSort(root, query, cb, info);
                 }
@@ -37,8 +41,13 @@ public class SpecificationUtils {
         Join<T, ?> join = root.join(info.collectionField(), JoinType.LEFT);
         if (info.localeId() != null) {
             join.on(cb.equal(join.get(info.localeEntityField()).get("id"), info.localeId()));
+        } else {
+            // Unscoped join can match multiple locale rows per parent — dedupe.
+            // A localeId-scoped join matches at most one row per parent, so DISTINCT
+            // is unnecessary there, and some databases (e.g. PostgreSQL) reject
+            // SELECT DISTINCT combined with ORDER BY on a column outside the select list.
+            query.distinct(true);
         }
-        query.distinct(true);
         query.orderBy(info.direction() == Sort.Direction.ASC
                 ? cb.asc(join.get(info.targetField()))
                 : cb.desc(join.get(info.targetField())));
@@ -68,10 +77,11 @@ public class SpecificationUtils {
                                       String collectionField, String targetField, String value,
                                       Long localeId, String localeEntityField) {
         if (value == null || value.isBlank()) return;
-        query.distinct(true);
         Join<T, ?> join = root.join(collectionField, JoinType.LEFT);
         if (localeId != null) {
             join.on(cb.equal(join.get(localeEntityField).get("id"), localeId));
+        } else {
+            query.distinct(true);
         }
         predicates.add(cb.like(cb.lower(join.get(targetField)), "%" + value.toLowerCase() + "%"));
     }
@@ -81,10 +91,11 @@ public class SpecificationUtils {
                                        String collectionField, String targetField, Object value,
                                        Long localeId, String localeEntityField) {
         if (value == null) return;
-        query.distinct(true);
         Join<T, ?> join = root.join(collectionField, JoinType.LEFT);
         if (localeId != null) {
             join.on(cb.equal(join.get(localeEntityField).get("id"), localeId));
+        } else {
+            query.distinct(true);
         }
         predicates.add(cb.equal(join.get(targetField), value));
     }

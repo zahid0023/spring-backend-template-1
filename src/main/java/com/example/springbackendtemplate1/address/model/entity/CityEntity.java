@@ -2,6 +2,7 @@ package com.example.springbackendtemplate1.address.model.entity;
 
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -10,11 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import static com.example.springbackendtemplate1.commons.model.entity.EntityRelationshipHelper.*;
 
 @Getter
 @Setter
@@ -29,36 +25,23 @@ public class CityEntity extends AuditableEntity {
     @JoinColumn(name = "country_id", nullable = false)
     private CountryEntity countryEntity;
 
+    /** Internal — call via {@link CountryEntity#addCityEntity}. */
     public void assignCountry(CountryEntity countryEntity) {
         this.countryEntity = countryEntity;
     }
 
+    /** Internal — call via {@link CountryEntity#removeCityEntity}. */
     public void unassignCountry() {
         this.countryEntity = null;
     }
 
+    @NotBlank
     @Size(max = 50)
-    @Column(name = "code", length = 50)
+    @Column(name = "code", nullable = false, unique = true, length = 50)
     private String code;
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
-
-    @OneToMany(mappedBy = "cityEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CityLocaleEntity> cityLocaleEntities = new LinkedHashSet<>();
-
-    // -------------------------------------------------------------------------
-    // City Locale relationship helpers
-    // -------------------------------------------------------------------------
-
-    public void addCityLocaleEntity(CityLocaleEntity entity) {
-        addChild(cityLocaleEntities, entity, CityLocaleEntity::assignCityEntity, this);
-    }
-
-    public void removeCityLocaleEntity(CityLocaleEntity entity) {
-        removeChild(cityLocaleEntities, entity, (child, ignored) -> child.unassignCityEntity());
-    }
-
 }

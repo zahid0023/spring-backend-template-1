@@ -6,4 +6,8 @@ public interface LocaleSortable {
      * Implementations read getSortBy() / getSortDir() from PaginatedRequest.
      */
     LocaleJoinSortInfo getLocaleSortInfo();
+
+    default LocaleJoinSortInfo getLocaleSortInfo(Long localeId) {
+        return getLocaleSortInfo();
+    }
 }

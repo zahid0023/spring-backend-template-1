@@ -5,10 +5,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum CountrySortField {
-    ID("id", false),
     CREATED_AT("createdAt", false),
     CODE("code", false),
-    SORT_ORDER("sortOrder", false),
+    ISO3_CODE("iso3Code", false),
+    PHONE_CODE("phoneCode", false),
     NAME("name", true);
 
     private final String fieldName;

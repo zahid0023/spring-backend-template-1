@@ -21,7 +21,7 @@ public interface CountryService {
 
     CountryResponse getById(Long id);
 
-    PaginatedResponse<CountryDto> getAll(CountryFilterRequest request);
+    PaginatedResponse<CountryDto> getAll(CountryFilterRequest request, Long localeId);
 
     SuccessResponse update(CountryEntity entity,
                            UpdateCountryRequest request);

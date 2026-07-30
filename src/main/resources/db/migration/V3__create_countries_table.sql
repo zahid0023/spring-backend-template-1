@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS country_locales
 
     name        varchar(255)                 NOT NULL,
     description text                         NOT NULL DEFAULT '',
-    sort_order  int                          NOT NULL DEFAULT 0,
+    sort_order  integer                      NOT NULL DEFAULT 0,
 
     created_by  bigint references users (id) NOT NULL,
     created_at  timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -49,7 +49,7 @@ INSERT INTO countries (code,
                        updated_by)
 VALUES ('BD',
         'BGD',
-        '+880',
+        '880',
         1,
         (SELECT id FROM users WHERE username = 'system'),
         (SELECT id FROM users WHERE username = 'system'));

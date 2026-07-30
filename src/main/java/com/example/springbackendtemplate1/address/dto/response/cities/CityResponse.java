@@ -8,9 +8,10 @@ import tools.jackson.databind.annotation.JsonNaming;
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CityResponse {
-    private final CityDto city;
 
-    public CityResponse(CityDto city) {
-        this.city = city;
+    private final CityDto data;
+
+    public CityResponse(CityDto data) {
+        this.data = data;
     }
 }

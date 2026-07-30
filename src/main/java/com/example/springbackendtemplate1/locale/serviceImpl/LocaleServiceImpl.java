@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -99,5 +100,33 @@ public class LocaleServiceImpl implements LocaleService {
         List<LocaleEntity> localeEntities = localeRepository.findAllByIdInAndIsActiveAndIsDeleted(ids, true, false);
         EntityValidator.validateAllFound(ids, localeEntities, LocaleEntity::getId, "Locale");
         return localeEntities;
+    }
+
+    @Override
+    public Long resolveLocaleId(String acceptLanguageHeader) {
+        String code = parsePrimaryLanguageTag(acceptLanguageHeader);
+        if (code != null) {
+            Optional<LocaleEntity> localeEntity = localeRepository.findByCodeAndIsActiveAndIsDeleted(code, true, false);
+            if (localeEntity.isPresent()) {
+                return localeEntity.get().getId();
+            }
+        }
+        if (!"en".equals(code)) {
+            Optional<LocaleEntity> fallbackEntity = localeRepository.findByCodeAndIsActiveAndIsDeleted("en", true, false);
+            if (fallbackEntity.isPresent()) {
+                return fallbackEntity.get().getId();
+            }
+        }
+        return null;
+    }
+
+    private String parsePrimaryLanguageTag(String acceptLanguageHeader) {
+        if (acceptLanguageHeader == null || acceptLanguageHeader.isBlank()) {
+            return null;
+        }
+        String tag = acceptLanguageHeader.split(",", 2)[0];
+        tag = tag.split(";", 2)[0];
+        tag = tag.split("-", 2)[0];
+        return tag.trim();
     }
 }

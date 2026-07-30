@@ -13,12 +13,13 @@ import tools.jackson.databind.annotation.JsonNaming;
 public class CountryRequest {
 
     @NotBlank
-    @Size(max = 10)
+    @Size(max = 3)
+    @Pattern(regexp = "^[A-Z]{3}$")
     private String iso3Code;
 
     @NotBlank
-    @Size(max = 10)
-    @Pattern(regexp = "^[A-Za-z]{1,3}$")
+    @Size(max = 3)
+    @Pattern(regexp = "^[0-9]{1,3}$")
     private String phoneCode;
 
     @NotNull

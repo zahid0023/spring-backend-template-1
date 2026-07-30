@@ -11,5 +11,4 @@ public class CityRequest {
 
     @NotNull
     private Integer sortOrder;
-
 }

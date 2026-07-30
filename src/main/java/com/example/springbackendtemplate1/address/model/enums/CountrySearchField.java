@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 @Getter
 public enum CountrySearchField {
     // direct entity String fields:
-    CODE("code", SearchType.LIKE, false, null, CountryFilterRequest::getCode),
     ISO3_CODE("iso3Code", SearchType.LIKE, false, null, CountryFilterRequest::getIso3Code),
     PHONE_CODE("phoneCode", SearchType.LIKE, false, null, CountryFilterRequest::getPhoneCode),
     // locale child String fields (require JOIN):

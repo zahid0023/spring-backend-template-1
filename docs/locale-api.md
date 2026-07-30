@@ -38,7 +38,9 @@ deleted records are hidden from all responses.
 
 `POST /api/v1/locales`
 
-Creates a new locale. The `code` field is set at creation and cannot be changed after that.
+Creates a new locale. The `code` field is set at creation and cannot be changed after that. `code`
+must be unique among active, non-deleted locales — attempting to reuse an existing code returns a
+`409 CONFLICT`.
 
 ### Request Body
 
@@ -85,7 +87,7 @@ Returns a single active locale by its ID.
 
 ```json
 {
-  "locale": {
+  "data": {
     "id": 1,
     "code": "en",
     "name": "English",
@@ -112,7 +114,7 @@ performs a case-insensitive partial match.
 | `name`     | String | —       | —                                              | Filter by display name (partial, case-insensitive) |
 | `page`     | int    | `0`     | >= 0                                           | Zero-based page index                              |
 | `size`     | int    | `10`    | 1 – 50                                         | Number of items per page                           |
-| `sort_by`  | String | `id`    | `id`, `code`, `name`, `sortOrder`, `createdAt` | Field to sort by                                   |
+| `sort_by`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name` | Field to sort by                                   |
 | `sort_dir` | String | `ASC`   | `ASC`, `DESC`                                  | Sort direction                                     |
 
 ### Response `200 OK`
@@ -138,7 +140,18 @@ performs a case-insensitive partial match.
   "total_elements": 2,
   "page_size": 10,
   "has_next": false,
-  "has_previous": false
+  "has_previous": false,
+  "sortable_fields": [
+    "id",
+    "createdAt",
+    "sortOrder",
+    "code",
+    "name"
+  ],
+  "searchable_fields": [
+    "code",
+    "name"
+  ]
 }
 ```
 
@@ -220,8 +233,8 @@ All errors follow a common structure:
 }
 ```
 
-| HTTP Status | Error Code                 | Cause                                         |
-|-------------|----------------------------|-----------------------------------------------|
-| 400         | `INVALID_ARGUMENT`         | Missing required fields or invalid sort field |
-| 404         | `ENTITY_NOT_FOUND`         | Locale not found, or already deleted          |
-| 409         | `DATA_INTEGRITY_VIOLATION` | Constraint violation (e.g. duplicate code)    |
+| HTTP Status | Error Code         | Cause                                                                           |
+|-------------|--------------------|---------------------------------------------------------------------------------|
+| 400         | `INVALID_ARGUMENT` | Missing required fields, or an unsupported `sort_by` value                      |
+| 404         | `ENTITY_NOT_FOUND` | Locale not found, or already deleted                                            |
+| 409         | `CONFLICT`         | `code` already in use by another active locale (checked explicitly in `create`) |

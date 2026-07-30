@@ -11,22 +11,30 @@ import java.util.stream.Collectors;
 
 @Getter
 public enum LocaleSearchField {
-    CODE("code", LocaleFilterRequest::getCode, SearchType.LIKE),
-    NAME("name", LocaleFilterRequest::getName, SearchType.LIKE);
+    CODE("code", SearchType.LIKE, false, null, LocaleFilterRequest::getCode),
+    NAME("name", SearchType.LIKE, false, null, LocaleFilterRequest::getName);
 
     private final String fieldName;
-    private final Function<LocaleFilterRequest, String> valueExtractor;
     private final SearchType searchType;
+    private final boolean localeField;
+    private final String collectionField;
+    private final Function<LocaleFilterRequest, String> valueExtractor;
 
-    LocaleSearchField(String fieldName, Function<LocaleFilterRequest, String> valueExtractor, SearchType searchType) {
+    LocaleSearchField(String fieldName, SearchType searchType, boolean localeField,
+                       String collectionField, Function<LocaleFilterRequest, String> valueExtractor) {
         this.fieldName = fieldName;
-        this.valueExtractor = valueExtractor;
         this.searchType = searchType;
+        this.localeField = localeField;
+        this.collectionField = collectionField;
+        this.valueExtractor = valueExtractor;
     }
 
     public static Set<String> allowedFields() {
-        return Arrays.stream(values())
-                .map(LocaleSearchField::getFieldName)
-                .collect(Collectors.toSet());
+        return Arrays.stream(values()).map(LocaleSearchField::getFieldName).collect(Collectors.toSet());
+    }
+
+    public static Set<String> localeSearchFields() {
+        return Arrays.stream(values()).filter(LocaleSearchField::isLocaleField)
+                .map(LocaleSearchField::getFieldName).collect(Collectors.toSet());
     }
 }

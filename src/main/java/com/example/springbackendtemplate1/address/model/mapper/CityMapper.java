@@ -4,11 +4,8 @@ import com.example.springbackendtemplate1.address.dto.request.city.CityRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.CreateCityRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.UpdateCityRequest;
 import com.example.springbackendtemplate1.address.model.dto.CityDto;
-import com.example.springbackendtemplate1.address.model.dto.CityLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CityEntity;
 import lombok.experimental.UtilityClass;
-
-import java.util.List;
 
 @UtilityClass
 public class CityMapper {
@@ -28,17 +25,11 @@ public class CityMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public CityDto toDto(CityEntity entity, Boolean includeCountry) {
-        List<CityLocaleDto> cityLocaleDtos = entity.getCityLocaleEntities().stream()
-                .map(CityLocaleMapper::toDto)
-                .toList();
-
+    public CityDto toDto(CityEntity entity) {
         return CityDto.builder()
                 .id(entity.getId())
-                .country(includeCountry ? CountryMapper.toDto(entity.getCountryEntity()) : null)
                 .code(entity.getCode())
                 .sortOrder(entity.getSortOrder())
-                .locales(cityLocaleDtos)
                 .build();
     }
 }
