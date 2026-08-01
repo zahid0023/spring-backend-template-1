@@ -3,6 +3,7 @@ package com.example.springbackendtemplate1.auth.config;
 import com.example.springbackendtemplate1.auth.exception.CustomAccessDeniedHandler;
 import com.example.springbackendtemplate1.auth.exception.CustomAuthenticationEntryPoint;
 import com.example.springbackendtemplate1.auth.filter.JwtAuthenticationFilter;
+import com.example.springbackendtemplate1.commons.filter.LocaleContextFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final LocaleContextFilter localeContextFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, LocaleContextFilter localeContextFilter) {
         this.jwtFilter = jwtFilter;
+        this.localeContextFilter = localeContextFilter;
     }
 
     @Bean
@@ -52,6 +55,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(localeContextFilter, JwtAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();

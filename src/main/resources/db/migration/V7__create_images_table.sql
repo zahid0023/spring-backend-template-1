@@ -1,25 +1,24 @@
-CREATE TABLE IF NOT EXISTS images
+create table if not exists images
 (
-    id          bigserial PRIMARY KEY,
+    id          bigserial primary key,
 
-    config_id   bigint                         NOT NULL
-        REFERENCES image_hosting_configs (id),
+    config_id   bigint references image_hosting_configs (id) not null,
 
     external_id varchar(255),
     -- cloudinary public_id / s3 key
-    url         text                           NOT NULL UNIQUE,
+    url         text                                         not null unique,
     caption     varchar(255),
-    is_default  boolean                        NOT NULL DEFAULT false,
+    is_default  boolean                                      not null default false,
 
-    sort_order  int                            NOT NULL DEFAULT 0,
+    sort_order  int                                          not null default 0,
 
-    created_by  bigint                         not null references users (id),
-    created_at  timestamptz                    not null default current_timestamp,
-    updated_by  bigint                         not null references users (id),
-    updated_at  timestamptz                    not null default current_timestamp,
-    version     bigint                         not null default 0,
-    is_active   boolean                        not null default true,
-    is_deleted  boolean                        not null default false,
-    deleted_by  bigint,
-    deleted_at  timestamptz
+    created_by  bigint references users (id)                 not null,
+    created_at  timestamp with time zone                     not null default current_timestamp,
+    updated_by  bigint references users (id)                 not null,
+    updated_at  timestamp with time zone                     not null default current_timestamp,
+    version     bigint                                       not null default 0,
+    is_active   boolean                                      not null default true,
+    is_deleted  boolean                                      not null default false,
+    deleted_by  bigint references users (id),
+    deleted_at  timestamp with time zone
 );

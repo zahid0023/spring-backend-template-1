@@ -4,8 +4,13 @@ import com.example.springbackendtemplate1.address.dto.request.city.CityRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.CreateCityRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.UpdateCityRequest;
 import com.example.springbackendtemplate1.address.model.dto.CityDto;
+import com.example.springbackendtemplate1.address.model.dto.CityLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CityEntity;
+import com.example.springbackendtemplate1.address.model.entity.CityLocaleEntity;
+import com.example.springbackendtemplate1.commons.context.LocaleContext;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 @UtilityClass
 public class CityMapper {
@@ -25,11 +30,40 @@ public class CityMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public CityDto toDto(CityEntity entity) {
+    public CityDto.CityDtoBuilder toDto(CityEntity entity, boolean includeLocales) {
+        List<CityLocaleDto> locales = includeLocales
+                ? activeLocales(entity).stream()
+                        .map(CityLocaleMapper::toDto)
+                        .toList()
+                : singleLocale(entity);
+
         return CityDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
                 .sortOrder(entity.getSortOrder())
-                .build();
+                .locales(locales);
+    }
+
+    private List<CityLocaleDto> singleLocale(CityEntity entity) {
+        CityLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
+        return matched == null ? List.of() : List.of(CityLocaleMapper.toDto(matched));
+    }
+
+    private List<CityLocaleEntity> activeLocales(CityEntity entity) {
+        return entity.getCityLocaleEntities().stream()
+                .filter(cityLocaleEntity -> Boolean.TRUE.equals(cityLocaleEntity.getIsActive())
+                        && Boolean.FALSE.equals(cityLocaleEntity.getIsDeleted()))
+                .toList();
+    }
+
+    private CityLocaleEntity matchLocale(CityEntity entity, Long localeId) {
+        List<CityLocaleEntity> activeLocales = activeLocales(entity);
+        return activeLocales.stream()
+                .filter(cityLocaleEntity -> cityLocaleEntity.getLocaleEntity().getId().equals(localeId))
+                .findFirst()
+                .orElseGet(() -> activeLocales.stream()
+                        .filter(cityLocaleEntity -> "en".equals(cityLocaleEntity.getLocaleEntity().getCode()))
+                        .findFirst()
+                        .orElse(null));
     }
 }

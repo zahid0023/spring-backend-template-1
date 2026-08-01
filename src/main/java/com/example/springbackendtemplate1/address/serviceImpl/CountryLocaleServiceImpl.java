@@ -28,9 +28,14 @@ public class CountryLocaleServiceImpl implements CountryLocaleService {
     public SuccessResponse create(CreateCountryLocaleRequest request,
                                   CountryEntity countryEntity,
                                   LocaleEntity localeEntity) {
+        if (countryLocaleRepository.existsByCountryEntity_IdAndLocaleEntity_IdAndIsActiveAndIsDeleted(
+                countryEntity.getId(), localeEntity.getId(), true, false)) {
+            throw new IllegalStateException("Country already has a locale entry for locale id: " + localeEntity.getId());
+        }
+
         CountryLocaleEntity entity = CountryLocaleMapper.create(request);
-        entity.assignLocale(localeEntity);
         countryEntity.addCountryLocaleEntity(entity);
+        localeEntity.addCountryLocaleEntity(entity);
         countryLocaleRepository.save(entity);
         log.info("CountryLocale created with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());

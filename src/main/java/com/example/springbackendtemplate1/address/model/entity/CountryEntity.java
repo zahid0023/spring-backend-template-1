@@ -1,6 +1,7 @@
 package com.example.springbackendtemplate1.address.model.entity;
 
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
+import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import jakarta.persistence.*;
 
 import static com.example.springbackendtemplate1.commons.model.entity.EntityRelationshipHelper.*;
@@ -50,6 +51,9 @@ public class CountryEntity extends AuditableEntity {
     @OneToMany(mappedBy = "countryEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CityEntity> cityEntities = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "countryEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CurrencyEntity> currencyEntities = new LinkedHashSet<>();
+
     // -------------------------------------------------------------------------
     // Country Locale relationship helpers
     // -------------------------------------------------------------------------
@@ -72,5 +76,17 @@ public class CountryEntity extends AuditableEntity {
 
     public void removeCityEntity(CityEntity entity) {
         removeChild(cityEntities, entity, (child, ignored) -> child.unassignCountry());
+    }
+
+    // -------------------------------------------------------------------------
+    // Currency relationship helpers
+    // -------------------------------------------------------------------------
+
+    public void addCurrencyEntity(CurrencyEntity entity) {
+        addChild(currencyEntities, entity, CurrencyEntity::assignCountry, this);
+    }
+
+    public void removeCurrencyEntity(CurrencyEntity entity) {
+        removeChild(currencyEntities, entity, (child, ignored) -> child.unassignCountry());
     }
 }

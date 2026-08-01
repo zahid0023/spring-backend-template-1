@@ -1,16 +1,14 @@
 package com.example.springbackendtemplate1.address.dto.request.country;
 
-import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
+import com.example.springbackendtemplate1.address.dto.request.country.locale.CountryLocaleRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
-
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -22,7 +20,7 @@ public class CreateCountryRequest extends CountryRequest {
     private String code;
 
     @Valid
-    @NotEmpty
-    private List<CreateCountryLocaleRequest> locales;
+    @NotNull
+    private CountryLocaleRequest locale;
 
 }

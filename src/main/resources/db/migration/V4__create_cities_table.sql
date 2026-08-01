@@ -1,115 +1,117 @@
-CREATE TABLE IF NOT EXISTS cities
+create table if not exists cities
 (
-    id         bigserial PRIMARY KEY,
+    id         bigserial primary key,
 
-    country_id bigint                       NOT NULL REFERENCES countries (id) ON DELETE RESTRICT,
+    country_id bigint references countries (id) on delete restrict not null,
 
-    code       varchar(50)                  NOT NULL UNIQUE,
-    sort_order integer                      NOT NULL DEFAULT 0,
+    code       char(3)                                             not null unique,
+    sort_order integer                                             not null default 0,
 
-    created_by bigint references users (id) NOT NULL,
-    created_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by bigint references users (id) NOT NULL,
-    updated_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version    bigint                                DEFAULT 0 NOT NULL,
-    is_active  boolean                      NOT NULL DEFAULT true,
-    is_deleted boolean                      NOT NULL DEFAULT false,
-    deleted_by bigint,
+    created_by bigint references users (id)                        not null,
+    created_at timestamp with time zone                            not null default current_timestamp,
+    updated_by bigint references users (id)                        not null,
+    updated_at timestamp with time zone                            not null default current_timestamp,
+    version    bigint                                              not null default 0,
+    is_active  boolean                                             not null default true,
+    is_deleted boolean                                             not null default false,
+    deleted_by bigint references users (id),
     deleted_at timestamp with time zone
 );
 
-CREATE TABLE IF NOT EXISTS city_locales
+create table if not exists city_locales
 (
-    id          bigserial PRIMARY KEY,
+    id          bigserial primary key,
 
-    city_id     bigint                       NOT NULL REFERENCES cities (id) ON DELETE CASCADE,
-    locale_id   bigint                       NOT NULL REFERENCES locales (id) ON DELETE RESTRICT,
+    city_id     bigint references cities (id) on delete cascade   not null,
+    locale_id   bigint references locales (id) on delete restrict not null,
 
-    name        varchar(255)                 NOT NULL,
-    description text                         NOT NULL DEFAULT '',
-    sort_order  integer                      NOT NULL DEFAULT 0,
+    name        varchar(255)                                      not null,
+    description text                                              not null default '',
+    sort_order  integer                                           not null default 0,
 
-    created_by  bigint references users (id) NOT NULL,
-    created_at  timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by  bigint references users (id) NOT NULL,
-    updated_at  timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version     bigint                                DEFAULT 0 NOT NULL,
-    is_active   boolean                      NOT NULL DEFAULT true,
-    is_deleted  boolean                      NOT NULL DEFAULT false,
-    deleted_by  bigint,
+    created_by  bigint references users (id)                      not null,
+    created_at  timestamp with time zone                          not null default current_timestamp,
+    updated_by  bigint references users (id)                      not null,
+    updated_at  timestamp with time zone                          not null default current_timestamp,
+    version     bigint                                            not null default 0,
+    is_active   boolean                                           not null default true,
+    is_deleted  boolean                                           not null default false,
+    deleted_by  bigint references users (id),
     deleted_at  timestamp with time zone,
-    UNIQUE (city_id, locale_id)
+
+    constraint uq_city_locales_city_locale
+        unique (city_id, locale_id)
 );
 
-INSERT INTO cities (code, country_id, sort_order, created_by, updated_by)
-VALUES ('DHK', (SELECT id FROM countries WHERE code = 'BD'), 1, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('CTG', (SELECT id FROM countries WHERE code = 'BD'), 2, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('SYL', (SELECT id FROM countries WHERE code = 'BD'), 3, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('RAJ', (SELECT id FROM countries WHERE code = 'BD'), 4, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('KHL', (SELECT id FROM countries WHERE code = 'BD'), 5, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('BAR', (SELECT id FROM countries WHERE code = 'BD'), 6, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('RNG', (SELECT id FROM countries WHERE code = 'BD'), 7, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system')),
-       ('MYM', (SELECT id FROM countries WHERE code = 'BD'), 8, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system'));
+insert into cities (code, country_id, sort_order, created_by, updated_by)
+values ('DHK', (select id from countries where code = 'BD'), 1, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('CTG', (select id from countries where code = 'BD'), 2, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('SYL', (select id from countries where code = 'BD'), 3, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('RAJ', (select id from countries where code = 'BD'), 4, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('KHL', (select id from countries where code = 'BD'), 5, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('BAR', (select id from countries where code = 'BD'), 6, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('RNG', (select id from countries where code = 'BD'), 7, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('MYM', (select id from countries where code = 'BD'), 8, (select id from users where username = 'system'),
+        (select id from users where username = 'system'));
 
-INSERT INTO city_locales (city_id,
+insert into city_locales (city_id,
                           locale_id,
                           name,
                           description,
                           sort_order,
                           created_by,
                           updated_by)
-VALUES ((SELECT id FROM cities WHERE code = 'DHK'),
-        (SELECT id FROM locales WHERE code = 'en'),
+values ((select id from cities where code = 'DHK'),
+        (select id from locales where code = 'en'),
         'Dhaka',
         'Capital city of Bangladesh',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'CTG'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'CTG'),
+        (select id from locales where code = 'en'),
         'Chittagong',
         'Major seaport city of Bangladesh',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'SYL'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'SYL'),
+        (select id from locales where code = 'en'),
         'Sylhet',
         'City known for tea gardens and hills',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'RAJ'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'RAJ'),
+        (select id from locales where code = 'en'),
         'Rajshahi',
         'City of silk and mangoes',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'KHL'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'KHL'),
+        (select id from locales where code = 'en'),
         'Khulna',
         'Gateway to the Sundarbans',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'BAR'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'BAR'),
+        (select id from locales where code = 'en'),
         'Barisal',
         'River-centric city of southern Bangladesh',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'RNG'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'RNG'),
+        (select id from locales where code = 'en'),
         'Rangpur',
         'Administrative city of northern Bangladesh',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system')),
+        1, (select id from users where username = 'system'), (select id from users where username = 'system')),
 
-       ((SELECT id FROM cities WHERE code = 'MYM'),
-        (SELECT id FROM locales WHERE code = 'en'),
+       ((select id from cities where code = 'MYM'),
+        (select id from locales where code = 'en'),
         'Mymensingh',
         'City of education and culture',
-        1, (SELECT id FROM users WHERE username = 'system'), (SELECT id FROM users WHERE username = 'system'));
+        1, (select id from users where username = 'system'), (select id from users where username = 'system'));

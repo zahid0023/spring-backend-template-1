@@ -99,4 +99,27 @@ public class SpecificationUtils {
         }
         predicates.add(cb.equal(join.get(targetField), value));
     }
+
+    public <T> List<Predicate> buildSearchPredicates(T filterRequest, SearchFieldSpec<T>[] fields,
+                                                      Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                                      Long localeId) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (SearchFieldSpec<T> field : fields) {
+            String value = field.getValueExtractor().apply(filterRequest);
+            if (field.isLocaleField()) {
+                switch (field.getSearchType()) {
+                    case LIKE  -> addJoinLikeFilter(predicates, root, query, cb,
+                            field.getCollectionField(), field.getFieldName(), value, localeId, "localeEntity");
+                    case EXACT -> addJoinEqualFilter(predicates, root, query, cb,
+                            field.getCollectionField(), field.getFieldName(), value, localeId, "localeEntity");
+                }
+            } else {
+                switch (field.getSearchType()) {
+                    case LIKE  -> addLikeFilter(predicates, root, cb, field.getFieldName(), value);
+                    case EXACT -> addEqualFilter(predicates, root, cb, field.getFieldName(), value);
+                }
+            }
+        }
+        return predicates;
+    }
 }

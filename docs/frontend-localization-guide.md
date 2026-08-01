@@ -7,9 +7,45 @@ localization pattern. It's written generically, in terms of an `{Entity}` with a
 same contract holds for every other entity that adopts it.)
 
 Not every entity is localized. Only ROOT entities that expose a `locales` array in their
-response — and have a matching `{entity}-locales` sub-resource — participate in this
-pattern. If an entity's response has no `locales` field, none of this applies; just fetch
-it normally.
+response — and have a matching `{entity}-locales` sub-resource — participate in the
+*locale-scoping* behavior described in this guide (§2–§5, §7). But the header requirement
+itself (§0 below) applies platform-wide, to every endpoint, localized or not.
+
+---
+
+## 0. `Accept-Language` is mandatory on every request, platform-wide
+
+This is unconditional and applies to **every** endpoint in the API — not just localized
+entities, not just list/`getAll` endpoints. That includes:
+
+- Every localized entity's `getAll`, `getById`, `create`, `update`, and locale sub-resource
+  endpoints.
+- Non-localized entities too — any endpoint with no `locales` field at all.
+- `GET /api/v1/locales` itself (the bootstrap lookup in §4) — yes, you need to send the
+  header to discover which locales exist.
+- Auth endpoints (`/api/v1/auth/**` — login, register, refresh, etc.).
+
+If the header is missing or blank, the request is rejected **before it reaches any
+controller**, with:
+
+```json
+{
+  "request_id": "...",
+  "status": 400,
+  "error": "INVALID_ARGUMENT",
+  "message": "Required request header 'Accept-Language' is not present"
+}
+```
+
+**Practical takeaway:** attach `Accept-Language` to every single HTTP call your frontend
+makes to this API, via one shared `fetch`/HTTP-client wrapper — including the very first
+call your app makes (typically the locale bootstrap lookup in §4), before you've even
+loaded the user's saved preference. Fall back to a hardcoded default (e.g. `"en"`) for that
+first call if no stored preference exists yet.
+
+This is separate from — and stricter than — the per-entity "does this endpoint use the
+header to shape its response" behavior described in §2 below. An endpoint can require the
+header (per this section) while still ignoring its value entirely (e.g. `POST`/`PUT`).
 
 ---
 
@@ -24,22 +60,26 @@ it normally.
   header — for **any** localized entity's list endpoint. There is **no** query-string
   equivalent — passing `?locale_id=...` has no effect on any entity. Always set the header,
   never try to pass locale as a query param.
+- Sending the header is mandatory everywhere (§0), but it only actually *changes the
+  response shape* on list (`getAll`) endpoints — see §2 for exactly which endpoints use the
+  value versus merely requiring its presence.
 
 ---
 
-## 2. Which endpoints honor `Accept-Language`
+## 2. Which endpoints use the `Accept-Language` value
 
-This shape repeats identically for every localized entity — substitute `{entities}` with
-the entity's own collection path (e.g. `countries`, or whatever a future localized entity
-uses):
+The header must be **present** on every endpoint below (§0) — this table is only about
+whether the endpoint actually *uses* its value to shape the response. This shape repeats
+identically for every localized entity — substitute `{entities}` with the entity's own
+collection path (e.g. `countries`, or whatever a future localized entity uses):
 
-| Endpoint                                             | Honors `Accept-Language`? | `locales` in response                          |
-|--------------------------------------------------------|:--------------------------:|---------------------------------------------------|
-| `GET /api/v1/{entities}`                                | **Yes**                    | At most 1 entry — the resolved locale (see §3)     |
-| `GET /api/v1/{entities}/{id}`                           | No                          | **Every** translation the record has                |
-| `POST /api/v1/{entities}`                               | No                          | n/a (client supplies `locales[]` directly)          |
-| `PUT /api/v1/{entities}/{id}`                           | No                          | n/a (doesn't touch translations at all)             |
-| `{entities}` locale sub-resource (`/{entities}/{id}/locales`) | No                    | n/a (each call operates on one explicit `locale_id`) |
+| Endpoint                                                      |    Uses the `Accept-Language` value?    | `locales` in response                                                    |
+|---------------------------------------------------------------|:---------------------------------------:|--------------------------------------------------------------------------|
+| `GET /api/v1/{entities}`                                      |                 **Yes**                 | At most 1 entry — the resolved locale (see §3)                           |
+| `GET /api/v1/{entities}/{id}`                                 | No (header still required, just unused) | **Every** translation the record has, plus full nested child collections |
+| `POST /api/v1/{entities}`                                     | No (header still required, just unused) | n/a (client supplies `locales[]` directly)                               |
+| `PUT /api/v1/{entities}/{id}`                                 | No (header still required, just unused) | n/a (doesn't touch translations at all)                                  |
+| `{entities}` locale sub-resource (`/{entities}/{id}/locales`) | No (header still required, just unused) | n/a (each call operates on one explicit `locale_id`)                     |
 
 This split matters for **every** localized entity: a detail page (`getById`) gets **all**
 translations back and must pick the right one client-side (§5); a list page (`getAll`)
@@ -58,11 +98,12 @@ are discarded):
 "bn"              →  "bn"
 ```
 
-Resolution order:
+A missing or blank header never reaches this resolution logic at all — it's rejected with
+a `400` before any endpoint runs (§0). Resolution order below only applies once you've
+cleared that bar, i.e. some non-blank `Accept-Language` value was sent:
 
 1. Look up an active `Locale` whose `code` matches the parsed tag.
-2. If not found (including if the header was missing or blank), fall back to the locale
-   with code `"en"`.
+2. If not found, fall back to the locale with code `"en"`.
 3. If even `"en"` doesn't exist in the system, no locale is applied — `locales` in the
    response will be an empty array for every row, for every entity.
 
@@ -82,6 +123,10 @@ entity:
 GET /api/v1/locales?sort_by=sort_order&sort_dir=asc
 ```
 
+Remember this call also needs `Accept-Language` set (§0), even though the endpoint ignores
+its value — send your hardcoded default (e.g. `"en"`) if you haven't resolved the user's
+real preference yet at this point in app startup.
+
 Use this to drive a language switcher UI, and to validate/normalize whatever language the
 browser or user profile reports (e.g. map browser `navigator.language` down to a supported
 `code`, or fall back to your app's default). Every localized entity shares this same
@@ -97,12 +142,12 @@ inconsistent languages for the same record:
 
 ```js
 function pickTranslation(locales, preferredCode) {
-  return (
-    locales.find(l => l.locale.code === preferredCode) ??
-    locales.find(l => l.locale.code === "en") ??
-    locales[0] ??
-    null
-  );
+    return (
+        locales.find(l => l.locale.code === preferredCode) ??
+        locales.find(l => l.locale.code === "en") ??
+        locales[0] ??
+        null
+    );
 }
 ```
 
@@ -115,18 +160,27 @@ one row.
 
 ## 6. Sending the header
 
-Set `Accept-Language` on every list request, for every localized entity:
+Set `Accept-Language` on **every** request your app makes — not just list endpoints, not
+just localized entities (§0). The simplest way to guarantee this is a single shared
+`fetch`/HTTP-client wrapper used for all API calls:
 
 ```js
-fetch(`/api/v1/${entityCollectionPath}?sort_by=name&sort_dir=asc`, {
-  headers: { "Accept-Language": userPreferredLocaleCode }
-});
+function apiFetch(path, options = {}) {
+    return fetch(`/api/v1${path}`, {
+        ...options,
+        headers: {
+            ...options.headers,
+            "Accept-Language": getCurrentLocaleCode(), // never omit this, even for POST/PUT
+        },
+    });
+}
 ```
 
 Use a plain locale code (`"bn"`), or a full browser-style value (`"bn-BD,bn;q=0.9,en;q=0.8"`)
-— both parse fine since only the primary tag before the first `-`/`;`/`,` is read. A single
-shared `fetch` wrapper that always attaches this header works for every localized entity —
-no per-entity special-casing needed.
+— both parse fine since only the primary tag before the first `-`/`;`/`,` is read. Omitting
+the header on *any* call — including writes, detail fetches, and the locale sub-resource —
+now gets you a `400` before your request logic even runs, so route every call through this
+one wrapper rather than attaching the header ad hoc per call site.
 
 ---
 
@@ -150,11 +204,19 @@ The same rules apply no matter which localized entity you're working with:
 
 ## 8. Summary checklist
 
-- [ ] Fetch `GET /api/v1/locales` once at startup; use it to populate a language switcher and validate any locale code before use. This list is shared across every localized entity.
+- [ ] Send `Accept-Language` on **every** request to this API — every entity, every verb, even non-localized endpoints
+  and the `GET /api/v1/locales` bootstrap call itself. Missing/blank gets a `400` before your endpoint logic runs (§0).
+  A single shared fetch wrapper is the simplest way to guarantee this.
+- [ ] Fetch `GET /api/v1/locales` once at startup (with a hardcoded default `Accept-Language` if no preference is stored
+  yet); use it to populate a language switcher and validate any locale code before use. This list is shared across every
+  localized entity.
 - [ ] Store the user's chosen/detected locale `code` (not a raw `Accept-Language` value).
-- [ ] Send `Accept-Language: {code}` on every list (`getAll`) request, for every localized entity — a shared fetch wrapper is the simplest way to guarantee this.
 - [ ] Never send locale as a query parameter — it's ignored, for every entity.
-- [ ] On detail pages (`getById`), pick the displayed translation client-side using the §5 fallback logic — don't assume the server scoped it for you.
-- [ ] Don't assume `locales[0]` on a `getAll` row matches the locale you requested — check `locales[0].locale.code` if it matters.
-- [ ] Before offering "add translation" for a locale, check it isn't already in the record's `locales` array (avoids a 409).
-- [ ] Before applying any of this to a given entity, confirm it's actually localized — check that its response includes a `locales` array in the first place.
+- [ ] On detail pages (`getById`), pick the displayed translation client-side using the §5 fallback logic — don't assume
+  the server scoped it for you (the header is required there too, but its value is ignored for response shaping).
+- [ ] Don't assume `locales[0]` on a `getAll` row matches the locale you requested — check `locales[0].locale.code` if
+  it matters.
+- [ ] Before offering "add translation" for a locale, check it isn't already in the record's `locales` array (avoids a
+  409).
+- [ ] Before applying the locale-scoping behavior (§2–§5, §7) to a given entity, confirm it's actually localized — check
+  that its response includes a `locales` array in the first place. The header-required rule (§0) applies regardless.

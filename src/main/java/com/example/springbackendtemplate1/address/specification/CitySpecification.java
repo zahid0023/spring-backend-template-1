@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 @UtilityClass
 public class CitySpecification {
 
-    public Specification<@NonNull CityEntity> filter(CityFilterRequest request) {
-        return SpecificationUtils.build(request);
+    public Specification<@NonNull CityEntity> filter(CityFilterRequest request, Long localeId) {
+        return SpecificationUtils.build(request, localeId);
     }
 }

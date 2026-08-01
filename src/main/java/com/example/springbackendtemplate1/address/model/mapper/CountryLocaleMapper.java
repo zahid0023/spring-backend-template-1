@@ -1,7 +1,6 @@
 package com.example.springbackendtemplate1.address.model.mapper;
 
 import com.example.springbackendtemplate1.address.dto.request.country.locale.CountryLocaleRequest;
-import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.locale.UpdateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.dto.CountryLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
@@ -11,7 +10,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CountryLocaleMapper {
 
-    public CountryLocaleEntity create(CreateCountryLocaleRequest request) {
+    public CountryLocaleEntity create(CountryLocaleRequest request) {
         CountryLocaleEntity entity = new CountryLocaleEntity();
         applyCommonFields(entity, request);
         return entity;

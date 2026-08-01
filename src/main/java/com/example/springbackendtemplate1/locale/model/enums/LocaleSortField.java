@@ -1,12 +1,14 @@
 package com.example.springbackendtemplate1.locale.model.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Getter
 public enum LocaleSortField {
 
-    ID("id", false),
     CREATED_AT("createdAt", false),
     SORT_ORDER("sortOrder", false),
     CODE("code", false),
@@ -18,14 +20,6 @@ public enum LocaleSortField {
     LocaleSortField(String fieldName, boolean localeField) {
         this.fieldName = fieldName;
         this.localeField = localeField;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public boolean isLocaleField() {
-        return localeField;
     }
 
     public static Set<String> allowedFields() {

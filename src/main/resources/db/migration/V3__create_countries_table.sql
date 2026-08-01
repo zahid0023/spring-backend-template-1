@@ -1,70 +1,72 @@
-CREATE TABLE IF NOT EXISTS countries
+create table if not exists countries
 (
-    id         bigserial PRIMARY KEY,
+    id         bigserial primary key,
 
-    code       varchar(10)                  NOT NULL UNIQUE,
-    iso3_code  varchar(3)                   NOT NULL,
-    phone_code varchar(3)                   NOT NULL,
-    sort_order integer                      NOT NULL DEFAULT 0,
+    code       varchar(10)                  not null unique,
+    iso3_code  varchar(3)                   not null,
+    phone_code varchar(3)                   not null,
+    sort_order integer                      not null default 0,
 
-    created_by bigint references users (id) NOT NULL,
-    created_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by bigint references users (id) NOT NULL,
-    updated_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version    bigint                                DEFAULT 0 NOT NULL,
-    is_active  boolean                      NOT NULL DEFAULT true,
-    is_deleted boolean                      NOT NULL DEFAULT false,
-    deleted_by bigint,
+    created_by bigint references users (id) not null,
+    created_at timestamp with time zone     not null default current_timestamp,
+    updated_by bigint references users (id) not null,
+    updated_at timestamp with time zone     not null default current_timestamp,
+    version    bigint                       not null default 0,
+    is_active  boolean                      not null default true,
+    is_deleted boolean                      not null default false,
+    deleted_by bigint references users (id),
     deleted_at timestamp with time zone
 );
 
-CREATE TABLE IF NOT EXISTS country_locales
+create table if not exists country_locales
 (
-    id          bigserial PRIMARY KEY,
+    id          bigserial primary key,
 
-    country_id  bigint                       NOT NULL REFERENCES countries (id) ON DELETE CASCADE,
-    locale_id   bigint                       NOT NULL REFERENCES locales (id) ON DELETE RESTRICT,
+    country_id  bigint references countries (id) on delete cascade not null,
+    locale_id   bigint references locales (id) on delete restrict  not null,
 
-    name        varchar(255)                 NOT NULL,
-    description text                         NOT NULL DEFAULT '',
-    sort_order  integer                      NOT NULL DEFAULT 0,
+    name        varchar(255)                                       not null,
+    description text                                               not null default '',
+    sort_order  integer                                            not null default 0,
 
-    created_by  bigint references users (id) NOT NULL,
-    created_at  timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by  bigint references users (id) NOT NULL,
-    updated_at  timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version     bigint                                DEFAULT 0 NOT NULL,
-    is_active   boolean                      NOT NULL DEFAULT true,
-    is_deleted  boolean                      NOT NULL DEFAULT false,
-    deleted_by  bigint,
+    created_by  bigint references users (id)                       not null,
+    created_at  timestamp with time zone                           not null default current_timestamp,
+    updated_by  bigint references users (id)                       not null,
+    updated_at  timestamp with time zone                           not null default current_timestamp,
+    version     bigint                                             not null default 0,
+    is_active   boolean                                            not null default true,
+    is_deleted  boolean                                            not null default false,
+    deleted_by  bigint references users (id),
     deleted_at  timestamp with time zone,
-    UNIQUE (country_id, locale_id)
+
+    constraint uq_country_locales_country_locale
+        unique (country_id, locale_id)
 );
 
-INSERT INTO countries (code,
+insert into countries (code,
                        iso3_code,
                        phone_code,
                        sort_order,
                        created_by,
                        updated_by)
-VALUES ('BD',
+values ('BD',
         'BGD',
         '880',
         1,
-        (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system'));
+        (select id from users where username = 'system'),
+        (select id from users where username = 'system'));
 
-INSERT INTO country_locales (country_id,
+insert into country_locales (country_id,
                              locale_id,
                              name,
                              description,
                              sort_order,
                              created_by,
                              updated_by)
-VALUES ((SELECT id FROM countries WHERE code = 'BD'),
-        (SELECT id FROM locales WHERE code = 'en'),
+values ((select id from countries where code = 'BD'),
+        (select id from locales where code = 'en'),
         'Bangladesh',
         'Bangladesh is a South Asian country known for its rivers, culture, and hospitality.',
         1,
-        (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system'));
+        (select id from users where username = 'system'),
+        (select id from users where username = 'system'));

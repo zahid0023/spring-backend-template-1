@@ -1,6 +1,7 @@
 package com.example.springbackendtemplate1.address.model.enums;
 
 import com.example.springbackendtemplate1.address.dto.request.country.CountryFilterRequest;
+import com.example.springbackendtemplate1.commons.utils.SearchFieldSpec;
 import com.example.springbackendtemplate1.commons.utils.SearchType;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public enum CountrySearchField {
+public enum CountrySearchField implements SearchFieldSpec<CountryFilterRequest> {
     // direct entity String fields:
     ISO3_CODE("iso3Code", SearchType.LIKE, false, null, CountryFilterRequest::getIso3Code),
     PHONE_CODE("phoneCode", SearchType.LIKE, false, null, CountryFilterRequest::getPhoneCode),

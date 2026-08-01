@@ -1,26 +1,26 @@
-CREATE TABLE IF NOT EXISTS locales
+create table if not exists locales
 (
-    id         bigserial PRIMARY KEY,
+    id         bigserial primary key,
 
-    code       varchar(50)                  NOT NULL UNIQUE,
-    name       varchar(255)                 NOT NULL,
-    sort_order integer                      NOT NULL DEFAULT 0,
+    code       varchar(50)                  not null unique,
+    name       varchar(255)                 not null,
+    sort_order integer                      not null default 0,
 
-    created_by bigint references users (id) NOT NULL,
-    created_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by bigint references users (id) NOT NULL,
-    updated_at timestamp with time zone     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    version    bigint                                DEFAULT 0 NOT NULL,
-    is_active  boolean                      NOT NULL DEFAULT true,
-    is_deleted boolean                      NOT NULL DEFAULT false,
-    deleted_by bigint,
+    created_by bigint references users (id) not null,
+    created_at timestamp with time zone     not null default current_timestamp,
+    updated_by bigint references users (id) not null,
+    updated_at timestamp with time zone     not null default current_timestamp,
+    version    bigint                       not null default 0,
+    is_active  boolean                      not null default true,
+    is_deleted boolean                      not null default false,
+    deleted_by bigint references users (id),
     deleted_at timestamp with time zone
 );
 
-INSERT INTO locales (code,
+insert into locales (code,
                      name,
                      sort_order,
                      created_by,
                      updated_by)
-VALUES ('en', 'English', 1, (SELECT id FROM users WHERE username = 'system'),
-        (SELECT id FROM users WHERE username = 'system'));
+values ('en', 'English', 1, (select id from users where username = 'system'),
+        (select id from users where username = 'system'));

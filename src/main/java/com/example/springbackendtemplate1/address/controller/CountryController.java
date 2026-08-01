@@ -3,9 +3,7 @@ package com.example.springbackendtemplate1.address.controller;
 import com.example.springbackendtemplate1.address.dto.request.country.CountryFilterRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.CreateCountryRequest;
 import com.example.springbackendtemplate1.address.dto.request.country.UpdateCountryRequest;
-import com.example.springbackendtemplate1.address.dto.request.country.locale.CreateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
-import com.example.springbackendtemplate1.commons.utils.LocaleUtils;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import com.example.springbackendtemplate1.address.service.CountryService;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
@@ -14,8 +12,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/countries")
@@ -32,9 +28,8 @@ public class CountryController {
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateCountryRequest request) {
-        Map<Long, LocaleEntity> localeEntityMap = LocaleUtils.resolveLocaleMap(
-                request.getLocales(), CreateCountryLocaleRequest::getLocaleId, localeService);
-        return ResponseEntity.status(HttpStatus.CREATED).body(countryService.create(request, localeEntityMap));
+        LocaleEntity localeEntity = localeService.getEntityByCode("en");
+        return ResponseEntity.status(HttpStatus.CREATED).body(countryService.create(request, localeEntity));
     }
 
     @GetMapping("/{id}")
@@ -43,11 +38,8 @@ public class CountryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(
-            @Valid @ParameterObject CountryFilterRequest request,
-            @RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
-        Long localeId = localeService.resolveLocaleId(acceptLanguage);
-        return ResponseEntity.ok(countryService.getAll(request, localeId));
+    public ResponseEntity<?> getAll(@Valid @ParameterObject CountryFilterRequest request) {
+        return ResponseEntity.ok(countryService.getAll(request));
     }
 
     @PutMapping("/{id}")

@@ -10,18 +10,16 @@ import com.example.springbackendtemplate1.address.model.dto.CountryDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 
-import java.util.Map;
-
 public interface CountryService {
 
     SuccessResponse create(CreateCountryRequest request,
-                           Map<Long, LocaleEntity> localeEntityMap);
+                           LocaleEntity localeEntity);
 
     CountryEntity getEntityById(Long id);
 
     CountryResponse getById(Long id);
 
-    PaginatedResponse<CountryDto> getAll(CountryFilterRequest request, Long localeId);
+    PaginatedResponse<CountryDto> getAll(CountryFilterRequest request);
 
     SuccessResponse update(CountryEntity entity,
                            UpdateCountryRequest request);

@@ -79,6 +79,9 @@ public class LocaleServiceImpl implements LocaleService {
     @Transactional
     @Override
     public SuccessResponse delete(LocaleEntity entity) {
+        if ("en".equals(entity.getCode())) {
+            throw new IllegalStateException("The 'en' locale cannot be deleted; it is required as the platform's fallback locale");
+        }
         entity.setIsDeleted(true);
         entity.setIsActive(false);
         localeRepository.save(entity);
@@ -92,6 +95,15 @@ public class LocaleServiceImpl implements LocaleService {
                 .orElseThrow(() -> {
                     log.warn("Locale not found with id: {}", id);
                     return new EntityNotFoundException("Locale not found with id: " + id);
+                });
+    }
+
+    @Override
+    public LocaleEntity getEntityByCode(String code) {
+        return localeRepository.findByCodeAndIsActiveAndIsDeleted(code, true, false)
+                .orElseThrow(() -> {
+                    log.warn("Locale not found with code: {}", code);
+                    return new EntityNotFoundException("Locale not found with code: " + code);
                 });
     }
 

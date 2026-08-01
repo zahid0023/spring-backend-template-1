@@ -18,4 +18,11 @@ public interface CountryLocaleRepository extends
             Boolean isActive,
             Boolean isDeleted
     );
+
+    boolean existsByCountryEntity_IdAndLocaleEntity_IdAndIsActiveAndIsDeleted(
+            Long countryId,
+            Long localeId,
+            Boolean isActive,
+            Boolean isDeleted
+    );
 }

@@ -1,13 +1,23 @@
 package com.example.springbackendtemplate1.commons.utils;
 
-public interface LocaleSortable {
-    /**
-     * Return join info when the current sortBy is a locale field, null otherwise.
-     * Implementations read getSortBy() / getSortDir() from PaginatedRequest.
-     */
-    LocaleJoinSortInfo getLocaleSortInfo();
+import org.springframework.data.domain.Sort;
 
-    default LocaleJoinSortInfo getLocaleSortInfo(Long localeId) {
-        return getLocaleSortInfo();
+import java.util.Set;
+
+public interface LocaleSortable {
+
+    default LocaleJoinSortInfo getLocaleSortInfo() {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " requires a localeId — use getLocaleSortInfo(localeId)");
+    }
+
+    LocaleJoinSortInfo getLocaleSortInfo(Long localeId);
+
+    default LocaleJoinSortInfo buildLocaleSortInfo(String collectionField, String sortBy, Sort.Direction sortDir,
+                                                    Long localeId, Set<String> localeSortFields) {
+        if (!localeSortFields.contains(sortBy)) {
+            return null;
+        }
+        return new LocaleJoinSortInfo(collectionField, sortBy, "localeEntity", localeId, sortDir);
     }
 }

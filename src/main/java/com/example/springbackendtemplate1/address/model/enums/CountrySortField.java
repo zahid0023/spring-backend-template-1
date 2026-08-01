@@ -1,9 +1,12 @@
 package com.example.springbackendtemplate1.address.model.enums;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Getter
 public enum CountrySortField {
     CREATED_AT("createdAt", false),
     CODE("code", false),
@@ -17,14 +20,6 @@ public enum CountrySortField {
     CountrySortField(String fieldName, boolean localeField) {
         this.fieldName = fieldName;
         this.localeField = localeField;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public boolean isLocaleField() {
-        return localeField;
     }
 
     public static Set<String> allowedFields() {

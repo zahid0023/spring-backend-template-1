@@ -35,8 +35,7 @@ class EndToEndFlowTest extends ApiIntegrationTestBase {
 
         // ---- Step 1: superadmin is already bootstrapped + logged in via @BeforeEach ----
         mockMvc.perform(get("/api/v1/locales")
-                        .with(asSuperAdmin())
-                        .param("sortBy", "id"))
+                        .with(asSuperAdmin()))
                 .andExpect(status().isOk());
 
         // ---- Step 2: create the Locale reference data (real HTTP, real JWT) ----

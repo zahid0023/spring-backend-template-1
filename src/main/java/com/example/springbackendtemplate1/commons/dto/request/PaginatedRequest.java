@@ -19,11 +19,14 @@ public class PaginatedRequest {
     @Max(50)
     private int size = 10;
 
-    private String sortBy = "id";
+    private String sortBy;
 
     private Sort.Direction sortDir = Sort.Direction.ASC;
 
     public Pageable toPageable(Set<String> allowedSortFields) {
+        if (sortBy == null) {
+            return PageRequest.of(page, size, Sort.by(sortDir, "id"));
+        }
         if (!allowedSortFields.contains(sortBy)) {
             throw new IllegalArgumentException("Invalid sort field: " + sortBy);
         }
@@ -31,6 +34,9 @@ public class PaginatedRequest {
     }
 
     public Pageable toPageable(Set<String> allowedSortFields, Set<String> localeSortFields) {
+        if (sortBy == null) {
+            return PageRequest.of(page, size, Sort.by(sortDir, "id"));
+        }
         if (!allowedSortFields.contains(sortBy)) {
             throw new IllegalArgumentException("Invalid sort field: " + sortBy);
         }

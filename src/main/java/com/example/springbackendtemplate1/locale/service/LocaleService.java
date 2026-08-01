@@ -17,6 +17,8 @@ public interface LocaleService {
 
     LocaleEntity getEntityById(Long id);
 
+    LocaleEntity getEntityByCode(String code);
+
     LocaleResponse getById(Long id);
 
     PaginatedResponse<LocaleDto> getAll(LocaleFilterRequest request);

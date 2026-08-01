@@ -194,7 +194,8 @@ class CountryControllerTest extends ApiIntegrationTestBase {
     @DisplayName("Test: List Countries without sortBy Returns 400")
     void getAll_missingSortBy_shouldReturn400InvalidSortField() throws Exception {
         mockMvc.perform(get("/api/v1/countries")
-                        .with(asSuperAdmin()))
+                        .with(asSuperAdmin())
+                        .header("Accept-Language", "en"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("INVALID_ARGUMENT"));
     }
@@ -223,9 +224,20 @@ class CountryControllerTest extends ApiIntegrationTestBase {
         mockMvc.perform(get("/api/v1/countries")
                         .with(asSuperAdmin())
                         .param("iso3Code", "AAF")
-                        .param("sortBy", "code"))
+                        .param("sortBy", "code")
+                        .header("Accept-Language", "en"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].locales[0].locale.code").value("en"));
+    }
+
+    @Test
+    @DisplayName("Test: List Countries Missing Accept-Language Returns 400")
+    void getAll_missingAcceptLanguage_shouldReturn400InvalidArgument() throws Exception {
+        mockMvc.perform(get("/api/v1/countries")
+                        .with(asSuperAdmin())
+                        .param("sortBy", "code"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("INVALID_ARGUMENT"));
     }
 
     @Test
@@ -236,7 +248,8 @@ class CountryControllerTest extends ApiIntegrationTestBase {
         mockMvc.perform(get("/api/v1/countries")
                         .with(asSuperAdmin())
                         .param("iso3Code", "zz")
-                        .param("sortBy", "code"))
+                        .param("sortBy", "code")
+                        .header("Accept-Language", "en"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
                 .andExpect(jsonPath("$.data[0].code").value("T6"));
@@ -297,7 +310,8 @@ class CountryControllerTest extends ApiIntegrationTestBase {
         mockMvc.perform(get("/api/v1/countries")
                         .with(asSuperAdmin())
                         .param("iso3Code", "AAH")
-                        .param("sortBy", "code"))
+                        .param("sortBy", "code")
+                        .header("Accept-Language", "en"))
                 .andExpect(jsonPath("$.data.length()").value(0));
     }
 

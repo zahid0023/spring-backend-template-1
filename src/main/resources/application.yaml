@@ -31,3 +31,7 @@ jwt:
   access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:?JWT_ACCESS_EXPIRATION_MINUTES must be set!}
   refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:?JWT_REFRESH_EXPIRATION_DAYS must be set!}
   otp.expiration-minutes: ${OTP_EXPIRATION_MINUTES:?OTP_EXPIRATION_MINUTES must be set!}
+
+springdoc:
+  swagger-ui:
+    persist-authorization: true

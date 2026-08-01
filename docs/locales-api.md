@@ -5,7 +5,18 @@ Base URL: `/api/v1/locales`
 Locales represent language and region identifiers used across the platform. Each locale has a unique
 code (e.g., `en`, `bn`) and a display name. Locales are referenced by country, city, currency, unit,
 and unit type entities to provide their locale-specific translations. All records support soft-delete —
-deleted records are hidden from all responses.
+deleted records are hidden from all responses. The `en` locale specifically cannot be deleted through
+`DELETE /api/v1/locales/{id}` (rejected with `409 CONFLICT`) — it's the platform's required fallback
+whenever a requested locale has no translation.
+
+**`Accept-Language` is required on every endpoint below, with no exceptions** — a request missing (or with
+a blank) `Accept-Language` header is rejected with `400 INVALID_ARGUMENT` before it reaches any endpoint
+(see [Error Responses](#error-responses)). This applies even to `GET /api/v1/locales` itself, the typical
+first call a frontend makes to discover which locales exist (see the
+[Frontend Localization Guide](frontend-localization-guide.md#4-discovering-available-locales)) — send a
+hardcoded default (e.g. `en`) for that bootstrap call if no stored user preference exists yet. No endpoint
+on this resource actually *uses* the header's value (Locale has no locale-of-its-own to scope), so its
+presence is the only thing that's ever checked here.
 
 ---
 
@@ -112,13 +123,13 @@ performs a case-insensitive partial match.
 > the snake_case used in JSON bodies (which goes through Jackson's `@JsonNaming` instead).
 
 | Parameter | Type   | Default | Constraints                                    | Description                                        |
-|-----------|--------|---------|-------------------------------------------------|-----------------------------------------------------|
-| `code`    | String | —       | —                                               | Filter by locale code (partial, case-insensitive)  |
-| `name`    | String | —       | —                                               | Filter by display name (partial, case-insensitive) |
-| `page`    | int    | `0`     | >= 0                                            | Zero-based page index                              |
-| `size`    | int    | `10`    | 1 – 50                                          | Number of items per page                           |
-| `sortBy`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name`  | Field to sort by                                   |
-| `sortDir` | String | `ASC`   | `ASC`, `DESC`                                   | Sort direction                                     |
+|-----------|--------|---------|------------------------------------------------|----------------------------------------------------|
+| `code`    | String | —       | —                                              | Filter by locale code (partial, case-insensitive)  |
+| `name`    | String | —       | —                                              | Filter by display name (partial, case-insensitive) |
+| `page`    | int    | `0`     | >= 0                                           | Zero-based page index                              |
+| `size`    | int    | `10`    | 1 – 50                                         | Number of items per page                           |
+| `sortBy`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name` | Field to sort by                                   |
+| `sortDir` | String | `ASC`   | `ASC`, `DESC`                                  | Sort direction                                     |
 
 ### Response `200 OK`
 
@@ -236,8 +247,8 @@ All errors follow a common structure:
 }
 ```
 
-| HTTP Status | Error Code         | Cause                                                                           |
-|-------------|--------------------|---------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT` | Missing required fields, or an unsupported `sortBy` query value                  |
-| 404         | `ENTITY_NOT_FOUND` | Locale not found, or already deleted                                            |
-| 409         | `CONFLICT`         | `code` already in use by another active locale (checked explicitly in `create`) |
+| HTTP Status | Error Code         | Cause                                                                                                                                                                         |
+|-------------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 400         | `INVALID_ARGUMENT` | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing required fields; or an unsupported `sortBy` query value |
+| 404         | `ENTITY_NOT_FOUND` | Locale not found, or already deleted                                                                                                                                          |
+| 409         | `CONFLICT`         | `code` already in use by another active locale (checked explicitly in `create`); or an attempt to delete the `en` locale (checked explicitly in `delete`)                     |

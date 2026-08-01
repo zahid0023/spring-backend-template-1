@@ -1,22 +1,22 @@
-CREATE TABLE IF NOT EXISTS image_hosting_configs
+create table if not exists image_hosting_configs
 (
     id         bigserial primary key,
 
-    name       varchar(100)                                       NOT NULL,
+    name       varchar(100)                 not null,
     -- e.g. "Cloudinary Marketing", "Cloudinary Food", "S3 Backup"
 
-    provider   varchar(50)                                        not null,
+    provider   varchar(50)                  not null,
     -- e.g. CLOUDINARY, S3
 
-    config     jsonb                                              not null,
+    config     jsonb                        not null,
 
-    created_by bigint references users (id)                       not null,
-    created_at timestamp with time zone default current_timestamp not null,
-    updated_by bigint references users (id)                       not null,
-    updated_at timestamp with time zone default current_timestamp not null,
-    version    bigint                   default 0                 not null,
-    is_active  boolean                  default true              not null,
-    is_deleted boolean                  default false             not null,
-    deleted_by bigint,
+    created_by bigint references users (id) not null,
+    created_at timestamp with time zone     not null default current_timestamp,
+    updated_by bigint references users (id) not null,
+    updated_at timestamp with time zone     not null default current_timestamp,
+    version    bigint                       not null default 0,
+    is_active  boolean                      not null default true,
+    is_deleted boolean                      not null default false,
+    deleted_by bigint references users (id),
     deleted_at timestamp with time zone
 );

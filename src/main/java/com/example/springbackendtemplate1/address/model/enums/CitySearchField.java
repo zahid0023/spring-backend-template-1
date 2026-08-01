@@ -1,6 +1,7 @@
 package com.example.springbackendtemplate1.address.model.enums;
 
 import com.example.springbackendtemplate1.address.dto.request.city.CityFilterRequest;
+import com.example.springbackendtemplate1.commons.utils.SearchFieldSpec;
 import com.example.springbackendtemplate1.commons.utils.SearchType;
 import lombok.Getter;
 
@@ -10,8 +11,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public enum CitySearchField {
-    CODE("code", SearchType.LIKE, false, null, CityFilterRequest::getCode);
+public enum CitySearchField implements SearchFieldSpec<CityFilterRequest> {
+    CODE("code", SearchType.LIKE, false, null, CityFilterRequest::getCode),
+    NAME("name", SearchType.LIKE, true, "cityLocaleEntities", CityFilterRequest::getName);
 
     private final String fieldName;
     private final SearchType searchType;

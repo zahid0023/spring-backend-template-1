@@ -6,15 +6,15 @@ create table if not exists roles
 (
     id         bigserial primary key,
 
-    name       varchar(50)                                        not null unique,
+    name       varchar(50)              not null unique,
 
-    created_by bigint                                             not null,
-    created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
-    updated_by bigint                                             not null,
-    updated_at timestamp with time zone default CURRENT_TIMESTAMP not null,
-    version    bigint                   default 0                 not null,
-    is_active  boolean                  default true              not null,
-    is_deleted boolean                  default false             not null,
+    created_by bigint                   not null,
+    created_at timestamp with time zone not null default current_timestamp,
+    updated_by bigint                   not null,
+    updated_at timestamp with time zone not null default current_timestamp,
+    version    bigint                   not null default 0,
+    is_active  boolean                  not null default true,
+    is_deleted boolean                  not null default false,
     deleted_by bigint,
     deleted_at timestamp with time zone
 );
@@ -23,20 +23,20 @@ create table if not exists users
 (
     id         bigserial primary key,
 
-    username   varchar(255)                                       not null unique,
-    password   varchar(255)                                       not null,
-    role_id    bigint                                             not null,
-    enabled    boolean                  default true              not null,
-    locked     boolean                  default false             not null,
-    expired    boolean                  default false             not null,
+    username   varchar(255)             not null unique,
+    password   varchar(255)             not null,
+    role_id    bigint                   not null,
+    enabled    boolean                  not null default true,
+    locked     boolean                  not null default false,
+    expired    boolean                  not null default false,
 
-    created_by bigint                                             not null,
-    created_at timestamp with time zone default CURRENT_TIMESTAMP not null,
-    updated_by bigint                                             not null,
-    updated_at timestamp with time zone default CURRENT_TIMESTAMP not null,
-    version    bigint                   default 0                 not null,
-    is_active  boolean                  default true              not null,
-    is_deleted boolean                  default false             not null,
+    created_by bigint                   not null,
+    created_at timestamp with time zone not null default current_timestamp,
+    updated_by bigint                   not null,
+    updated_at timestamp with time zone not null default current_timestamp,
+    version    bigint                   not null default 0,
+    is_active  boolean                  not null default true,
+    is_deleted boolean                  not null default false,
     deleted_by bigint,
     deleted_at timestamp with time zone
 );
@@ -45,16 +45,16 @@ create table if not exists permissions
 (
     id          bigserial primary key,
 
-    name        varchar(100)                                       not null unique,
+    name        varchar(100)             not null unique,
     description varchar(255),
 
-    created_by  bigint                                             not null,
-    created_at  timestamp with time zone default CURRENT_TIMESTAMP not null,
-    updated_by  bigint                                             not null,
-    updated_at  timestamp with time zone default CURRENT_TIMESTAMP not null,
-    version     bigint                   default 0                 not null,
-    is_active   boolean                  default true              not null,
-    is_deleted  boolean                  default false             not null,
+    created_by  bigint                   not null,
+    created_at  timestamp with time zone not null default current_timestamp,
+    updated_by  bigint                   not null,
+    updated_at  timestamp with time zone not null default current_timestamp,
+    version     bigint                   not null default 0,
+    is_active   boolean                  not null default true,
+    is_deleted  boolean                  not null default false,
     deleted_by  bigint,
     deleted_at  timestamp with time zone
 );
@@ -63,19 +63,21 @@ create table if not exists user_permissions
 (
     id            bigserial primary key,
 
-    user_id       bigint                                             not null,
-    permission_id bigint                                             not null,
+    user_id       bigint                   not null,
+    permission_id bigint                   not null,
 
-    created_by    bigint                                             not null,
-    created_at    timestamp with time zone default CURRENT_TIMESTAMP not null,
-    updated_by    bigint                                             not null,
-    updated_at    timestamp with time zone default CURRENT_TIMESTAMP not null,
-    version       bigint                   default 0                 not null,
-    is_active     boolean                  default true              not null,
-    is_deleted    boolean                  default false             not null,
+    created_by    bigint                   not null,
+    created_at    timestamp with time zone not null default current_timestamp,
+    updated_by    bigint                   not null,
+    updated_at    timestamp with time zone not null default current_timestamp,
+    version       bigint                   not null default 0,
+    is_active     boolean                  not null default true,
+    is_deleted    boolean                  not null default false,
     deleted_by    bigint,
     deleted_at    timestamp with time zone,
-    unique (user_id, permission_id)
+
+    constraint uq_user_permissions_user_permission
+        unique (user_id, permission_id)
 );
 
 -- ============================================================
