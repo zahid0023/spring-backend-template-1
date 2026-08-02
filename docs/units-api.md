@@ -6,40 +6,38 @@ Units represent individual units of measure (e.g., "Meter", "Kilogram") belongin
 identified by a unique `code` and linked to a parent unit type via `unit_type_id`. A unit's display name,
 plural name, and description are locale-specific and are managed through a companion sub-resource — Unit
 Locales — reached via `/api/v1/units/{unit-id}/locales`. Each unit response embeds a summary of its parent
-unit type; that embedded unit type's own `units` field is always `[]` (a deliberately minimal embed that
-both breaks the recursion — a unit type's `units` list would otherwise include this same unit again, and
-so on infinitely — and avoids pulling in unrelated sibling units the caller didn't ask for). Unit type
-responses likewise embed a list of their units, each omitting its own `unit_type` field for the same
-reason — see the [Unit Types API](unit-types-api.md). All records support soft-delete — deleted records
-are hidden from all responses.
+unit type, using the same single-locale shape the Unit Types API itself returns — see the
+[Unit Types API](unit-types-api.md). All records support soft-delete — deleted records are hidden from all
+responses.
 
 **`Accept-Language` is required on every endpoint below, with no exceptions** — a request missing (or with
 a blank) `Accept-Language` header is rejected with `400 INVALID_ARGUMENT` before it reaches any endpoint
 (see [Error Responses](#error-responses)). What differs per endpoint is whether the header's *value* is
 actually used to shape the response:
 
-- **`GET /{id}` (Get Unit)** — the header must be present, but its value is ignored for the unit's own
-  `locales` — every translation the unit has comes back, always. It **is** used, however, to pick the
-  single locale shown for the embedded parent `unit_type`.
-- **`GET` (List/Search Units)** — the header's value selects exactly one locale translation for both the
-  unit itself and its embedded `unit_type`: an exact match if one exists, otherwise `en`, otherwise no
-  translation at all.
+- **`GET /{id}` (Get Unit)** and **`GET` (List/Search Units)** — the header's value selects exactly one
+  locale translation for the unit's own `locale` field, and separately for the embedded parent unit type's
+  `locale` field: an exact match if one exists, otherwise `en`, otherwise `null`.
+- **`GET /{unit-id}/locales` (List Unit Locales)** — the header must be present, but its value has no
+  effect; this endpoint returns every translation the unit has (optionally filtered by `localeCode`), not
+  a single Accept-Language-matched one.
 - **`POST`/`PUT`/`DELETE`** — the header must be present but its value has no effect at all.
 
 ---
 
 ## Endpoints
 
-| Method | Path                                    | Description          |
-|--------|------------------------------------------|-----------------------|
-| POST   | `/api/v1/units`                          | Create a unit         |
-| GET    | `/api/v1/units`                          | List / search units   |
-| GET    | `/api/v1/units/{id}`                     | Get a unit            |
-| PUT    | `/api/v1/units/{id}`                     | Update a unit         |
-| DELETE | `/api/v1/units/{id}`                     | Delete a unit         |
-| POST   | `/api/v1/units/{unit-id}/locales`        | Create a unit locale  |
-| PUT    | `/api/v1/units/{unit-id}/locales/{id}`   | Update a unit locale  |
-| DELETE | `/api/v1/units/{unit-id}/locales/{id}`   | Delete a unit locale  |
+| Method | Path                                    | Description             |
+|--------|--------------------------------------------|--------------------------|
+| POST   | `/api/v1/units`                          | Create a unit             |
+| GET    | `/api/v1/units`                          | List / search units        |
+| GET    | `/api/v1/units/{id}`                     | Get a unit                    |
+| PUT    | `/api/v1/units/{id}`                     | Update a unit                    |
+| DELETE | `/api/v1/units/{id}`                     | Delete a unit                       |
+| GET    | `/api/v1/units/{unit-id}/locales`        | List a unit's locales                  |
+| POST   | `/api/v1/units/{unit-id}/locales`        | Create a unit locale                      |
+| PUT    | `/api/v1/units/{unit-id}/locales/{id}`   | Update a unit locale                         |
+| DELETE | `/api/v1/units/{unit-id}/locales/{id}`   | Delete a unit locale                            |
 
 ---
 
@@ -48,20 +46,20 @@ actually used to shape the response:
 ### Unit
 
 | Field                | Type     | Required | Constraints                                                          | Description                                                                 |
-|----------------------|----------|----------|------------------------------------------------------------------------|------------------------------------------------------------------------------|
+|----------------------|----------|----------|-------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | `id`                 | Long     | —        | read-only                                                              | Auto-generated identifier                                                    |
-| `unit_type`          | UnitType | —        | read-only; embedded parent summary, its own `units` field is always `[]` | The parent unit type this unit belongs to                                    |
+| `unit_type`          | UnitType | —        | read-only; embedded parent summary (single Accept-Language-matched `locale`, same shape as `GET /unit-types/{id}`) | The parent unit type this unit belongs to             |
 | `code`               | String   | Yes      | max 50 chars, unique among active records; set at creation, immutable | Short unit code (e.g., `M`)                                                   |
 | `symbol`             | String   | Yes      | max 20 chars, unique among active records                             | Display symbol (e.g., `m`) — **not** immutable, checked for uniqueness on both create and update |
 | `is_base_unit`       | Boolean  | Yes      | —                                                                       | Whether this is the base unit for its unit type's conversions                |
 | `conversion_factor`  | Decimal  | Yes      | positive                                                               | Multiplier to convert to/from the unit type's base unit                      |
 | `sort_order`         | Integer  | Yes      | default 0; **not settable at creation** — see [Create Unit](#create-unit) | Display order                                                                |
-| `locales`            | Array    | —        | see UnitLocale below                                                   | Locale-specific translations — **every** translation on `GET /{id}`, exactly **one** (Accept-Language-matched, `en` fallback) everywhere else |
+| `locale`             | Object   | —        | nullable; see UnitLocale below                                         | The single translation matching the request's `Accept-Language` (falls back to `en`, then `null` if the unit has no translations at all) |
 
 ### UnitLocale
 
 | Field          | Type    | Required | Constraints                                      | Description                                                                    |
-|----------------|---------|----------|--------------------------------------------------|--------------------------------------------------------------------------------|
+|----------------|---------|----------|-----------------------------------------------------|--------------------------------------------------------------------------------|
 | `id`           | Long    | —        | read-only                                        | Auto-generated identifier                                                      |
 | `locale`       | Locale  | —        | read-only, resolved from `locale_id` at creation | The locale this translation is written in (`id`, `code`, `name`, `sort_order`) |
 | `name`         | String  | Yes      | max 100 chars                                    | Localized unit name (e.g., `Meter`)                                            |
@@ -141,9 +139,10 @@ Additional languages are added afterward via the Unit Locales sub-resource below
 
 `GET /api/v1/units/{id}`
 
-Returns a single active unit by its ID, including **every** locale translation associated with it (the
-`Accept-Language` value has no effect on the unit's own `locales` — it's used only to pick the single
-locale shown for the embedded parent unit type), plus a summary of its parent unit type.
+Returns a single active unit by its ID. `locale` is the one translation matching the request's
+`Accept-Language` header (falls back to `en`, then `null` if the unit has no translations at all). The
+embedded `unit_type` resolves its own `locale` field the same way, independently. To fetch every
+translation a unit has, use [List Unit Locales](#list-unit-locales) below.
 
 ### Path Parameters
 
@@ -161,29 +160,7 @@ locale shown for the embedded parent unit type), plus a summary of its parent un
       "id": 1,
       "code": "LENGTH",
       "sort_order": 1,
-      "locales": [
-        {
-          "id": 1,
-          "locale": {
-            "id": 1,
-            "code": "en",
-            "name": "English",
-            "sort_order": 1
-          },
-          "name": "Length",
-          "description": "Units measuring distance or length",
-          "sort_order": 1
-        }
-      ],
-      "units": []
-    },
-    "code": "M",
-    "symbol": "m",
-    "is_base_unit": true,
-    "conversion_factor": 1,
-    "sort_order": 0,
-    "locales": [
-      {
+      "locale": {
         "id": 1,
         "locale": {
           "id": 1,
@@ -191,33 +168,37 @@ locale shown for the embedded parent unit type), plus a summary of its parent un
           "name": "English",
           "sort_order": 1
         },
-        "name": "Meter",
-        "plural_name": "Meters",
-        "description": "The base SI unit of length",
+        "name": "Length",
+        "description": "Units measuring distance or length",
+        "sort_order": 1
+      }
+    },
+    "code": "M",
+    "symbol": "m",
+    "is_base_unit": true,
+    "conversion_factor": 1,
+    "sort_order": 0,
+    "locale": {
+      "id": 1,
+      "locale": {
+        "id": 1,
+        "code": "en",
+        "name": "English",
         "sort_order": 1
       },
-      {
-        "id": 2,
-        "locale": {
-          "id": 2,
-          "code": "bn",
-          "name": "Bengali",
-          "sort_order": 2
-        },
-        "name": "মিটার",
-        "plural_name": "মিটার",
-        "description": "",
-        "sort_order": 2
-      }
-    ]
+      "name": "Meter",
+      "plural_name": "Meters",
+      "description": "The base SI unit of length",
+      "sort_order": 1
+    }
   }
 }
 ```
 
-> **Note:** the embedded `unit_type` shows exactly **one** locale entry (Accept-Language-matched, `en`
-> fallback) and its own `units` is always `[]`, even though the unit itself (above) returns **every**
-> translation it has. The unit type's own `GET /{id}` (via the Unit Types API) is what returns every one
-> of *its* translations — the embedding here is intentionally minimal.
+> **Note:** the embedded `unit_type` shows exactly the same single Accept-Language-matched `locale` (falls
+> back to `en`, then `null`) that `GET /unit-types/{id}` itself would return — not every translation the
+> unit type has. To see every translation of the unit type itself, use the
+> [Unit Types API](unit-types-api.md)'s locale sub-resource.
 
 ---
 
@@ -228,24 +209,28 @@ locale shown for the embedded parent unit type), plus a summary of its parent un
 Returns a paginated, filterable list of active (non-deleted) units. All filter parameters are optional;
 omitting them returns all units. Multiple filters are combined with AND. The `code` filter performs a
 case-insensitive partial match; `unitTypeId` and `isBaseUnit` perform an exact match. `Accept-Language`
-selects which single locale translation is included per unit — and per its embedded unit type — falling
-back to `en`, then to no translation.
+selects each unit's `locale` field the same way as `GET /{id}` (exact match, falls back to `en`, then
+`null`) — and does the same for each unit's embedded `unit_type.locale`.
+
+> **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
+> `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
+> omitted entirely.
 
 ### Query Parameters
 
 > **Note:** Query parameters bind directly onto `UnitFilterRequest`'s Java field names, so they are
 > **camelCase** — not the snake_case used in JSON request/response bodies.
 
-| Parameter    | Type    | Default | Constraints                                             | Description                                                                               |
-|--------------|---------|---------|------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| `code`       | String  | —       | —                                                        | Filter by code (partial, case-insensitive)                                                   |
-| `unitTypeId` | Long    | —       | —                                                        | Filter by parent unit type ID (exact match)                                                  |
-| `isBaseUnit` | Boolean | —       | —                                                        | Filter by base-unit flag (exact match)                                                       |
-| `name`       | String  | —       | —                                                        | Filter by locale-specific name (partial, case-insensitive), scoped to the resolved locale     |
-| `page`       | int     | `0`     | >= 0                                                      | Zero-based page index                                                                         |
-| `size`       | int     | `10`    | 1 – 50                                                    | Number of items per page                                                                       |
-| `sortBy`     | String  | `id`    | `createdAt`, `code`, `unitTypeEntity.id`, `isBaseUnit`, `name` | Field to sort by                                                                          |
-| `sortDir`    | String  | `ASC`   | `ASC`, `DESC`                                             | Sort direction                                                                                |
+| Parameter    | Type    | Default         | Constraints                                                              | Description                                                                               |
+|--------------|---------|-----------------|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| `code`       | String  | —               | —                                                                        | Filter by code (partial, case-insensitive)                                                   |
+| `unitTypeId` | Long    | —               | —                                                                        | Filter by parent unit type ID (exact match)                                                  |
+| `isBaseUnit` | Boolean | —               | —                                                                        | Filter by base-unit flag (exact match)                                                       |
+| `name`       | String  | —               | —                                                                        | Filter by locale-specific name (partial, case-insensitive), scoped to the resolved locale     |
+| `page`       | int     | `0`             | >= 0                                                                      | Zero-based page index                                                                         |
+| `size`       | int     | `10`            | 1 – 50                                                                    | Number of items per page                                                                       |
+| `sortBy`     | String  | `id` (implicit) | `createdAt`, `code`, `unitTypeEntity.id`, `isBaseUnit`, `name` (`id` NOT selectable) | Field to sort by                                                            |
+| `sortDir`    | String  | `ASC`           | `ASC`, `DESC`                                                             | Sort direction                                                                                |
 
 ### Response `200 OK`
 
@@ -258,29 +243,7 @@ back to `en`, then to no translation.
         "id": 1,
         "code": "LENGTH",
         "sort_order": 1,
-        "locales": [
-          {
-            "id": 1,
-            "locale": {
-              "id": 1,
-              "code": "en",
-              "name": "English",
-              "sort_order": 1
-            },
-            "name": "Length",
-            "description": "Units measuring distance or length",
-            "sort_order": 1
-          }
-        ],
-        "units": []
-      },
-      "code": "M",
-      "symbol": "m",
-      "is_base_unit": true,
-      "conversion_factor": 1,
-      "sort_order": 0,
-      "locales": [
-        {
+        "locale": {
           "id": 1,
           "locale": {
             "id": 1,
@@ -288,12 +251,29 @@ back to `en`, then to no translation.
             "name": "English",
             "sort_order": 1
           },
-          "name": "Meter",
-          "plural_name": "Meters",
-          "description": "The base SI unit of length",
+          "name": "Length",
+          "description": "Units measuring distance or length",
           "sort_order": 1
         }
-      ]
+      },
+      "code": "M",
+      "symbol": "m",
+      "is_base_unit": true,
+      "conversion_factor": 1,
+      "sort_order": 0,
+      "locale": {
+        "id": 1,
+        "locale": {
+          "id": 1,
+          "code": "en",
+          "name": "English",
+          "sort_order": 1
+        },
+        "name": "Meter",
+        "plural_name": "Meters",
+        "description": "The base SI unit of length",
+        "sort_order": 1
+      }
     }
   ],
   "current_page": 0,
@@ -395,6 +375,78 @@ Unit Locale endpoints manage locale-specific name/plural name/description transl
 
 ---
 
+### List Unit Locales
+
+`GET /api/v1/units/{unit-id}/locales`
+
+Returns a paginated list of every locale translation belonging to a unit — this is the only way to see
+more than the single Accept-Language-matched translation returned by `GET /units/{id}` and `GET /units`.
+Optionally filtered to locales whose `code` contains a given substring.
+
+#### Path Parameters
+
+| Parameter | Type | Description           |
+|-----------|------|-------------------------|
+| `unit-id` | Long | ID of the parent unit  |
+
+#### Query Parameters
+
+| Parameter    | Type   | Default | Constraints | Description                                                                                     |
+|--------------|--------|---------|-------------|-------------------------------------------------------------------------------------------------|
+| `localeCode` | String | —       | —           | Filter to locales whose `code` contains this value (partial, case-insensitive), e.g. `en`, `bn` |
+| `page`       | int    | `0`     | >= 0        | Zero-based page index                                                                           |
+| `size`       | int    | `10`    | 1 – 50      | Number of items per page                                                                        |
+
+> **Note:** `sortBy`/`sortDir` are accepted on the request object but there are no sortable fields
+> registered for this endpoint — passing any non-null `sortBy` value throws
+> `400 INVALID_ARGUMENT: Invalid sort field: <value>`. Omit `sortBy` entirely to get the default
+> (sorted by `id` ascending).
+
+#### Response `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "locale": {
+        "id": 1,
+        "code": "en",
+        "name": "English",
+        "sort_order": 1
+      },
+      "name": "Meter",
+      "plural_name": "Meters",
+      "description": "The base SI unit of length",
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "locale": {
+        "id": 2,
+        "code": "bn",
+        "name": "Bengali",
+        "sort_order": 2
+      },
+      "name": "মিটার",
+      "plural_name": "মিটার",
+      "description": "",
+      "sort_order": 2
+    }
+  ],
+  "current_page": 0,
+  "total_pages": 1,
+  "total_elements": 2,
+  "page_size": 10,
+  "has_next": false,
+  "has_previous": false,
+  "sortable_fields": null,
+  "searchable_fields": null
+}
+```
+
+---
+
 ### Create Unit Locale
 
 `POST /api/v1/units/{unit-id}/locales`
@@ -402,7 +454,8 @@ Unit Locale endpoints manage locale-specific name/plural name/description transl
 Adds a new locale translation to an existing unit. `locale_id` must reference an existing, active locale —
 an unknown `locale_id` returns `404 ENTITY_NOT_FOUND`. The combination of unit and locale must be unique —
 adding a locale the unit already has a translation for returns `409 CONFLICT`, pre-checked at the
-application level before any write (backed by a DB-level unique constraint as a last-resort guard).
+application level before any write (backed by a DB-level unique constraint on `(unit_id, locale_id)` as a
+last-resort guard).
 
 #### Path Parameters
 
@@ -527,7 +580,7 @@ All errors follow a common structure:
 ```
 
 | HTTP Status | Error Code                 | Cause                                                                                                                                                        |
-|-------------|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|-------------|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value |
 | 404         | `ENTITY_NOT_FOUND`         | Unit not found, unit locale not found, unit type referenced by `unit_type_id` not found (unit creation), or the locale referenced by `locale_id` not found (locale creation) |
 | 409         | `CONFLICT`                 | `code` or `symbol` already in use by another active unit (checked explicitly in `create`/`update`); or the unit already has a translation for the given `locale_id` (`create` unit locale, pre-checked at the application level) |

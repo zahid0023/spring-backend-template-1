@@ -117,19 +117,23 @@ Returns a paginated, filterable list of active (non-deleted) locales. All filter
 optional; omitting them returns all locales. Multiple filters are combined with AND. Each filter
 performs a case-insensitive partial match.
 
+> **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
+> `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
+> omitted entirely.
+
 ### Query Parameters
 
 > **Note:** Query parameters are **camelCase** (Java field names via Spring's plain `DataBinder`), not
 > the snake_case used in JSON bodies (which goes through Jackson's `@JsonNaming` instead).
 
-| Parameter | Type   | Default | Constraints                                    | Description                                        |
-|-----------|--------|---------|------------------------------------------------|----------------------------------------------------|
-| `code`    | String | —       | —                                              | Filter by locale code (partial, case-insensitive)  |
-| `name`    | String | —       | —                                              | Filter by display name (partial, case-insensitive) |
-| `page`    | int    | `0`     | >= 0                                           | Zero-based page index                              |
-| `size`    | int    | `10`    | 1 – 50                                         | Number of items per page                           |
-| `sortBy`  | String | `id`    | `id`, `createdAt`, `sortOrder`, `code`, `name` | Field to sort by                                   |
-| `sortDir` | String | `ASC`   | `ASC`, `DESC`                                  | Sort direction                                     |
+| Parameter | Type   | Default         | Constraints                                                    | Description                                        |
+|-----------|--------|-----------------|-----------------------------------------------------------------|-----------------------------------------------------|
+| `code`    | String | —               | —                                                               | Filter by locale code (partial, case-insensitive)  |
+| `name`    | String | —               | —                                                               | Filter by display name (partial, case-insensitive) |
+| `page`    | int    | `0`             | >= 0                                                            | Zero-based page index                              |
+| `size`    | int    | `10`            | 1 – 50                                                          | Number of items per page                           |
+| `sortBy`  | String | `id` (implicit) | `createdAt`, `sortOrder`, `code`, `name` (`id` NOT selectable) | Field to sort by                                   |
+| `sortDir` | String | `ASC`           | `ASC`, `DESC`                                                   | Sort direction                                     |
 
 ### Response `200 OK`
 
@@ -156,7 +160,6 @@ performs a case-insensitive partial match.
   "has_next": false,
   "has_previous": false,
   "sortable_fields": [
-    "id",
     "createdAt",
     "sortOrder",
     "code",
