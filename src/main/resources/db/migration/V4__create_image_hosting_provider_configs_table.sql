@@ -1,4 +1,4 @@
-create table if not exists image_hosting_configs
+create table if not exists image_hosting_provider_configs
 (
     id                        bigserial primary key,
 

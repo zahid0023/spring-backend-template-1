@@ -9,13 +9,10 @@ import com.example.springbackendtemplate1.image.hosting.dto.request.imagehosting
 import com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingprovider.UpdateImageHostingProviderRequest;
 import com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingprovider.configfield.CreateImageHostingProviderConfigFieldRequest;
 import com.example.springbackendtemplate1.image.hosting.dto.response.imagehostingproviders.ImageHostingProviderResponse;
-import com.example.springbackendtemplate1.image.hosting.model.dto.ImageHostingConfigDto;
-import com.example.springbackendtemplate1.image.hosting.model.dto.ImageHostingProviderConfigFieldDto;
 import com.example.springbackendtemplate1.image.hosting.model.dto.ImageHostingProviderDto;
 import com.example.springbackendtemplate1.image.hosting.model.entity.ImageHostingProviderEntity;
 import com.example.springbackendtemplate1.image.hosting.model.enums.ImageHostingProviderSearchField;
 import com.example.springbackendtemplate1.image.hosting.model.enums.ImageHostingProviderSortField;
-import com.example.springbackendtemplate1.image.hosting.model.mapper.ImageHostingConfigMapper;
 import com.example.springbackendtemplate1.image.hosting.model.mapper.ImageHostingProviderConfigFieldMapper;
 import com.example.springbackendtemplate1.image.hosting.model.mapper.ImageHostingProviderMapper;
 import com.example.springbackendtemplate1.image.hosting.repository.ImageHostingProviderRepository;
@@ -31,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -79,16 +75,7 @@ public class ImageHostingProviderServiceImpl implements ImageHostingProviderServ
     @Override
     public ImageHostingProviderResponse getById(Long id) {
         ImageHostingProviderEntity entity = getEntityById(id);
-        List<ImageHostingProviderConfigFieldDto> configFields = ImageHostingProviderMapper.activeConfigFields(entity).stream()
-                .map(configFieldEntity -> ImageHostingProviderConfigFieldMapper.toDto(configFieldEntity).build())
-                .toList();
-        List<ImageHostingConfigDto> configs = ImageHostingProviderMapper.activeConfigs(entity).stream()
-                .map(configEntity -> ImageHostingConfigMapper.toDto(configEntity).build())
-                .toList();
-        ImageHostingProviderDto dto = ImageHostingProviderMapper.toDto(entity)
-                .configFields(configFields)
-                .configs(configs)
-                .build();
+        ImageHostingProviderDto dto = ImageHostingProviderMapper.toDto(entity).build();
         return new ImageHostingProviderResponse(dto);
     }
 

@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,10 +21,4 @@ public class ImageHostingProviderDto {
     private String name;
     private String description;
     private Integer sortOrder;
-
-    @Builder.Default
-    private List<ImageHostingProviderConfigFieldDto> configFields = new ArrayList<>();
-
-    @Builder.Default
-    private List<ImageHostingConfigDto> configs = new ArrayList<>();
 }

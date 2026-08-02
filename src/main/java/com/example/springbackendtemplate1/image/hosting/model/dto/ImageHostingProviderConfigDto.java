@@ -16,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ImageHostingConfigDto {
+public class ImageHostingProviderConfigDto {
 
     private Long id;
 

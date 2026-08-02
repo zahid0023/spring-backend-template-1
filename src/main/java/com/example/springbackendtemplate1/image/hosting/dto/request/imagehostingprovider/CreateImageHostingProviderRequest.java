@@ -16,7 +16,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateImageHostingProviderRequest extends ImageHostingProviderRequest {
-
     @NotBlank
     @Size(max = 50)
     private String code;
@@ -24,5 +23,4 @@ public class CreateImageHostingProviderRequest extends ImageHostingProviderReque
     @Valid
     @NotEmpty
     private List<CreateImageHostingProviderConfigFieldRequest> configFields;
-
 }

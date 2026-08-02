@@ -13,6 +13,7 @@ spring:
       hibernate:
         format_sql: ${HIBERNATE_FORMAT_SQL:false}
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_batch_fetch_size: 16
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}

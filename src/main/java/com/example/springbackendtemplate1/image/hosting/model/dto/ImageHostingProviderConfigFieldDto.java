@@ -15,7 +15,6 @@ import tools.jackson.databind.annotation.JsonNaming;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ImageHostingProviderConfigFieldDto {
-
     private Long id;
     private String key;
     private String label;

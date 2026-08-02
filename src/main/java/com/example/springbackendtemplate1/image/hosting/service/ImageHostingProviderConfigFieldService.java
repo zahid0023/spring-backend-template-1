@@ -11,7 +11,8 @@ import java.util.List;
 
 public interface ImageHostingProviderConfigFieldService {
 
-    SuccessResponse create(CreateImageHostingProviderConfigFieldRequest request, ImageHostingProviderEntity providerEntity);
+    SuccessResponse create(CreateImageHostingProviderConfigFieldRequest request,
+                           ImageHostingProviderEntity providerEntity);
 
     ImageHostingProviderConfigFieldEntity getEntityById(Long imageHostingProviderId, Long id);
 

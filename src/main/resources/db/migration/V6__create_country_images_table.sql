@@ -2,7 +2,7 @@ create table if not exists images
 (
     id          bigserial primary key,
 
-    config_id   bigint references image_hosting_configs (id) not null,
+    config_id   bigint references image_hosting_provider_configs (id) not null,
 
     external_id varchar(255),
     -- cloudinary public_id / s3 key

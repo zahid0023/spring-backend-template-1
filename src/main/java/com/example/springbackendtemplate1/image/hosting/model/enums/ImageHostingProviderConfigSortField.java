@@ -7,19 +7,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
-public enum ImageHostingConfigSortField {
+public enum ImageHostingProviderConfigSortField {
     NAME("name"),
     IMAGE_HOSTING_PROVIDER_ID("imageHostingProviderEntity.id");
 
     private final String fieldName;
 
-    ImageHostingConfigSortField(String fieldName) {
+    ImageHostingProviderConfigSortField(String fieldName) {
         this.fieldName = fieldName;
     }
 
     public static Set<String> allowedFields() {
         return Arrays.stream(values())
-                .map(ImageHostingConfigSortField::getFieldName)
+                .map(ImageHostingProviderConfigSortField::getFieldName)
                 .collect(Collectors.toSet());
     }
 }

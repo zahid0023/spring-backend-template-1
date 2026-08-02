@@ -44,7 +44,7 @@ public class ImageHostingProviderEntity extends AuditableEntity {
     private Set<ImageHostingProviderConfigFieldEntity> configFieldEntities = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "imageHostingProviderEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ImageHostingConfigEntity> imageHostingConfigEntities = new LinkedHashSet<>();
+    private Set<ImageHostingProviderConfigEntity> imageHostingProviderConfigEntities = new LinkedHashSet<>();
 
     // -------------------------------------------------------------------------
     // ConfigField relationship helpers
@@ -59,14 +59,14 @@ public class ImageHostingProviderEntity extends AuditableEntity {
     }
 
     // -------------------------------------------------------------------------
-    // ImageHostingConfig relationship helpers
+    // ImageHostingProviderConfig relationship helpers
     // -------------------------------------------------------------------------
 
-    public void addImageHostingConfigEntity(ImageHostingConfigEntity entity) {
-        addChild(imageHostingConfigEntities, entity, ImageHostingConfigEntity::assignImageHostingProvider, this);
+    public void addImageHostingProviderConfigEntity(ImageHostingProviderConfigEntity entity) {
+        addChild(imageHostingProviderConfigEntities, entity, ImageHostingProviderConfigEntity::assignImageHostingProvider, this);
     }
 
-    public void removeImageHostingConfigEntity(ImageHostingConfigEntity entity) {
-        removeChild(imageHostingConfigEntities, entity, (child, ignored) -> child.unassignImageHostingProvider());
+    public void removeImageHostingProviderConfigEntity(ImageHostingProviderConfigEntity entity) {
+        removeChild(imageHostingProviderConfigEntities, entity, (child, ignored) -> child.unassignImageHostingProvider());
     }
 }

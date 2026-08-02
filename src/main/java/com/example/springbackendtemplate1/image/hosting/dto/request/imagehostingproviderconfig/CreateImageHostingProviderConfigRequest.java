@@ -1,4 +1,4 @@
-package com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingconfig;
+package com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingproviderconfig;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,5 +8,5 @@ import tools.jackson.databind.annotation.JsonNaming;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class UpdateImageHostingConfigRequest extends ImageHostingConfigRequest {
+public class CreateImageHostingProviderConfigRequest extends ImageHostingProviderConfigRequest {
 }

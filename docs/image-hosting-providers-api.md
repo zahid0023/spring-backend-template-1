@@ -8,11 +8,17 @@ connection-configuration schema — the fields a caller must supply to configure
 etc.) — through a companion sub-resource, Config Fields, reached via
 `/api/v1/image-hosting-providers/{image-hosting-provider-id}/config-fields`. A config field describes a
 *field of the schema itself* (its key, label, type, whether it's required), not an actual stored credential
-value. All records support soft-delete — deleted records are hidden from all responses.
+value. Actual configured instances of a provider (e.g. "Cloudinary Marketing", "Cloudinary Food") are
+managed through a second sub-resource, Configs, reached via
+`/api/v1/image-hosting-providers/{image-hosting-provider-id}/configs` — see [Configs](#configs) below. All
+records support soft-delete — deleted records are hidden from all responses.
 
-**Unlike the Countries/Cities/Currencies APIs, this module has no locale concept** — there is no
-`Accept-Language` requirement on any endpoint below, and no `locales`/translation sub-resource. `name`,
-`label`, and other text fields are stored directly, once, in whatever language the caller submits them.
+**None of these modules have a locale/translation concept** — `name`, `label`, `config`, and other text/JSON
+fields are stored directly, once, in whatever the caller submits, never per-language. That said,
+**`Accept-Language` is still required on every endpoint below, with no exceptions** — it's enforced globally
+by `commons/filter/LocaleContextFilter.java`, before any endpoint in the application runs, regardless of
+whether that endpoint's module has a locale concept of its own. Its value has **no effect** on the response
+shape anywhere in this document — it's checked for presence only.
 
 ---
 
@@ -29,6 +35,10 @@ value. All records support soft-delete — deleted records are hidden from all r
 | GET    | `/api/v1/image-hosting-providers/{provider-id}/config-fields`      | List config fields      |
 | PUT    | `/api/v1/image-hosting-providers/{provider-id}/config-fields/{id}` | Update a config field   |
 | DELETE | `/api/v1/image-hosting-providers/{provider-id}/config-fields/{id}` | Delete a config field   |
+| POST   | `/api/v1/image-hosting-providers/{provider-id}/configs`            | Create a config         |
+| GET    | `/api/v1/image-hosting-providers/{provider-id}/configs`            | List / search configs   |
+| PUT    | `/api/v1/image-hosting-providers/{provider-id}/configs/{id}`       | Update a config         |
+| DELETE | `/api/v1/image-hosting-providers/{provider-id}/configs/{id}`       | Delete a config         |
 
 ---
 
@@ -43,7 +53,10 @@ value. All records support soft-delete — deleted records are hidden from all r
 | `name`          | String  | Yes      | max 100 chars                                                                    | Display name (e.g., `Amazon S3`)                                                     |
 | `description`   | String  | Yes      | not null (defaults to `""`)                                                      | Free-text description                                                                |
 | `sort_order`    | Integer | Yes      | default 0                                                                        | Display order                                                                        |
-| `config_fields` | Array   | —        | read-only; see ImageHostingProviderConfigField below; `[]` except on `GET /{id}` | The provider's connection-configuration schema — see [Config Fields](#config-fields) |
+
+> **Note:** `ImageHostingProvider` responses (both `GET /{id}` and `GET` list) never include the provider's
+> config fields — there is no `config_fields` field on this DTO at all. To read a provider's
+> connection-configuration schema, call [List Config Fields](#list-config-fields) separately.
 
 ### ImageHostingProviderConfigField
 
@@ -57,6 +70,17 @@ value. All records support soft-delete — deleted records are hidden from all r
 | `default_value` | String  | Yes      | not null (defaults to `""`), max 500 chars                                                                        | Default value pre-filled for the field                          |
 | `is_required`   | Boolean | Yes      | default `true`                                                                                                    | Whether a value must be supplied when configuring this provider |
 | `sort_order`    | Integer | Yes      | default 0                                                                                                         | Display order among the provider's config fields                |
+
+### ImageHostingProviderConfig
+
+| Field    | Type          | Required | Constraints                                                                      | Description                                                                    |
+|----------|---------------|----------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| `id`     | Long          | —        | read-only                                                                          | Auto-generated identifier                                                     |
+| `name`   | String        | Yes      | max 100 chars; unique among the owning provider's active configs; set at creation | Human-readable label for this configured instance (e.g., `Cloudinary Marketing`) |
+| `config` | Object (JSON) | Yes      | not null; stored as `jsonb`, arbitrary shape                                      | The actual configuration/credential values for this instance                  |
+
+> **Note:** the response DTO never includes which provider a config belongs to — that's implicit in the
+> `{provider-id}` path segment you called. See [Configs](#configs) below.
 
 ---
 
@@ -139,7 +163,8 @@ step — `name` and `description` are submitted directly in this same request.
 
 `GET /api/v1/image-hosting-providers/{id}`
 
-Returns a single active provider by its ID, including every active config field it currently defines.
+Returns a single active provider by its ID. Config fields are **not** included in this response — call
+[List Config Fields](#list-config-fields) separately to read them.
 
 ### Path Parameters
 
@@ -156,29 +181,7 @@ Returns a single active provider by its ID, including every active config field 
     "code": "AWS_S3",
     "name": "Amazon S3",
     "description": "",
-    "sort_order": 1,
-    "config_fields": [
-      {
-        "id": 1,
-        "key": "bucket",
-        "label": "Bucket Name",
-        "field_type": "TEXT",
-        "placeholder": "",
-        "default_value": "",
-        "is_required": true,
-        "sort_order": 1
-      },
-      {
-        "id": 2,
-        "key": "region",
-        "label": "Region",
-        "field_type": "TEXT",
-        "placeholder": "",
-        "default_value": "",
-        "is_required": true,
-        "sort_order": 2
-      }
-    ]
+    "sort_order": 1
   }
 }
 ```
@@ -191,8 +194,8 @@ Returns a single active provider by its ID, including every active config field 
 
 Returns a paginated, filterable list of active (non-deleted) providers. All filter parameters are
 optional; omitting them returns all providers. Multiple filters are combined with AND. `code` and `name`
-both perform a case-insensitive partial match. **List rows always show `config_fields` as an empty array
-(`[]`)** — that field is only ever populated with entries by `GET /{id}`.
+both perform a case-insensitive partial match. As with `GET /{id}`, rows never include config fields — call
+[List Config Fields](#list-config-fields) per provider if you need them.
 
 > **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
 > `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
@@ -223,16 +226,14 @@ both perform a case-insensitive partial match. **List rows always show `config_f
       "code": "AWS_S3",
       "name": "Amazon S3",
       "description": "",
-      "sort_order": 1,
-      "config_fields": []
+      "sort_order": 1
     },
     {
       "id": 2,
       "code": "CLOUDINARY",
       "name": "Cloudinary",
       "description": "",
-      "sort_order": 2,
-      "config_fields": []
+      "sort_order": 2
     }
   ],
   "current_page": 0,
@@ -499,6 +500,213 @@ response.
 
 ---
 
+## Configs
+
+Config endpoints manage actual configured instances of a provider — for example "Cloudinary Marketing" and
+"Cloudinary Food" could be two separate configs against the same `CLOUDINARY` provider, each with its own
+credentials/settings. Where a Config Field (above) describes one *field of the schema* (its key, label,
+type), a Config stores the actual configured values for that schema as a single JSON payload. Every endpoint
+below is nested under, and scoped to, a single provider — there is no top-level, cross-provider way to list
+or address a config. The `{provider-id}` path parameter must reference an existing, active provider on every
+endpoint below — an unknown value returns `404 ENTITY_NOT_FOUND`.
+
+---
+
+### Create Config
+
+`POST /api/v1/image-hosting-providers/{provider-id}/configs`
+
+Creates a new config under the given provider. `name` must be unique among that provider's active configs —
+reusing a name already used by another active config **of the same provider** returns `409 CONFLICT`; the
+same `name` is allowed across different providers.
+
+#### Path Parameters
+
+| Parameter     | Type | Description               |
+|---------------|------|---------------------------|
+| `provider-id` | Long | ID of the parent provider |
+
+#### Request Body
+
+```json
+{
+  "name": "Cloudinary Marketing",
+  "config": {
+    "cloud_name": "my-cloud",
+    "api_key": "123456789",
+    "api_secret": "secret"
+  }
+}
+```
+
+#### Request Fields
+
+| Field    | Type   | Required | Validation                                                            |
+|----------|--------|----------|--------------------------------------------------------------------------|
+| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs    |
+| `config` | Object | Yes      | Not null; arbitrary JSON object                                         |
+
+#### Response `201 Created`
+
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+---
+
+### List Configs
+
+`GET /api/v1/image-hosting-providers/{provider-id}/configs`
+
+Returns a paginated, filterable list of the given provider's active (non-deleted) configs. All filter
+parameters are optional; omitting them returns every config for that provider. `name` performs a
+case-insensitive partial match.
+
+> **Note:** unlike [List Config Fields](#list-config-fields), this list **is** paginated — the response
+> follows the same `data`/`current_page`/`sortable_fields` shape as [List / Search Providers](#list--search-providers)
+> above, not a plain array.
+
+> **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
+> `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
+> omitted entirely.
+
+#### Path Parameters
+
+| Parameter     | Type | Description               |
+|---------------|------|---------------------------|
+| `provider-id` | Long | ID of the parent provider |
+
+#### Query Parameters
+
+> **Note:** Query parameters bind directly onto `ImageHostingProviderConfigFilterRequest`'s Java field names,
+> so they are **camelCase** — not the snake_case used in JSON request/response bodies.
+
+| Parameter | Type   | Default         | Constraints                  | Description                                 |
+|-----------|--------|-----------------|-------------------------------|----------------------------------------------|
+| `name`    | String | —               | —                              | Filter by name (partial, case-insensitive)   |
+| `page`    | int    | `0`             | >= 0                           | Zero-based page index                        |
+| `size`    | int    | `10`            | 1 – 50                          | Number of items per page                     |
+| `sortBy`  | String | `id` (implicit) | `name` (`id` NOT selectable)   | Field to sort by                             |
+| `sortDir` | String | `ASC`           | `ASC`, `DESC`                   | Sort direction                               |
+
+#### Response `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Cloudinary Marketing",
+      "config": {
+        "cloud_name": "my-cloud",
+        "api_key": "123456789",
+        "api_secret": "secret"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Cloudinary Food",
+      "config": {
+        "cloud_name": "my-cloud",
+        "api_key": "987654321",
+        "api_secret": "secret2"
+      }
+    }
+  ],
+  "current_page": 0,
+  "total_pages": 1,
+  "total_elements": 2,
+  "page_size": 10,
+  "has_next": false,
+  "has_previous": false,
+  "sortable_fields": [
+    "name",
+    "imageHostingProviderEntity.id"
+  ],
+  "searchable_fields": [
+    "name"
+  ]
+}
+```
+
+---
+
+### Update Config
+
+`PUT /api/v1/image-hosting-providers/{provider-id}/configs/{id}`
+
+Updates `name` and `config`. The config must belong to the provider named in the path — passing a valid
+config `id` that belongs to a *different* provider returns `404 ENTITY_NOT_FOUND`, the same as an unknown
+`id`. `name` must remain unique among the provider's active configs (excluding this record) — a collision
+returns `409 CONFLICT`.
+
+#### Path Parameters
+
+| Parameter     | Type | Description               |
+|---------------|------|---------------------------|
+| `provider-id` | Long | ID of the parent provider |
+| `id`          | Long | ID of the config          |
+
+#### Request Body
+
+```json
+{
+  "name": "Cloudinary Marketing",
+  "config": {
+    "cloud_name": "my-cloud",
+    "api_key": "123456789",
+    "api_secret": "rotated-secret"
+  }
+}
+```
+
+#### Request Fields
+
+| Field    | Type   | Required | Validation                                                            |
+|----------|--------|----------|--------------------------------------------------------------------------|
+| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs    |
+| `config` | Object | Yes      | Not null; arbitrary JSON object                                         |
+
+#### Response `200 OK`
+
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+---
+
+### Delete Config
+
+`DELETE /api/v1/image-hosting-providers/{provider-id}/configs/{id}`
+
+Soft-deletes the config. The config must belong to the provider named in the path — the same
+provider-mismatch rule as Update Config applies. The record is not removed from the database but will no
+longer appear in any response.
+
+#### Path Parameters
+
+| Parameter     | Type | Description               |
+|---------------|------|---------------------------|
+| `provider-id` | Long | ID of the parent provider |
+| `id`          | Long | ID of the config          |
+
+#### Response `200 OK`
+
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+---
+
 ## Error Responses
 
 All errors follow a common structure:
@@ -514,7 +722,7 @@ All errors follow a common structure:
 
 | HTTP Status | Error Code                 | Cause                                                                                                                                                                                                                                                                       |
 |-------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT`         | Missing/invalid required fields, or an unsupported `sortBy` query value on `GET /image-hosting-providers`                                                                                                                                                                   |
-| 404         | `ENTITY_NOT_FOUND`         | Provider not found, or config field not found                                                                                                                                                                                                                               |
-| 409         | `CONFLICT`                 | `code` already in use by another active provider (`create` provider); two entries in `config_fields` share the same `key` (`create` provider); or the provider already has a config field for the given `key` (`create` config field, pre-checked at the application level) |
-| 409         | `DATA_INTEGRITY_VIOLATION` | Last-resort DB-level unique constraint on `(image_hosting_provider_id, key)`, should not normally be reachable now that the duplicate is pre-checked at the application level                                                                                               |
+| 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value on `GET /image-hosting-providers` or `GET /configs`                                    |
+| 404         | `ENTITY_NOT_FOUND`         | Provider not found; config field not found; or config not found (unknown `id`, or an `id` that belongs to a different provider than the one in the path)                                                                                                                     |
+| 409         | `CONFLICT`                 | `code` already in use by another active provider (`create` provider); two entries in `config_fields` share the same `key` (`create` provider); the provider already has a config field for the given `key` (`create` config field, pre-checked at the application level); or `name` already in use by another active config for the same provider (`create`/`update` config) |
+| 409         | `DATA_INTEGRITY_VIOLATION` | Last-resort DB-level unique constraint on `(image_hosting_provider_id, key)` for config fields, should not normally be reachable now that the duplicate is pre-checked at the application level. **Configs have no equivalent DB-level constraint** — the migration for `image_hosting_provider_configs` defines no `unique` constraint on `(image_hosting_provider_id, name)`, so their `409 CONFLICT` above is enforced purely at the application level |

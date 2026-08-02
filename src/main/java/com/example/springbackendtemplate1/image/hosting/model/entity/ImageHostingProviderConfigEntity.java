@@ -16,8 +16,8 @@ import java.util.Map;
 @Getter
 @Setter
 @Entity
-@Table(name = "image_hosting_configs")
-public class ImageHostingConfigEntity extends AuditableEntity {
+@Table(name = "image_hosting_provider_configs")
+public class ImageHostingProviderConfigEntity extends AuditableEntity {
 
     @Setter(AccessLevel.NONE)
     @NotNull
@@ -25,12 +25,12 @@ public class ImageHostingConfigEntity extends AuditableEntity {
     @JoinColumn(name = "image_hosting_provider_id", nullable = false)
     private ImageHostingProviderEntity imageHostingProviderEntity;
 
-    /** Internal — call via {@link ImageHostingProviderEntity#addImageHostingConfigEntity}. */
+    /** Internal — call via {@link ImageHostingProviderEntity#addImageHostingProviderConfigEntity}. */
     public void assignImageHostingProvider(ImageHostingProviderEntity imageHostingProviderEntity) {
         this.imageHostingProviderEntity = imageHostingProviderEntity;
     }
 
-    /** Internal — call via {@link ImageHostingProviderEntity#removeImageHostingConfigEntity}. */
+    /** Internal — call via {@link ImageHostingProviderEntity#removeImageHostingProviderConfigEntity}. */
     public void unassignImageHostingProvider() {
         this.imageHostingProviderEntity = null;
     }

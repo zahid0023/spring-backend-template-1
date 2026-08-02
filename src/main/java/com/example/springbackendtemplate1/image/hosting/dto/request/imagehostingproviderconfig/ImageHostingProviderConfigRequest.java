@@ -1,4 +1,4 @@
-package com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingconfig;
+package com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingproviderconfig;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ImageHostingConfigRequest {
+public class ImageHostingProviderConfigRequest {
 
     @NotBlank
     @Size(max = 100)

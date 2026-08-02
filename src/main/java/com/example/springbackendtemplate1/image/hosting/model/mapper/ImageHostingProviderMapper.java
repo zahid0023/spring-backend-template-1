@@ -4,12 +4,8 @@ import com.example.springbackendtemplate1.image.hosting.dto.request.imagehosting
 import com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingprovider.ImageHostingProviderRequest;
 import com.example.springbackendtemplate1.image.hosting.dto.request.imagehostingprovider.UpdateImageHostingProviderRequest;
 import com.example.springbackendtemplate1.image.hosting.model.dto.ImageHostingProviderDto;
-import com.example.springbackendtemplate1.image.hosting.model.entity.ImageHostingConfigEntity;
-import com.example.springbackendtemplate1.image.hosting.model.entity.ImageHostingProviderConfigFieldEntity;
 import com.example.springbackendtemplate1.image.hosting.model.entity.ImageHostingProviderEntity;
 import lombok.experimental.UtilityClass;
-
-import java.util.List;
 
 @UtilityClass
 public class ImageHostingProviderMapper {
@@ -38,19 +34,5 @@ public class ImageHostingProviderMapper {
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .sortOrder(entity.getSortOrder());
-    }
-
-    public List<ImageHostingProviderConfigFieldEntity> activeConfigFields(ImageHostingProviderEntity entity) {
-        return entity.getConfigFieldEntities().stream()
-                .filter(configFieldEntity -> Boolean.TRUE.equals(configFieldEntity.getIsActive())
-                        && Boolean.FALSE.equals(configFieldEntity.getIsDeleted()))
-                .toList();
-    }
-
-    public List<ImageHostingConfigEntity> activeConfigs(ImageHostingProviderEntity entity) {
-        return entity.getImageHostingConfigEntities().stream()
-                .filter(configEntity -> Boolean.TRUE.equals(configEntity.getIsActive())
-                        && Boolean.FALSE.equals(configEntity.getIsDeleted()))
-                .toList();
     }
 }
