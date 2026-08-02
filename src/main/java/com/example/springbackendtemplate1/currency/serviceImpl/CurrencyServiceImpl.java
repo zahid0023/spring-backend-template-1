@@ -77,8 +77,8 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public CurrencyResponse getById(Long id) {
         CurrencyEntity entity = getEntityById(id);
-        CountryDto country = CountryMapper.toDto(entity.getCountryEntity(), false).build();
-        CurrencyDto dto = CurrencyMapper.toDto(entity, true)
+        CountryDto country = CountryMapper.toDto(entity.getCountryEntity()).build();
+        CurrencyDto dto = CurrencyMapper.toDto(entity)
                 .country(country)
                 .build();
         return new CurrencyResponse(dto);
@@ -90,8 +90,8 @@ public class CurrencyServiceImpl implements CurrencyService {
         Pageable pageable = request.toPageable(ALLOWED_SORT_FIELDS, CurrencySortField.localeSortFields());
         Page<@NonNull CurrencyDto> page = currencyRepository
                 .findAll(specification, pageable)
-                .map(entity -> CurrencyMapper.toDto(entity, false)
-                        .country(CountryMapper.toDto(entity.getCountryEntity(), false).build())
+                .map(entity -> CurrencyMapper.toDto(entity)
+                        .country(CountryMapper.toDto(entity.getCountryEntity()).build())
                         .build());
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }

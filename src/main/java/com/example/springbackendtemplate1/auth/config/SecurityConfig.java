@@ -5,6 +5,7 @@ import com.example.springbackendtemplate1.auth.exception.CustomAuthenticationEnt
 import com.example.springbackendtemplate1.auth.filter.JwtAuthenticationFilter;
 import com.example.springbackendtemplate1.commons.filter.LocaleContextFilter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -50,6 +51,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/locales").permitAll()
                         .requestMatchers("/api/v1/admins/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/users/**").hasRole("USER")
                         .anyRequest().authenticated()

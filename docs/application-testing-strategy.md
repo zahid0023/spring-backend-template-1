@@ -322,6 +322,6 @@ don't already exist.
 - **City has no controller** — no endpoint exists yet, so no test coverage exists for it.
 - **No pure unit tests.** Every test goes through the full HTTP stack; there
   are no Mockito-mocked service tests or `@DataJpaTest` repository slices.
-- **No test coverage for the `imagehosting` or `auth` modules' own endpoints**
+- **No test coverage for the `image` or `auth` modules' own endpoints**
   beyond what `ApiIntegrationTestBase` exercises incidentally (registration,
   login, permission granting) to bootstrap the superadmin.

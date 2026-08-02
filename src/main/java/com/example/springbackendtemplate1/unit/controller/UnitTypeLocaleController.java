@@ -4,11 +4,13 @@ import com.example.springbackendtemplate1.unit.dto.request.unittype.locale.Creat
 import com.example.springbackendtemplate1.unit.dto.request.unittype.locale.UpdateUnitTypeLocaleRequest;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeLocaleEntity;
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import com.example.springbackendtemplate1.unit.service.UnitTypeLocaleService;
 import com.example.springbackendtemplate1.unit.service.UnitTypeService;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,15 @@ public class UnitTypeLocaleController {
         this.unitTypeService = unitTypeService;
         this.unitTypeLocaleService = unitTypeLocaleService;
         this.localeService = localeService;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAll(
+            @PathVariable("unit-type-id") Long unitTypeId,
+            @RequestParam(value = "localeCode", required = false) String localeCode,
+            @ParameterObject PaginatedRequest paginatedRequest) {
+        unitTypeService.getEntityById(unitTypeId);
+        return ResponseEntity.ok(unitTypeLocaleService.getAll(unitTypeId, localeCode, paginatedRequest));
     }
 
     @PostMapping

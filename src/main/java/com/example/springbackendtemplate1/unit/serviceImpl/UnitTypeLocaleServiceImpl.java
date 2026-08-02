@@ -1,8 +1,12 @@
 package com.example.springbackendtemplate1.unit.serviceImpl;
 
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
+import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
+import com.example.springbackendtemplate1.commons.utils.Pagination;
 import com.example.springbackendtemplate1.unit.dto.request.unittype.locale.CreateUnitTypeLocaleRequest;
 import com.example.springbackendtemplate1.unit.dto.request.unittype.locale.UpdateUnitTypeLocaleRequest;
+import com.example.springbackendtemplate1.unit.model.dto.UnitTypeLocaleDto;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
@@ -11,8 +15,13 @@ import com.example.springbackendtemplate1.unit.repository.UnitTypeLocaleReposito
 import com.example.springbackendtemplate1.unit.service.UnitTypeLocaleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -67,5 +76,16 @@ public class UnitTypeLocaleServiceImpl implements UnitTypeLocaleService {
         return unitTypeLocaleRepository
                 .findByUnitTypeEntity_IdAndIdAndIsActiveAndIsDeleted(unitTypeId, id, true, false)
                 .orElseThrow(() -> new EntityNotFoundException("UnitTypeLocale not found with id: " + id));
+    }
+
+    @Override
+    public PaginatedResponse<UnitTypeLocaleDto> getAll(Long unitTypeId, String localeCode, PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable(Set.of());
+        Page<@NonNull UnitTypeLocaleDto> dtoPage = (localeCode == null || localeCode.isBlank()
+                ? unitTypeLocaleRepository.findByUnitTypeEntity_IdAndIsActiveAndIsDeleted(unitTypeId, true, false, pageable)
+                : unitTypeLocaleRepository.findByUnitTypeEntity_IdAndLocaleEntity_CodeContainingIgnoreCaseAndIsActiveAndIsDeleted(
+                        unitTypeId, localeCode, true, false, pageable))
+                .map(UnitTypeLocaleMapper::toDto);
+        return Pagination.buildPaginatedResponse(dtoPage);
     }
 }

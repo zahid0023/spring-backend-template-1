@@ -5,38 +5,37 @@ Base URL: `/api/v1/countries`
 Countries represent nations recognized by the platform, each identified by a unique `code` (e.g., `BD`)
 plus a 3-letter ISO code and an international calling code. A country's display name and description are
 locale-specific and are managed through a companion sub-resource — Country Locales — reached via
-`/api/v1/countries/{country-id}/locales`. Countries also track associated cities and currencies, embedded
-as the `cities` and `currencies` fields on the response — see the [Cities API](cities-api.md) and
-[Currencies API](currencies-api.md) for their own dedicated endpoints. All records support soft-delete —
-deleted records are hidden from all responses.
+`/api/v1/countries/{country-id}/locales`. All records support soft-delete — deleted records are hidden from
+all responses.
 
 **`Accept-Language` is required on every endpoint below, with no exceptions** — a request missing (or with
 a blank) `Accept-Language` header is rejected with `400 INVALID_ARGUMENT` before it reaches any endpoint
 (see [Error Responses](#error-responses)). What differs per endpoint is whether the header's *value* is
 actually used to shape the response:
 
-- **`GET /{id}` (Get Country)** — the header must be present, but its value is ignored for the country's
-  own `locales` — every translation the country has comes back, always. It **is** used, however, to pick
-  the single locale shown for each embedded city/currency (see below).
-- **`GET` (List/Search Countries)**, and every embedded city/currency anywhere in this API — the header's
-  value selects exactly one locale translation: an exact match if the country/city/currency has one,
-  otherwise `en`, otherwise no translation at all.
+- **`GET /{id}` (Get Country)** and **`GET` (List/Search Countries)** — the header's value selects exactly
+  one locale translation for the country's `locale` field: an exact match if the country has one,
+  otherwise `en`, otherwise `null`.
+- **`GET /{country-id}/locales` (List Country Locales)** — the header must be present, but its value has no
+  effect; this endpoint returns every translation (optionally filtered by `localeCode`), not a single
+  Accept-Language-matched one.
 - **`POST`/`PUT`/`DELETE`** — the header must be present but its value has no effect at all.
 
 ---
 
 ## Endpoints
 
-| Method | Path                                          | Description             |
-|--------|-----------------------------------------------|-------------------------|
-| POST   | `/api/v1/countries`                           | Create a country        |
-| GET    | `/api/v1/countries`                           | List / search countries |
-| GET    | `/api/v1/countries/{id}`                      | Get a country           |
-| PUT    | `/api/v1/countries/{id}`                      | Update a country        |
-| DELETE | `/api/v1/countries/{id}`                      | Delete a country        |
-| POST   | `/api/v1/countries/{country-id}/locales`      | Create a country locale |
-| PUT    | `/api/v1/countries/{country-id}/locales/{id}` | Update a country locale |
-| DELETE | `/api/v1/countries/{country-id}/locales/{id}` | Delete a country locale |
+| Method | Path                                          | Description              |
+|--------|-----------------------------------------------|--------------------------|
+| POST   | `/api/v1/countries`                           | Create a country         |
+| GET    | `/api/v1/countries`                           | List / search countries  |
+| GET    | `/api/v1/countries/{id}`                      | Get a country            |
+| PUT    | `/api/v1/countries/{id}`                      | Update a country         |
+| DELETE | `/api/v1/countries/{id}`                      | Delete a country         |
+| GET    | `/api/v1/countries/{country-id}/locales`      | List a country's locales |
+| POST   | `/api/v1/countries/{country-id}/locales`      | Create a country locale  |
+| PUT    | `/api/v1/countries/{country-id}/locales/{id}` | Update a country locale  |
+| DELETE | `/api/v1/countries/{country-id}/locales/{id}` | Delete a country locale  |
 
 ---
 
@@ -44,16 +43,14 @@ actually used to shape the response:
 
 ### Country
 
-| Field        | Type    | Required | Constraints                                                                     | Description                                                                                                                                   |
-|--------------|---------|----------|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`         | Long    | —        | read-only                                                                       | Auto-generated identifier                                                                                                                     |
-| `code`       | String  | Yes      | max 10 chars, unique among active records; set at creation, immutable           | Short country code (e.g., `BD`)                                                                                                               |
-| `iso3_code`  | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`                                            | 3-letter ISO country code (e.g., `BGD`)                                                                                                       |
-| `phone_code` | String  | Yes      | max 3 chars, must match `^[0-9]{1,3}$`                                          | International calling code (e.g., `880`)                                                                                                      |
-| `sort_order` | Integer | Yes      | default 0                                                                       | Display order                                                                                                                                 |
-| `locales`    | Array   | —        | see CountryLocale below                                                         | Locale-specific translations — **every** translation on `GET /{id}`, exactly **one** (Accept-Language-matched, `en` fallback) everywhere else |
-| `cities`     | Array   | —        | read-only; `[]` except on `GET /{id}`; each entry omits its own `country` field | Cities belonging to this country — see [Cities API](cities-api.md)                                                                            |
-| `currencies` | Array   | —        | read-only; `[]` except on `GET /{id}`; each entry omits its own `country` field | Currencies belonging to this country — see [Currencies API](currencies-api.md)                                                                |
+| Field        | Type    | Required | Constraints                                                           | Description                                                                                                                                 |
+|--------------|---------|----------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`         | Long    | —        | read-only                                                             | Auto-generated identifier                                                                                                                   |
+| `code`       | String  | Yes      | max 10 chars, unique among active records; set at creation, immutable | Short country code (e.g., `BD`)                                                                                                             |
+| `iso3_code`  | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`                                  | 3-letter ISO country code (e.g., `BGD`)                                                                                                     |
+| `phone_code` | String  | Yes      | max 3 chars, must match `^[0-9]{1,3}$`                                | International calling code (e.g., `880`)                                                                                                    |
+| `sort_order` | Integer | Yes      | default 0                                                             | Display order                                                                                                                               |
+| `locale`     | Object  | —        | nullable; see CountryLocale below                                     | The single translation matching the request's `Accept-Language` (falls back to `en`, then `null` if the country has no translations at all) |
 
 ### CountryLocale
 
@@ -127,10 +124,9 @@ Additional languages are added afterward via the Country Locales sub-resource be
 
 `GET /api/v1/countries/{id}`
 
-Returns a single active country by its ID, including **every** locale translation associated with it
-(the `Accept-Language` value has no effect on the country's own `locales` — it's used only to pick the
-single locale shown for each embedded city/currency). See List/Search below for the locale-scoped
-equivalent of the country's own translations.
+Returns a single active country by its ID. `locale` is the one translation matching the request's
+`Accept-Language` header (falls back to `en`, then `null` if the country has no translations at all). To
+fetch every translation a country has, use [List Country Locales](#list-country-locales) below.
 
 ### Path Parameters
 
@@ -148,85 +144,21 @@ equivalent of the country's own translations.
     "iso3_code": "BGD",
     "phone_code": "880",
     "sort_order": 1,
-    "locales": [
-      {
+    "locale": {
+      "id": 1,
+      "locale": {
         "id": 1,
-        "locale": {
-          "id": 1,
-          "code": "en",
-          "name": "English",
-          "sort_order": 1
-        },
-        "name": "Bangladesh",
-        "description": "People's Republic of Bangladesh",
+        "code": "en",
+        "name": "English",
         "sort_order": 1
       },
-      {
-        "id": 2,
-        "locale": {
-          "id": 2,
-          "code": "bn",
-          "name": "Bengali",
-          "sort_order": 2
-        },
-        "name": "বাংলাদেশ",
-        "description": "",
-        "sort_order": 2
-      }
-    ],
-    "cities": [
-      {
-        "id": 1,
-        "code": "DHK",
-        "sort_order": 1,
-        "locales": [
-          {
-            "id": 1,
-            "locale": {
-              "id": 1,
-              "code": "en",
-              "name": "English",
-              "sort_order": 1
-            },
-            "name": "Dhaka",
-            "description": "Capital city of Bangladesh",
-            "sort_order": 1
-          }
-        ]
-      }
-    ],
-    "currencies": [
-      {
-        "id": 1,
-        "code": "BDT",
-        "numeric_code": "050",
-        "symbol": "৳",
-        "decimal_places": 2,
-        "is_default": true,
-        "sort_order": 1,
-        "locales": [
-          {
-            "id": 1,
-            "locale": {
-              "id": 1,
-              "code": "en",
-              "name": "English",
-              "sort_order": 1
-            },
-            "name": "Bangladeshi Taka",
-            "short_name": "Taka",
-            "sort_order": 1
-          }
-        ]
-      }
-    ]
+      "name": "Bangladesh",
+      "description": "People's Republic of Bangladesh",
+      "sort_order": 1
+    }
   }
 }
 ```
-
-Each embedded city/currency shows exactly **one** locale entry — an exact match for the request's
-`Accept-Language`, or `en` if the city/currency has no translation in that locale — regardless of how many
-locales the country itself returns above.
 
 ---
 
@@ -236,10 +168,8 @@ locales the country itself returns above.
 
 Returns a paginated, filterable list of active (non-deleted) countries. All filter parameters are
 optional; omitting them returns all countries. Multiple filters are combined with AND. Each `LIKE`-type
-filter performs a case-insensitive partial match. `Accept-Language` selects which single locale
-translation is included per country (falls back to `en`, then to no translation). **List rows always show
-`cities` and `currencies` as empty arrays (`[]`)** — those are only ever populated with entries by
-`GET /{id}`.
+filter performs a case-insensitive partial match. `Accept-Language` selects each country's `locale` field
+the same way as `GET /{id}` (exact match, falls back to `en`, then `null`).
 
 > **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
 > `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
@@ -279,22 +209,18 @@ translation is included per country (falls back to `en`, then to no translation)
       "iso3_code": "BGD",
       "phone_code": "880",
       "sort_order": 1,
-      "locales": [
-        {
+      "locale": {
+        "id": 1,
+        "locale": {
           "id": 1,
-          "locale": {
-            "id": 1,
-            "code": "en",
-            "name": "English",
-            "sort_order": 1
-          },
-          "name": "Bangladesh",
-          "description": "People's Republic of Bangladesh",
+          "code": "en",
+          "name": "English",
           "sort_order": 1
-        }
-      ],
-      "cities": [],
-      "currencies": []
+        },
+        "name": "Bangladesh",
+        "description": "People's Republic of Bangladesh",
+        "sort_order": 1
+      }
     },
     {
       "id": 2,
@@ -302,22 +228,18 @@ translation is included per country (falls back to `en`, then to no translation)
       "iso3_code": "USA",
       "phone_code": "1",
       "sort_order": 2,
-      "locales": [
-        {
-          "id": 3,
-          "locale": {
-            "id": 1,
-            "code": "en",
-            "name": "English",
-            "sort_order": 1
-          },
-          "name": "United States",
-          "description": "",
+      "locale": {
+        "id": 3,
+        "locale": {
+          "id": 1,
+          "code": "en",
+          "name": "English",
           "sort_order": 1
-        }
-      ],
-      "cities": [],
-      "currencies": []
+        },
+        "name": "United States",
+        "description": "",
+        "sort_order": 1
+      }
     }
   ],
   "current_page": 0,
@@ -414,6 +336,76 @@ response.
 
 Country Locale endpoints manage locale-specific name/description translations for a country. The
 `{country-id}` path parameter must reference an existing, active country.
+
+---
+
+### List Country Locales
+
+`GET /api/v1/countries/{country-id}/locales`
+
+Returns a paginated list of every locale translation belonging to a country — this is the only way to see
+more than the single Accept-Language-matched translation returned by `GET /countries/{id}` and
+`GET /countries`. Optionally filtered to locales whose `code` contains a given substring.
+
+#### Path Parameters
+
+| Parameter    | Type | Description              |
+|--------------|------|--------------------------|
+| `country-id` | Long | ID of the parent country |
+
+#### Query Parameters
+
+| Parameter    | Type   | Default | Constraints | Description                                                                                     |
+|--------------|--------|---------|-------------|-------------------------------------------------------------------------------------------------|
+| `localeCode` | String | —       | —           | Filter to locales whose `code` contains this value (partial, case-insensitive), e.g. `en`, `bn` |
+| `page`       | int    | `0`     | >= 0        | Zero-based page index                                                                           |
+| `size`       | int    | `10`    | 1 – 50      | Number of items per page                                                                        |
+
+> **Note:** `sortBy`/`sortDir` are accepted on the request object but there are no sortable fields
+> registered for this endpoint — passing any non-null `sortBy` value throws
+> `400 INVALID_ARGUMENT: Invalid sort field: <value>`. Omit `sortBy` entirely to get the default
+> (sorted by `id` ascending).
+
+#### Response `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "locale": {
+        "id": 1,
+        "code": "en",
+        "name": "English",
+        "sort_order": 1
+      },
+      "name": "Bangladesh",
+      "description": "People's Republic of Bangladesh",
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "locale": {
+        "id": 2,
+        "code": "bn",
+        "name": "Bengali",
+        "sort_order": 2
+      },
+      "name": "বাংলাদেশ",
+      "description": "",
+      "sort_order": 2
+    }
+  ],
+  "current_page": 0,
+  "total_pages": 1,
+  "total_elements": 2,
+  "page_size": 10,
+  "has_next": false,
+  "has_previous": false,
+  "sortable_fields": null,
+  "searchable_fields": null
+}
+```
 
 ---
 

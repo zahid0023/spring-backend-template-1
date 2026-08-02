@@ -30,23 +30,17 @@ public class CityMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public CityDto.CityDtoBuilder toDto(CityEntity entity, boolean includeLocales) {
-        List<CityLocaleDto> locales = includeLocales
-                ? activeLocales(entity).stream()
-                        .map(CityLocaleMapper::toDto)
-                        .toList()
-                : singleLocale(entity);
-
+    public CityDto.CityDtoBuilder toDto(CityEntity entity) {
         return CityDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
                 .sortOrder(entity.getSortOrder())
-                .locales(locales);
+                .locale(singleLocale(entity));
     }
 
-    private List<CityLocaleDto> singleLocale(CityEntity entity) {
+    private CityLocaleDto singleLocale(CityEntity entity) {
         CityLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
-        return matched == null ? List.of() : List.of(CityLocaleMapper.toDto(matched));
+        return matched == null ? null : CityLocaleMapper.toDto(matched);
     }
 
     private List<CityLocaleEntity> activeLocales(CityEntity entity) {

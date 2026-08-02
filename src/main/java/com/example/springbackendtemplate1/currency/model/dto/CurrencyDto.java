@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -36,6 +33,5 @@ public class CurrencyDto {
 
     private Integer sortOrder;
 
-    @Builder.Default
-    private List<CurrencyLocaleDto> locales = new ArrayList<>();
+    private CurrencyLocaleDto locale;
 }

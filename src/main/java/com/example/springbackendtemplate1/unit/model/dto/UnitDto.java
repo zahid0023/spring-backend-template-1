@@ -9,8 +9,6 @@ import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder
@@ -34,6 +32,5 @@ public class UnitDto {
 
     private Integer sortOrder;
 
-    @Builder.Default
-    private List<UnitLocaleDto> locales = new ArrayList<>();
+    private UnitLocaleDto locale;
 }

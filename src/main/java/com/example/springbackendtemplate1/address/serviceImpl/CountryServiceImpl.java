@@ -1,8 +1,6 @@
 package com.example.springbackendtemplate1.address.serviceImpl;
 
-import com.example.springbackendtemplate1.address.model.dto.CityDto;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
-import com.example.springbackendtemplate1.address.model.mapper.CityMapper;
 import com.example.springbackendtemplate1.address.model.mapper.CountryLocaleMapper;
 import com.example.springbackendtemplate1.commons.context.LocaleContext;
 import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
@@ -20,8 +18,6 @@ import com.example.springbackendtemplate1.address.model.mapper.CountryMapper;
 import com.example.springbackendtemplate1.address.repository.CountryRepository;
 import com.example.springbackendtemplate1.address.service.CountryService;
 import com.example.springbackendtemplate1.address.specification.CountrySpecification;
-import com.example.springbackendtemplate1.currency.model.dto.CurrencyDto;
-import com.example.springbackendtemplate1.currency.model.mapper.CurrencyMapper;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +28,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -76,16 +71,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public CountryResponse getById(Long id) {
         CountryEntity entity = getEntityById(id);
-        List<CityDto> cities = CountryMapper.activeCities(entity).stream()
-                .map(cityEntity -> CityMapper.toDto(cityEntity, false).build())
-                .toList();
-        List<CurrencyDto> currencies = CountryMapper.activeCurrencies(entity).stream()
-                .map(currencyEntity -> CurrencyMapper.toDto(currencyEntity, false).build())
-                .toList();
-        CountryDto dto = CountryMapper.toDto(entity, true)
-                .cities(cities)
-                .currencies(currencies)
-                .build();
+        CountryDto dto = CountryMapper.toDto(entity).build();
         return new CountryResponse(dto);
     }
 
@@ -95,7 +81,7 @@ public class CountryServiceImpl implements CountryService {
         Pageable pageable = request.toPageable(ALLOWED_SORT_FIELDS, CountrySortField.localeSortFields());
         Page<@NonNull CountryDto> page = countryRepository
                 .findAll(specification, pageable)
-                .map(entity -> CountryMapper.toDto(entity, false).build());
+                .map(entity -> CountryMapper.toDto(entity).build());
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }
 

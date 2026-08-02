@@ -5,7 +5,6 @@ import com.example.springbackendtemplate1.unit.dto.request.unittype.UnitTypeRequ
 import com.example.springbackendtemplate1.unit.dto.request.unittype.UpdateUnitTypeRequest;
 import com.example.springbackendtemplate1.unit.model.dto.UnitTypeDto;
 import com.example.springbackendtemplate1.unit.model.dto.UnitTypeLocaleDto;
-import com.example.springbackendtemplate1.unit.model.entity.UnitEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeLocaleEntity;
 import com.example.springbackendtemplate1.commons.context.LocaleContext;
@@ -31,30 +30,17 @@ public class UnitTypeMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public UnitTypeDto.UnitTypeDtoBuilder toDto(UnitTypeEntity entity, boolean includeLocales) {
-        List<UnitTypeLocaleDto> locales = includeLocales
-                ? activeLocales(entity).stream()
-                        .map(UnitTypeLocaleMapper::toDto)
-                        .toList()
-                : singleLocale(entity);
-
+    public UnitTypeDto.UnitTypeDtoBuilder toDto(UnitTypeEntity entity) {
         return UnitTypeDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
                 .sortOrder(entity.getSortOrder())
-                .locales(locales);
+                .locale(singleLocale(entity));
     }
 
-    public List<UnitEntity> activeUnits(UnitTypeEntity entity) {
-        return entity.getUnitEntities().stream()
-                .filter(unitEntity -> Boolean.TRUE.equals(unitEntity.getIsActive())
-                        && Boolean.FALSE.equals(unitEntity.getIsDeleted()))
-                .toList();
-    }
-
-    private List<UnitTypeLocaleDto> singleLocale(UnitTypeEntity entity) {
+    private UnitTypeLocaleDto singleLocale(UnitTypeEntity entity) {
         UnitTypeLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
-        return matched == null ? List.of() : List.of(UnitTypeLocaleMapper.toDto(matched));
+        return matched == null ? null : UnitTypeLocaleMapper.toDto(matched);
     }
 
     private List<UnitTypeLocaleEntity> activeLocales(UnitTypeEntity entity) {

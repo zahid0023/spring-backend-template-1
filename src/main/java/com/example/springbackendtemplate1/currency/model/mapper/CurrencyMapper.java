@@ -34,13 +34,7 @@ public class CurrencyMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public CurrencyDto.CurrencyDtoBuilder toDto(CurrencyEntity entity, boolean includeLocales) {
-        List<CurrencyLocaleDto> locales = includeLocales
-                ? activeLocales(entity).stream()
-                        .map(CurrencyLocaleMapper::toDto)
-                        .toList()
-                : singleLocale(entity);
-
+    public CurrencyDto.CurrencyDtoBuilder toDto(CurrencyEntity entity) {
         return CurrencyDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
@@ -49,12 +43,12 @@ public class CurrencyMapper {
                 .decimalPlaces(entity.getDecimalPlaces())
                 .isDefault(entity.getIsDefault())
                 .sortOrder(entity.getSortOrder())
-                .locales(locales);
+                .locale(singleLocale(entity));
     }
 
-    private List<CurrencyLocaleDto> singleLocale(CurrencyEntity entity) {
+    private CurrencyLocaleDto singleLocale(CurrencyEntity entity) {
         CurrencyLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
-        return matched == null ? List.of() : List.of(CurrencyLocaleMapper.toDto(matched));
+        return matched == null ? null : CurrencyLocaleMapper.toDto(matched);
     }
 
     private List<CurrencyLocaleEntity> activeLocales(CurrencyEntity entity) {

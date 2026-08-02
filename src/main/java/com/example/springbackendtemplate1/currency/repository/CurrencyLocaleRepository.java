@@ -2,6 +2,8 @@ package com.example.springbackendtemplate1.currency.repository;
 
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -24,5 +26,20 @@ public interface CurrencyLocaleRepository extends
             Long localeId,
             Boolean isActive,
             Boolean isDeleted
+    );
+
+    Page<@NonNull CurrencyLocaleEntity> findByCurrencyEntity_IdAndIsActiveAndIsDeleted(
+            Long currencyId,
+            Boolean isActive,
+            Boolean isDeleted,
+            Pageable pageable
+    );
+
+    Page<@NonNull CurrencyLocaleEntity> findByCurrencyEntity_IdAndLocaleEntity_CodeContainingIgnoreCaseAndIsActiveAndIsDeleted(
+            Long currencyId,
+            String localeCode,
+            Boolean isActive,
+            Boolean isDeleted,
+            Pageable pageable
     );
 }

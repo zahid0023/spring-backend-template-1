@@ -5,11 +5,9 @@ import com.example.springbackendtemplate1.address.dto.request.country.CreateCoun
 import com.example.springbackendtemplate1.address.dto.request.country.UpdateCountryRequest;
 import com.example.springbackendtemplate1.address.model.dto.CountryDto;
 import com.example.springbackendtemplate1.address.model.dto.CountryLocaleDto;
-import com.example.springbackendtemplate1.address.model.entity.CityEntity;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
 import com.example.springbackendtemplate1.commons.context.LocaleContext;
-import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -34,35 +32,14 @@ public class CountryMapper {
         entity.setSortOrder(request.getSortOrder());
     }
 
-    public CountryDto.CountryDtoBuilder toDto(CountryEntity entity,
-                                              boolean includeLocales) {
-        List<CountryLocaleDto> locales = includeLocales
-                ? activeLocales(entity).stream()
-                        .map(CountryLocaleMapper::toDto)
-                        .toList()
-                : singleLocale(entity);
-
+    public CountryDto.CountryDtoBuilder toDto(CountryEntity entity) {
         return CountryDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
                 .iso3Code(entity.getIso3Code())
                 .phoneCode(entity.getPhoneCode())
                 .sortOrder(entity.getSortOrder())
-                .locales(locales);
-    }
-
-    public List<CityEntity> activeCities(CountryEntity entity) {
-        return entity.getCityEntities().stream()
-                .filter(cityEntity -> Boolean.TRUE.equals(cityEntity.getIsActive())
-                        && Boolean.FALSE.equals(cityEntity.getIsDeleted()))
-                .toList();
-    }
-
-    public List<CurrencyEntity> activeCurrencies(CountryEntity entity) {
-        return entity.getCurrencyEntities().stream()
-                .filter(currencyEntity -> Boolean.TRUE.equals(currencyEntity.getIsActive())
-                        && Boolean.FALSE.equals(currencyEntity.getIsDeleted()))
-                .toList();
+                .locale(singleLocale(entity));
     }
 
     private List<CountryLocaleEntity> activeLocales(CountryEntity entity) {
@@ -72,9 +49,9 @@ public class CountryMapper {
                 .toList();
     }
 
-    private List<CountryLocaleDto> singleLocale(CountryEntity entity) {
+    private CountryLocaleDto singleLocale(CountryEntity entity) {
         CountryLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
-        return matched == null ? List.of() : List.of(CountryLocaleMapper.toDto(matched));
+        return matched == null ? null : CountryLocaleMapper.toDto(matched);
     }
 
     private CountryLocaleEntity matchLocale(CountryEntity entity, Long localeId) {

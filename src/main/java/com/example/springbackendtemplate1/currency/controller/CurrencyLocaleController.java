@@ -4,11 +4,13 @@ import com.example.springbackendtemplate1.currency.dto.request.currency.locale.C
 import com.example.springbackendtemplate1.currency.dto.request.currency.locale.UpdateCurrencyLocaleRequest;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import com.example.springbackendtemplate1.currency.service.CurrencyLocaleService;
 import com.example.springbackendtemplate1.currency.service.CurrencyService;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,15 @@ public class CurrencyLocaleController {
         this.currencyService = currencyService;
         this.currencyLocaleService = currencyLocaleService;
         this.localeService = localeService;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAll(
+            @PathVariable("currency-id") Long currencyId,
+            @RequestParam(value = "localeCode", required = false) String localeCode,
+            @ParameterObject PaginatedRequest paginatedRequest) {
+        currencyService.getEntityById(currencyId);
+        return ResponseEntity.ok(currencyLocaleService.getAll(currencyId, localeCode, paginatedRequest));
     }
 
     @PostMapping

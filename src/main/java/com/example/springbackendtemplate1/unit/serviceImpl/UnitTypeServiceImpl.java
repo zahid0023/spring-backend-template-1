@@ -9,12 +9,10 @@ import com.example.springbackendtemplate1.unit.dto.request.unittype.CreateUnitTy
 import com.example.springbackendtemplate1.unit.dto.request.unittype.UnitTypeFilterRequest;
 import com.example.springbackendtemplate1.unit.dto.request.unittype.UpdateUnitTypeRequest;
 import com.example.springbackendtemplate1.unit.dto.response.unittypes.UnitTypeResponse;
-import com.example.springbackendtemplate1.unit.model.dto.UnitDto;
 import com.example.springbackendtemplate1.unit.model.dto.UnitTypeDto;
 import com.example.springbackendtemplate1.unit.model.entity.UnitTypeEntity;
 import com.example.springbackendtemplate1.unit.model.enums.UnitTypeSearchField;
 import com.example.springbackendtemplate1.unit.model.enums.UnitTypeSortField;
-import com.example.springbackendtemplate1.unit.model.mapper.UnitMapper;
 import com.example.springbackendtemplate1.unit.model.mapper.UnitTypeMapper;
 import com.example.springbackendtemplate1.unit.repository.UnitTypeRepository;
 import com.example.springbackendtemplate1.commons.context.LocaleContext;
@@ -30,7 +28,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -73,12 +70,7 @@ public class UnitTypeServiceImpl implements UnitTypeService {
     @Override
     public UnitTypeResponse getById(Long id) {
         UnitTypeEntity entity = getEntityById(id);
-        List<UnitDto> units = UnitTypeMapper.activeUnits(entity).stream()
-                .map(unitEntity -> UnitMapper.toDto(unitEntity, false).build())
-                .toList();
-        UnitTypeDto dto = UnitTypeMapper.toDto(entity, true)
-                .units(units)
-                .build();
+        UnitTypeDto dto = UnitTypeMapper.toDto(entity).build();
         return new UnitTypeResponse(dto);
     }
 
@@ -88,7 +80,7 @@ public class UnitTypeServiceImpl implements UnitTypeService {
         Pageable pageable = request.toPageable(ALLOWED_SORT_FIELDS, UnitTypeSortField.localeSortFields());
         Page<@NonNull UnitTypeDto> page = unitTypeRepository
                 .findAll(specification, pageable)
-                .map(entity -> UnitTypeMapper.toDto(entity, false).build());
+                .map(entity -> UnitTypeMapper.toDto(entity).build());
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }
 

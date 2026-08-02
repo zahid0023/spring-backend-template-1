@@ -77,8 +77,8 @@ public class CityServiceImpl implements CityService {
     @Override
     public CityResponse getById(Long id) {
         CityEntity entity = getEntityById(id);
-        CountryDto country = CountryMapper.toDto(entity.getCountryEntity(), false).build();
-        CityDto dto = CityMapper.toDto(entity, true)
+        CountryDto country = CountryMapper.toDto(entity.getCountryEntity()).build();
+        CityDto dto = CityMapper.toDto(entity)
                 .country(country)
                 .build();
         return new CityResponse(dto);
@@ -90,8 +90,8 @@ public class CityServiceImpl implements CityService {
         Pageable pageable = request.toPageable(ALLOWED_SORT_FIELDS, CitySortField.localeSortFields());
         Page<@NonNull CityDto> page = cityRepository
                 .findAll(specification, pageable)
-                .map(entity -> CityMapper.toDto(entity, false)
-                        .country(CountryMapper.toDto(entity.getCountryEntity(), false).build())
+                .map(entity -> CityMapper.toDto(entity)
+                        .country(CountryMapper.toDto(entity.getCountryEntity()).build())
                         .build());
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }

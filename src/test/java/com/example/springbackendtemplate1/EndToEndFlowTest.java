@@ -77,14 +77,20 @@ class EndToEndFlowTest extends ApiIntegrationTestBase {
                         .param("sortBy", "code")
                         .header("Accept-Language", "bn"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].locales[0].locale.code").value("bn"));
+                .andExpect(jsonPath("$.data[0].locale.locale.code").value("bn"));
 
-        // getById returns every translation, regardless of Accept-Language
+        // getById returns only the Accept-Language-matched translation (falls back to 'en')
         mockMvc.perform(get("/api/v1/countries/{id}", countryId)
                         .with(asSuperAdmin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.code").value("FL"))
-                .andExpect(jsonPath("$.data.locales.length()").value(2));
+                .andExpect(jsonPath("$.data.locale.locale.code").value("en"));
+
+        // the locales sub-resource list returns every translation, paginated
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
+                        .with(asSuperAdmin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total_elements").value(2));
 
         // ---- Step 4: manage the Country's locale sub-resource ----
         Long thirdLocaleId = createLocale("fr", "French");
@@ -100,9 +106,9 @@ class EndToEndFlowTest extends ApiIntegrationTestBase {
         Long frenchCountryLocaleId = ((Number) JsonPath.read(
                 addLocaleResult.getResponse().getContentAsString(), "$.id")).longValue();
 
-        mockMvc.perform(get("/api/v1/countries/{id}", countryId)
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin()))
-                .andExpect(jsonPath("$.data.locales.length()").value(3));
+                .andExpect(jsonPath("$.total_elements").value(3));
 
         mockMvc.perform(put("/api/v1/countries/{countryId}/locales/{id}", countryId, frenchCountryLocaleId)
                         .with(asSuperAdmin())
@@ -112,9 +118,9 @@ class EndToEndFlowTest extends ApiIntegrationTestBase {
                                 """))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/countries/{id}", countryId)
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin()))
-                .andExpect(jsonPath("$.data.locales[?(@.locale.code == 'fr')].name")
+                .andExpect(jsonPath("$.data[?(@.locale.code == 'fr')].name")
                         .value("Flowterre (updated)"));
 
         mockMvc.perform(delete("/api/v1/countries/{countryId}/locales/{id}", countryId, frenchCountryLocaleId)
@@ -124,8 +130,11 @@ class EndToEndFlowTest extends ApiIntegrationTestBase {
         // ---- Step 5: final state — back down to 2 translations, country itself untouched ----
         mockMvc.perform(get("/api/v1/countries/{id}", countryId)
                         .with(asSuperAdmin()))
-                .andExpect(jsonPath("$.data.code").value("FL"))
-                .andExpect(jsonPath("$.data.locales.length()").value(2));
+                .andExpect(jsonPath("$.data.code").value("FL"));
+
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
+                        .with(asSuperAdmin()))
+                .andExpect(jsonPath("$.total_elements").value(2));
     }
 
     private Long createLocale(String code, String name) throws Exception {

@@ -4,11 +4,13 @@ import com.example.springbackendtemplate1.address.dto.request.country.locale.Cre
 import com.example.springbackendtemplate1.address.dto.request.country.locale.UpdateCountryLocaleRequest;
 import com.example.springbackendtemplate1.address.model.entity.CountryEntity;
 import com.example.springbackendtemplate1.address.model.entity.CountryLocaleEntity;
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
 import com.example.springbackendtemplate1.address.service.CountryLocaleService;
 import com.example.springbackendtemplate1.address.service.CountryService;
 import com.example.springbackendtemplate1.locale.service.LocaleService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,15 @@ public class CountryLocaleController {
         LocaleEntity localeEntity = localeService.getEntityById(request.getLocaleId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(countryLocaleService.create(request, countryEntity, localeEntity));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAll(
+            @PathVariable("country-id") Long countryId,
+            @RequestParam(value = "localeCode", required = false) String localeCode,
+            @ParameterObject PaginatedRequest paginatedRequest) {
+        countryService.getEntityById(countryId);
+        return ResponseEntity.ok(countryLocaleService.getAll(countryId, localeCode, paginatedRequest));
     }
 
     @PutMapping("/{id}")

@@ -77,8 +77,8 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public UnitResponse getById(Long id) {
         UnitEntity entity = getEntityById(id);
-        UnitTypeDto unitType = UnitTypeMapper.toDto(entity.getUnitTypeEntity(), false).build();
-        UnitDto dto = UnitMapper.toDto(entity, true)
+        UnitTypeDto unitType = UnitTypeMapper.toDto(entity.getUnitTypeEntity()).build();
+        UnitDto dto = UnitMapper.toDto(entity)
                 .unitType(unitType)
                 .build();
         return new UnitResponse(dto);
@@ -90,8 +90,8 @@ public class UnitServiceImpl implements UnitService {
         Pageable pageable = request.toPageable(ALLOWED_SORT_FIELDS, UnitSortField.localeSortFields());
         Page<@NonNull UnitDto> page = unitRepository
                 .findAll(specification, pageable)
-                .map(entity -> UnitMapper.toDto(entity, false)
-                        .unitType(UnitTypeMapper.toDto(entity.getUnitTypeEntity(), false).build())
+                .map(entity -> UnitMapper.toDto(entity)
+                        .unitType(UnitTypeMapper.toDto(entity.getUnitTypeEntity()).build())
                         .build());
         return Pagination.buildPaginatedResponse(page, ALLOWED_SORT_FIELDS, ALLOWED_SEARCH_FIELDS);
     }

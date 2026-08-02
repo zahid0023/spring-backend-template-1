@@ -1,6 +1,5 @@
 package com.example.springbackendtemplate1.address.model.dto;
 
-import com.example.springbackendtemplate1.currency.model.dto.CurrencyDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,9 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder
@@ -26,12 +22,5 @@ public class CountryDto {
     private String phoneCode;
     private Integer sortOrder;
 
-    @Builder.Default
-    private List<CountryLocaleDto> locales = new ArrayList<>();
-
-    @Builder.Default
-    private List<CityDto> cities = new ArrayList<>();
-
-    @Builder.Default
-    private List<CurrencyDto> currencies = new ArrayList<>();
+    private CountryLocaleDto locale;
 }

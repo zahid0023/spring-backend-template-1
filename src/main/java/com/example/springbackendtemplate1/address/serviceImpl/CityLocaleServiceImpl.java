@@ -1,8 +1,12 @@
 package com.example.springbackendtemplate1.address.serviceImpl;
 
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
+import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
+import com.example.springbackendtemplate1.commons.utils.Pagination;
 import com.example.springbackendtemplate1.address.dto.request.city.locale.CreateCityLocaleRequest;
 import com.example.springbackendtemplate1.address.dto.request.city.locale.UpdateCityLocaleRequest;
+import com.example.springbackendtemplate1.address.model.dto.CityLocaleDto;
 import com.example.springbackendtemplate1.address.model.entity.CityEntity;
 import com.example.springbackendtemplate1.address.model.entity.CityLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
@@ -11,8 +15,13 @@ import com.example.springbackendtemplate1.address.repository.CityLocaleRepositor
 import com.example.springbackendtemplate1.address.service.CityLocaleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -66,5 +75,16 @@ public class CityLocaleServiceImpl implements CityLocaleService {
         return cityLocaleRepository
                 .findByCityEntity_IdAndIdAndIsActiveAndIsDeleted(cityId, id, true, false)
                 .orElseThrow(() -> new EntityNotFoundException("CityLocale not found with id: " + id));
+    }
+
+    @Override
+    public PaginatedResponse<CityLocaleDto> getAll(Long cityId, String localeCode, PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable(Set.of());
+        Page<@NonNull CityLocaleDto> dtoPage = (localeCode == null || localeCode.isBlank()
+                ? cityLocaleRepository.findByCityEntity_IdAndIsActiveAndIsDeleted(cityId, true, false, pageable)
+                : cityLocaleRepository.findByCityEntity_IdAndLocaleEntity_CodeContainingIgnoreCaseAndIsActiveAndIsDeleted(
+                        cityId, localeCode, true, false, pageable))
+                .map(CityLocaleMapper::toDto);
+        return Pagination.buildPaginatedResponse(dtoPage);
     }
 }

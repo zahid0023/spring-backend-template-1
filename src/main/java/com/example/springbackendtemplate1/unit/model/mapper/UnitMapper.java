@@ -33,13 +33,7 @@ public class UnitMapper {
         entity.setConversionFactor(request.getConversionFactor());
     }
 
-    public UnitDto.UnitDtoBuilder toDto(UnitEntity entity, boolean includeLocales) {
-        List<UnitLocaleDto> locales = includeLocales
-                ? activeLocales(entity).stream()
-                        .map(UnitLocaleMapper::toDto)
-                        .toList()
-                : singleLocale(entity);
-
+    public UnitDto.UnitDtoBuilder toDto(UnitEntity entity) {
         return UnitDto.builder()
                 .id(entity.getId())
                 .code(entity.getCode())
@@ -47,12 +41,12 @@ public class UnitMapper {
                 .isBaseUnit(entity.getIsBaseUnit())
                 .conversionFactor(entity.getConversionFactor())
                 .sortOrder(entity.getSortOrder())
-                .locales(locales);
+                .locale(singleLocale(entity));
     }
 
-    private List<UnitLocaleDto> singleLocale(UnitEntity entity) {
+    private UnitLocaleDto singleLocale(UnitEntity entity) {
         UnitLocaleEntity matched = matchLocale(entity, LocaleContext.getLocaleId());
-        return matched == null ? List.of() : List.of(UnitLocaleMapper.toDto(matched));
+        return matched == null ? null : UnitLocaleMapper.toDto(matched);
     }
 
     private List<UnitLocaleEntity> activeLocales(UnitEntity entity) {

@@ -88,7 +88,7 @@ failures:
    `@JsonNaming` silently ignored — the field serializes as camelCase, not
    snake_case, and a test written assuming snake_case will fail. This exact
    bug was found and fixed in 18 files in this project already (`LoginResponse`,
-   `CreateRoleRequest`, several `imagehosting` DTOs, etc.) — check the import,
+   `CreateRoleRequest`, several `image` DTOs, etc.) — check the import,
    don't assume.
 6. **`MethodArgumentNotValidException` handling was previously missing** —
    `GlobalExceptionHandler.java` is the single source of truth for what

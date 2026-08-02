@@ -23,4 +23,6 @@ insert into locales (code,
                      created_by,
                      updated_by)
 values ('en', 'English', 1, (select id from users where username = 'system'),
+        (select id from users where username = 'system')),
+       ('bn', 'Bengali', 2, (select id from users where username = 'system'),
         (select id from users where username = 'system'));

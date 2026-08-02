@@ -1,8 +1,12 @@
 package com.example.springbackendtemplate1.currency.serviceImpl;
 
+import com.example.springbackendtemplate1.commons.dto.request.PaginatedRequest;
+import com.example.springbackendtemplate1.commons.dto.response.PaginatedResponse;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
+import com.example.springbackendtemplate1.commons.utils.Pagination;
 import com.example.springbackendtemplate1.currency.dto.request.currency.locale.CreateCurrencyLocaleRequest;
 import com.example.springbackendtemplate1.currency.dto.request.currency.locale.UpdateCurrencyLocaleRequest;
+import com.example.springbackendtemplate1.currency.model.dto.CurrencyLocaleDto;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyEntity;
 import com.example.springbackendtemplate1.currency.model.entity.CurrencyLocaleEntity;
 import com.example.springbackendtemplate1.locale.model.entity.LocaleEntity;
@@ -11,8 +15,13 @@ import com.example.springbackendtemplate1.currency.repository.CurrencyLocaleRepo
 import com.example.springbackendtemplate1.currency.service.CurrencyLocaleService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -66,5 +75,16 @@ public class CurrencyLocaleServiceImpl implements CurrencyLocaleService {
         return currencyLocaleRepository
                 .findByCurrencyEntity_IdAndIdAndIsActiveAndIsDeleted(currencyId, id, true, false)
                 .orElseThrow(() -> new EntityNotFoundException("CurrencyLocale not found with id: " + id));
+    }
+
+    @Override
+    public PaginatedResponse<CurrencyLocaleDto> getAll(Long currencyId, String localeCode, PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable(Set.of());
+        Page<@NonNull CurrencyLocaleDto> dtoPage = (localeCode == null || localeCode.isBlank()
+                ? currencyLocaleRepository.findByCurrencyEntity_IdAndIsActiveAndIsDeleted(currencyId, true, false, pageable)
+                : currencyLocaleRepository.findByCurrencyEntity_IdAndLocaleEntity_CodeContainingIgnoreCaseAndIsActiveAndIsDeleted(
+                        currencyId, localeCode, true, false, pageable))
+                .map(CurrencyLocaleMapper::toDto);
+        return Pagination.buildPaginatedResponse(dtoPage);
     }
 }

@@ -43,7 +43,7 @@ There is no lint/format command configured beyond the IDE-driven `qodana.yaml` s
 
 Code is organized by **domain module** under `src/main/java/.../resortbackendapplication1/`, not by technical
 layer: `address`, `auth`, `bedtype`, `contact`, `currency`, `dayofweek`, `facility`, `facilitypricetype`,
-`imagehosting`, `locale`, `pagetype`, `price`, `resort`, `resortaccesstype`, `resortbasicinfo`, `resortcontact`,
+`image`, `locale`, `pagetype`, `price`, `resort`, `resortaccesstype`, `resortbasicinfo`, `resortcontact`,
 `resortfacilityprice`, `resortpermissiontype`, `resortroomcategory`, `resortroomcategoryprice`, `roomcategory`,
 `uiblocksection`, `unit`, `unittype`. Each module is internally layered; `commons` holds cross-cutting
 infrastructure shared by every module.

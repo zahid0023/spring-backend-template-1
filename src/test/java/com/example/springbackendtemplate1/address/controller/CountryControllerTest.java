@@ -161,8 +161,8 @@ class CountryControllerTest extends ApiIntegrationTestBase {
     // ---- Get by id ----
 
     @Test
-    @DisplayName("Test: Get Country by Id Returns All Locale Translations")
-    void getById_shouldReturnAllLocaleTranslations() throws Exception {
+    @DisplayName("Test: Get All Country Locales Returns Paginated Translations")
+    void getAllLocales_shouldReturnPaginatedTranslations() throws Exception {
         Long countryId = createCountry("T4", "AAE", "14");
         mockMvc.perform(post("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin())
@@ -172,11 +172,11 @@ class CountryControllerTest extends ApiIntegrationTestBase {
                                 """.formatted(bnLocaleId)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/api/v1/countries/{id}", countryId)
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.code").value("T4"))
-                .andExpect(jsonPath("$.data.locales.length()").value(2));
+                .andExpect(jsonPath("$.total_elements").value(2))
+                .andExpect(jsonPath("$.data.length()").value(2));
     }
 
     @Test
@@ -218,8 +218,7 @@ class CountryControllerTest extends ApiIntegrationTestBase {
                         .param("sortBy", "code")
                         .header("Accept-Language", "bn"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].locales[0].locale.code").value("bn"))
-                .andExpect(jsonPath("$.data[0].locales.length()").value(1));
+                .andExpect(jsonPath("$.data[0].locale.locale.code").value("bn"));
 
         mockMvc.perform(get("/api/v1/countries")
                         .with(asSuperAdmin())
@@ -227,7 +226,7 @@ class CountryControllerTest extends ApiIntegrationTestBase {
                         .param("sortBy", "code")
                         .header("Accept-Language", "en"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].locales[0].locale.code").value("en"));
+                .andExpect(jsonPath("$.data[0].locale.locale.code").value("en"));
     }
 
     @Test
@@ -385,14 +384,14 @@ class CountryControllerTest extends ApiIntegrationTestBase {
                                 """))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/countries/{id}", countryId)
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin()))
-                .andExpect(jsonPath("$.data.locales[?(@.locale.code == 'bn')].name").value("After"));
+                .andExpect(jsonPath("$.data[?(@.locale.code == 'bn')].name").value("After"));
     }
 
     @Test
-    @DisplayName("Test: Delete Country Locale Soft-Deletes and Hides from Parent")
-    void countryLocale_delete_shouldSoftDeleteAndHideFromGetById() throws Exception {
+    @DisplayName("Test: Delete Country Locale Soft-Deletes and Hides from Locales List")
+    void countryLocale_delete_shouldSoftDeleteAndHideFromLocalesList() throws Exception {
         Long countryId = createCountry("TD", "AAM", "23");
         MvcResult createResult = mockMvc.perform(post("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin())
@@ -409,8 +408,8 @@ class CountryControllerTest extends ApiIntegrationTestBase {
                         .with(asSuperAdmin()))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/countries/{id}", countryId)
+        mockMvc.perform(get("/api/v1/countries/{countryId}/locales", countryId)
                         .with(asSuperAdmin()))
-                .andExpect(jsonPath("$.data.locales.length()").value(1));
+                .andExpect(jsonPath("$.total_elements").value(1));
     }
 }

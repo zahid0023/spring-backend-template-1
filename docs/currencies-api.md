@@ -48,16 +48,16 @@ actually used to shape the response:
 
 ### Currency
 
-| Field            | Type    | Required | Constraints                                                                                   | Description                                                    |
-|------------------|---------|----------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| `id`             | Long    | —        | read-only                                                                                     | Auto-generated identifier                                      |
-| `country`        | Country | —        | read-only; embedded parent summary, its own `cities`/`currencies` fields are always `[]`      | The parent country this currency belongs to                    |
-| `code`           | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`, unique among active records; set at creation, immutable | ISO 4217 alphabetic code (e.g., `BDT`)                         |
-| `numeric_code`   | String  | Yes      | max 3 chars, must match `^[0-9]{3}$`, unique among active records; set at creation, immutable | ISO 4217 numeric code (e.g., `050`)                            |
-| `symbol`         | String  | Yes      | max 10 chars                                                                                  | Currency symbol (e.g., `৳`)                                    |
-| `decimal_places` | Integer | Yes      | default 2                                                                                     | Number of decimal places (e.g., 2 for USD, 0 for JPY)          |
-| `is_default`     | Boolean | Yes      | default false                                                                                 | Whether this is the platform default currency                  |
-| `sort_order`     | Integer | Yes      | default 0                                                                                     | Display order                                                  |
+| Field            | Type    | Required | Constraints                                                                                   | Description                                                                                                                                   |
+|------------------|---------|----------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`             | Long    | —        | read-only                                                                                     | Auto-generated identifier                                                                                                                     |
+| `country`        | Country | —        | read-only; embedded parent summary, its own `cities`/`currencies` fields are always `[]`      | The parent country this currency belongs to                                                                                                   |
+| `code`           | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`, unique among active records; set at creation, immutable | ISO 4217 alphabetic code (e.g., `BDT`)                                                                                                        |
+| `numeric_code`   | String  | Yes      | max 3 chars, must match `^[0-9]{3}$`, unique among active records; set at creation, immutable | ISO 4217 numeric code (e.g., `050`)                                                                                                           |
+| `symbol`         | String  | Yes      | max 10 chars                                                                                  | Currency symbol (e.g., `৳`)                                                                                                                   |
+| `decimal_places` | Integer | Yes      | default 2                                                                                     | Number of decimal places (e.g., 2 for USD, 0 for JPY)                                                                                         |
+| `is_default`     | Boolean | Yes      | default false                                                                                 | Whether this is the platform default currency                                                                                                 |
+| `sort_order`     | Integer | Yes      | default 0                                                                                     | Display order                                                                                                                                 |
 | `locales`        | Array   | —        | see CurrencyLocale below                                                                      | Locale-specific translations — **every** translation on `GET /{id}`, exactly **one** (Accept-Language-matched, `en` fallback) everywhere else |
 
 ### CurrencyLocale
@@ -106,21 +106,21 @@ Additional languages are added afterward via the Currency Locales sub-resource b
 
 ### Request Fields
 
-| Field            | Type    | Required | Validation                                                                   |
-|------------------|---------|----------|--------------------------------------------------------------------------------|
-| `code`           | String  | Yes      | Not blank, max 3 chars, must match `^[A-Z]{3}$`, unique among active records |
-| `numeric_code`   | String  | Yes      | Not blank, max 3 chars, must match `^[0-9]{3}$`, unique among active records |
-| `country_id`     | Long    | Yes      | Not null; must reference an existing, active country                         |
-| `symbol`         | String  | Yes      | Not blank, max 10 chars                                                      |
-| `decimal_places` | Integer | Yes      | Not null                                                                     |
-| `is_default`     | Boolean | Yes      | Not null                                                                     |
-| `sort_order`     | Integer | Yes      | Not null                                                                     |
+| Field            | Type    | Required | Validation                                                                                 |
+|------------------|---------|----------|--------------------------------------------------------------------------------------------|
+| `code`           | String  | Yes      | Not blank, max 3 chars, must match `^[A-Z]{3}$`, unique among active records               |
+| `numeric_code`   | String  | Yes      | Not blank, max 3 chars, must match `^[0-9]{3}$`, unique among active records               |
+| `country_id`     | Long    | Yes      | Not null; must reference an existing, active country                                       |
+| `symbol`         | String  | Yes      | Not blank, max 10 chars                                                                    |
+| `decimal_places` | Integer | Yes      | Not null                                                                                   |
+| `is_default`     | Boolean | Yes      | Not null                                                                                   |
+| `sort_order`     | Integer | Yes      | Not null                                                                                   |
 | `locale`         | Object  | Yes      | Not null; validated (see below) — no `locale_id` field; always resolved to the `en` locale |
 
 **Locale entry (`locale`):**
 
-| Field        | Type    | Required | Validation                |
-|--------------|---------|----------|----------------------------|
+| Field        | Type    | Required | Validation               |
+|--------------|---------|----------|--------------------------|
 | `name`       | String  | Yes      | Not blank, max 200 chars |
 | `short_name` | String  | No       | Max 100 chars            |
 | `sort_order` | Integer | Yes      | Not null                 |
@@ -232,23 +232,27 @@ perform a case-insensitive partial match; `countryId` and `isDefault` perform an
 `Accept-Language` selects which single locale translation is included per currency — and per its embedded
 country — falling back to `en`, then to no translation.
 
+> **Note:** `id` is not a selectable `sortBy` value — passing `?sortBy=id` throws
+> `400 INVALID_ARGUMENT: Invalid sort field: id`. It's used only as the implicit sort when `sortBy` is
+> omitted entirely.
+
 ### Query Parameters
 
 > **Note:** Query parameters bind directly onto `CurrencyFilterRequest`'s Java field names, so they are
 > **camelCase** — not the snake_case used in JSON request/response bodies.
 
-| Parameter     | Type    | Default | Constraints                                                   | Description                                                                                     |
-|---------------|---------|---------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `code`        | String  | —       | —                                                             | Filter by code (partial, case-insensitive)                                                      |
-| `numericCode` | String  | —       | —                                                             | Filter by numeric code (partial, case-insensitive)                                              |
-| `countryId`   | Long    | —       | —                                                             | Filter by parent country ID (exact match)                                                       |
-| `isDefault`   | Boolean | —       | —                                                             | Filter by default-currency flag (exact match)                                                   |
-| `name`        | String  | —       | —                                                             | Filter by locale-specific name (partial, case-insensitive), scoped to the resolved locale       |
-| `shortName`   | String  | —       | —                                                             | Filter by locale-specific short name (partial, case-insensitive), scoped to the resolved locale |
-| `page`        | int     | `0`     | >= 0                                                          | Zero-based page index                                                                           |
-| `size`        | int     | `10`    | 1 – 50                                                        | Number of items per page                                                                        |
-| `sortBy`      | String  | `id`    | `id`, `createdAt`, `code`, `numericCode`, `name`, `shortName` | Field to sort by                                                                                |
-| `sortDir`     | String  | `ASC`   | `ASC`, `DESC`                                                 | Sort direction                                                                                  |
+| Parameter     | Type    | Default         | Constraints                                                                   | Description                                                                                     |
+|---------------|---------|-----------------|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `code`        | String  | —               | —                                                                             | Filter by code (partial, case-insensitive)                                                      |
+| `numericCode` | String  | —               | —                                                                             | Filter by numeric code (partial, case-insensitive)                                              |
+| `countryId`   | Long    | —               | —                                                                             | Filter by parent country ID (exact match)                                                       |
+| `isDefault`   | Boolean | —               | —                                                                             | Filter by default-currency flag (exact match)                                                   |
+| `name`        | String  | —               | —                                                                             | Filter by locale-specific name (partial, case-insensitive), scoped to the resolved locale       |
+| `shortName`   | String  | —               | —                                                                             | Filter by locale-specific short name (partial, case-insensitive), scoped to the resolved locale |
+| `page`        | int     | `0`             | >= 0                                                                          | Zero-based page index                                                                           |
+| `size`        | int     | `10`            | 1 – 50                                                                        | Number of items per page                                                                        |
+| `sortBy`      | String  | `id` (implicit) | `createdAt`, `code`, `numericCode`, `name`, `shortName` (`id` NOT selectable) | Field to sort by                                                                                |
+| `sortDir`     | String  | `ASC`           | `ASC`, `DESC`                                                                 | Sort direction                                                                                  |
 
 ### Response `200 OK`
 
@@ -309,7 +313,6 @@ country — falling back to `en`, then to no translation.
   "has_next": false,
   "has_previous": false,
   "sortable_fields": [
-    "id",
     "createdAt",
     "code",
     "numericCode",
@@ -532,6 +535,6 @@ All errors follow a common structure:
 
 | HTTP Status | Error Code         | Cause                                                                                                                                                                                                                              |
 |-------------|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT` | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value |
+| 400         | `INVALID_ARGUMENT` | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value                                              |
 | 404         | `ENTITY_NOT_FOUND` | Currency not found, currency locale not found, country referenced by `country_id` not found (currency creation), or the locale referenced by `locale_id` not found (locale creation)                                               |
 | 409         | `CONFLICT`         | `code` or `numeric_code` already in use by another active currency (checked explicitly in currency `create`), or the currency already has a translation for the given `locale_id` (checked explicitly in currency locale `create`) |
