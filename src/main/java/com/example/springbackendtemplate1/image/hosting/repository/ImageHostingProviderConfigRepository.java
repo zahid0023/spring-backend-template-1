@@ -15,6 +15,9 @@ public interface ImageHostingProviderConfigRepository extends
     Optional<ImageHostingProviderConfigEntity> findByImageHostingProviderEntity_IdAndIdAndIsActiveAndIsDeleted(
             Long imageHostingProviderId, Long id, Boolean isActive, Boolean isDeleted);
 
+    Optional<ImageHostingProviderConfigEntity> findByIdAndIsActiveAndIsDeleted(
+            Long id, Boolean isActive, Boolean isDeleted);
+
     boolean existsByImageHostingProviderEntity_IdAndNameAndIsActiveAndIsDeleted(
             Long imageHostingProviderId, String name, Boolean isActive, Boolean isDeleted);
 

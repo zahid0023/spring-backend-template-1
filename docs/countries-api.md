@@ -25,17 +25,19 @@ actually used to shape the response:
 
 ## Endpoints
 
-| Method | Path                                          | Description              |
-|--------|-----------------------------------------------|--------------------------|
-| POST   | `/api/v1/countries`                           | Create a country         |
-| GET    | `/api/v1/countries`                           | List / search countries  |
-| GET    | `/api/v1/countries/{id}`                      | Get a country            |
-| PUT    | `/api/v1/countries/{id}`                      | Update a country         |
-| DELETE | `/api/v1/countries/{id}`                      | Delete a country         |
-| GET    | `/api/v1/countries/{country-id}/locales`      | List a country's locales |
-| POST   | `/api/v1/countries/{country-id}/locales`      | Create a country locale  |
-| PUT    | `/api/v1/countries/{country-id}/locales/{id}` | Update a country locale  |
-| DELETE | `/api/v1/countries/{country-id}/locales/{id}` | Delete a country locale  |
+| Method | Path                                          | Description                   |
+|--------|-----------------------------------------------|-------------------------------|
+| POST   | `/api/v1/countries`                           | Create a country              |
+| GET    | `/api/v1/countries`                           | List / search countries       |
+| GET    | `/api/v1/countries/{id}`                      | Get a country                 |
+| PUT    | `/api/v1/countries/{id}`                      | Update a country              |
+| DELETE | `/api/v1/countries/{id}`                      | Delete a country              |
+| GET    | `/api/v1/countries/{country-id}/locales`      | List a country's locales      |
+| POST   | `/api/v1/countries/{country-id}/locales`      | Create a country locale       |
+| PUT    | `/api/v1/countries/{country-id}/locales/{id}` | Update a country locale       |
+| DELETE | `/api/v1/countries/{country-id}/locales/{id}` | Delete a country locale       |
+| POST   | `/api/v1/countries/{country-id}/images`       | Upload a country's flag image |
+| DELETE | `/api/v1/countries/{country-id}/images`       | Remove a country's flag image |
 
 ---
 
@@ -43,14 +45,15 @@ actually used to shape the response:
 
 ### Country
 
-| Field        | Type    | Required | Constraints                                                           | Description                                                                                                                                 |
-|--------------|---------|----------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`         | Long    | —        | read-only                                                             | Auto-generated identifier                                                                                                                   |
-| `code`       | String  | Yes      | max 10 chars, unique among active records; set at creation, immutable | Short country code (e.g., `BD`)                                                                                                             |
-| `iso3_code`  | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`                                  | 3-letter ISO country code (e.g., `BGD`)                                                                                                     |
-| `phone_code` | String  | Yes      | max 3 chars, must match `^[0-9]{1,3}$`                                | International calling code (e.g., `880`)                                                                                                    |
-| `sort_order` | Integer | Yes      | default 0                                                             | Display order                                                                                                                               |
-| `locale`     | Object  | —        | nullable; see CountryLocale below                                     | The single translation matching the request's `Accept-Language` (falls back to `en`, then `null` if the country has no translations at all) |
+| Field        | Type    | Required | Constraints                                                                             | Description                                                                                                                                 |
+|--------------|---------|----------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`         | Long    | —        | read-only                                                                               | Auto-generated identifier                                                                                                                   |
+| `code`       | String  | Yes      | max 10 chars, unique among active records; set at creation, immutable                   | Short country code (e.g., `BD`)                                                                                                             |
+| `iso3_code`  | String  | Yes      | max 3 chars, must match `^[A-Z]{3}$`                                                    | 3-letter ISO country code (e.g., `BGD`)                                                                                                     |
+| `phone_code` | String  | Yes      | max 3 chars, must match `^[0-9]{1,3}$`                                                  | International calling code (e.g., `880`)                                                                                                    |
+| `flag_url`   | String  | —        | not null (defaults to `""`); read-only here — set via [Country Images](#country-images) | URL of the country's flag image, or `""` if none has been uploaded                                                                          |
+| `sort_order` | Integer | Yes      | default 0                                                                               | Display order                                                                                                                               |
+| `locale`     | Object  | —        | nullable; see CountryLocale below                                                       | The single translation matching the request's `Accept-Language` (falls back to `en`, then `null` if the country has no translations at all) |
 
 ### CountryLocale
 
@@ -143,6 +146,7 @@ fetch every translation a country has, use [List Country Locales](#list-country-
     "code": "BD",
     "iso3_code": "BGD",
     "phone_code": "880",
+    "flag_url": "",
     "sort_order": 1,
     "locale": {
       "id": 1,
@@ -208,6 +212,7 @@ the same way as `GET /{id}` (exact match, falls back to `en`, then `null`).
       "code": "BD",
       "iso3_code": "BGD",
       "phone_code": "880",
+      "flag_url": "",
       "sort_order": 1,
       "locale": {
         "id": 1,
@@ -227,6 +232,7 @@ the same way as `GET /{id}` (exact match, falls back to `en`, then `null`).
       "code": "US",
       "iso3_code": "USA",
       "phone_code": "1",
+      "flag_url": "",
       "sort_order": 2,
       "locale": {
         "id": 3,
@@ -524,6 +530,106 @@ any response.
 
 ---
 
+## Country Images
+
+Country Image endpoints upload (or remove) the single flag image associated with a country, using the
+[Unified Image Hosting Strategy](unified-image-hosting-strategy.md) engine — see that document for how
+provider dispatch, credential resolution, and the underlying Cloudinary/S3 calls actually work. The
+`{country-id}` path parameter must reference an existing, active country.
+
+> **Note:** the result of these endpoints is readable afterward — `flag_url` is included on the `Country`
+> data model (see [Data Model](#data-model) above) and appears in both `GET /countries/{id}` and
+> `GET /countries` responses.
+
+---
+
+### Upload Country Flag Image
+
+`POST /api/v1/countries/{country-id}/images`
+
+Uploads a single image through the given `ImageHostingProviderConfig` and saves the resulting URL onto the
+country's `flag_url` column, overwriting any previous value. Consumes `multipart/form-data`.
+
+**The uploaded file must be an SVG** — accepted if either its content-type is `image/svg+xml` or its
+filename ends in `.svg` (some clients send a generic content-type for SVG uploads, so either signal is
+enough). Anything else is rejected with `400 INVALID_ARGUMENT` before any upload is attempted.
+
+#### Path Parameters
+
+| Parameter    | Type | Description       |
+|--------------|------|-------------------|
+| `country-id` | Long | ID of the country |
+
+#### Request Parts
+
+| Part                 | Type              | Required | Description                                                              |
+|----------------------|-------------------|----------|--------------------------------------------------------------------------|
+| `provider_config_id` | Long (form field) | Yes      | ID of an existing, active `ImageHostingProviderConfig` to upload through |
+| `image`              | File              | Yes      | The image file to upload                                                 |
+
+#### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/countries/1/images \
+  -H "Accept-Language: en" \
+  -F "provider_config_id=1" \
+  -F "image=@bangladesh-flag.png"
+```
+
+#### Response `200 OK`
+
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+`id` is the country's own id — not an image id, since there is no persisted image record (see
+[Unified Image Hosting Strategy](unified-image-hosting-strategy.md)).
+
+---
+
+### Remove Country Flag Image
+
+`DELETE /api/v1/countries/{country-id}/images`
+
+Deletes the image from its provider and resets the country's `flag_url` back to `""` (not `null` —
+`countries.flag_url` is `not null default ''`). The caller must supply both the config that owns the image
+and the `public_id` returned at upload time; there is no way to look this up server-side since it isn't
+persisted anywhere.
+
+#### Path Parameters
+
+| Parameter    | Type | Description       |
+|--------------|------|-------------------|
+| `country-id` | Long | ID of the country |
+
+#### Query Parameters
+
+| Parameter            | Type   | Required | Description                                                             |
+|----------------------|--------|----------|-------------------------------------------------------------------------|
+| `provider_config_id` | Long   | Yes      | ID of the `ImageHostingProviderConfig` the image was uploaded through   |
+| `public_id`          | String | Yes      | The `public_id` (Cloudinary) or object key (S3) returned at upload time |
+
+#### Example Request
+
+```bash
+curl -X DELETE "http://localhost:8080/api/v1/countries/1/images?provider_config_id=1&public_id=bangladesh-flag" \
+  -H "Accept-Language: en"
+```
+
+#### Response `200 OK`
+
+```json
+{
+  "success": true,
+  "id": 1
+}
+```
+
+---
+
 ## Error Responses
 
 All errors follow a common structure:
@@ -537,9 +643,9 @@ All errors follow a common structure:
 }
 ```
 
-| HTTP Status | Error Code                 | Cause                                                                                                                                                                                          |
-|-------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value          |
-| 404         | `ENTITY_NOT_FOUND`         | Country not found, country locale not found, or the locale referenced by `locale_id` not found (locale creation)                                                                               |
-| 409         | `CONFLICT`                 | `code` already in use by another active country (`create`); or the country already has a translation for the given `locale_id` (`create` country locale, pre-checked at the application level) |
-| 409         | `DATA_INTEGRITY_VIOLATION` | Last-resort DB-level unique constraint on `country_id` + `locale_id`, should not normally be reachable now that the duplicate is pre-checked at the application level                          |
+| HTTP Status | Error Code                 | Cause                                                                                                                                                                                                                                                                                                                                                                      |
+|-------------|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; an unsupported `sortBy` query value; or, on the Country Images endpoints, an uploaded file that isn't an SVG, a required config key missing/blank for the resolved image hosting provider, or `provider_config_id`'s provider has no registered upload strategy |
+| 404         | `ENTITY_NOT_FOUND`         | Country not found, country locale not found, the locale referenced by `locale_id` not found (locale creation), or `provider_config_id` not referencing an existing, active `ImageHostingProviderConfig` (Country Images)                                                                                                                                                   |
+| 409         | `CONFLICT`                 | `code` already in use by another active country (`create`); the country already has a translation for the given `locale_id` (`create` country locale, pre-checked at the application level); or the underlying image hosting provider (Cloudinary/S3) itself rejected the upload/delete call (Country Images)                                                              |
+| 409         | `DATA_INTEGRITY_VIOLATION` | Last-resort DB-level unique constraint on `country_id` + `locale_id`, should not normally be reachable now that the duplicate is pre-checked at the application level                                                                                                                                                                                                      |

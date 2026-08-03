@@ -41,6 +41,11 @@ public class CountryEntity extends AuditableEntity {
     private String phoneCode;
 
     @NotNull
+    @ColumnDefault("''")
+    @Column(name = "flag_url", nullable = false, columnDefinition = "text")
+    private String flagUrl = "";
+
+    @NotNull
     @ColumnDefault("0")
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;

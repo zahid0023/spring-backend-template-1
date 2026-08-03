@@ -25,4 +25,6 @@ public interface CountryService {
                            UpdateCountryRequest request);
 
     SuccessResponse delete(CountryEntity entity);
+
+    SuccessResponse updateFlagImage(CountryEntity entity, String flagUrl);
 }

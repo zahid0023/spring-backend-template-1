@@ -103,4 +103,13 @@ public class CountryServiceImpl implements CountryService {
         log.info("Country soft-deleted with id: {}", entity.getId());
         return new SuccessResponse(true, entity.getId());
     }
+
+    @Transactional
+    @Override
+    public SuccessResponse updateFlagImage(CountryEntity entity, String flagUrl) {
+        entity.setFlagUrl(flagUrl);
+        countryRepository.save(entity);
+        log.info("Country flag image updated for id: {}", entity.getId());
+        return new SuccessResponse(true, entity.getId());
+    }
 }

@@ -5,6 +5,7 @@ create table if not exists countries
     code       varchar(10)                  not null unique,
     iso3_code  varchar(3)                   not null,
     phone_code varchar(3)                   not null,
+    flag_url   text                         not null default '',
     sort_order integer                      not null default 0,
 
     created_by bigint references users (id) not null,

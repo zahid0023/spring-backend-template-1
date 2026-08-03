@@ -16,6 +16,8 @@ public interface ImageHostingProviderConfigService {
 
     ImageHostingProviderConfigEntity getEntityById(Long imageHostingProviderId, Long id);
 
+    ImageHostingProviderConfigEntity getEntityById(Long id);
+
     PaginatedResponse<ImageHostingProviderConfigDto> getAll(ImageHostingProviderConfigFilterRequest request);
 
     SuccessResponse update(ImageHostingProviderConfigEntity entity, UpdateImageHostingProviderConfigRequest request);

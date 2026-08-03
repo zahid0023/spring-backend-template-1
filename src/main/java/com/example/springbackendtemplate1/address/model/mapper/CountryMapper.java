@@ -38,6 +38,7 @@ public class CountryMapper {
                 .code(entity.getCode())
                 .iso3Code(entity.getIso3Code())
                 .phoneCode(entity.getPhoneCode())
+                .flagUrl(entity.getFlagUrl())
                 .sortOrder(entity.getSortOrder())
                 .locale(singleLocale(entity));
     }

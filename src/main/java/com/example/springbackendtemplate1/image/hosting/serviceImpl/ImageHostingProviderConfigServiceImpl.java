@@ -63,6 +63,13 @@ public class ImageHostingProviderConfigServiceImpl implements ImageHostingProvid
     }
 
     @Override
+    public ImageHostingProviderConfigEntity getEntityById(Long id) {
+        return imageHostingProviderConfigRepository
+                .findByIdAndIsActiveAndIsDeleted(id, true, false)
+                .orElseThrow(() -> new EntityNotFoundException("ImageHostingProviderConfig not found with id: " + id));
+    }
+
+    @Override
     public PaginatedResponse<ImageHostingProviderConfigDto> getAll(ImageHostingProviderConfigFilterRequest request) {
         Specification<@NonNull ImageHostingProviderConfigEntity> specification =
                 ImageHostingProviderConfigSpecification.filter(request, LocaleContext.getLocaleId());

@@ -20,6 +20,7 @@ public class CountryDto {
     private String code;
     private String iso3Code;
     private String phoneCode;
+    private String flagUrl;
     private Integer sortOrder;
 
     private CountryLocaleDto locale;

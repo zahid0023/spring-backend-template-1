@@ -1,5 +1,6 @@
 package com.example.springbackendtemplate1.image.hosting.model.entity;
 
+import com.example.springbackendtemplate1.commons.imagehosting.ImageHostingConfigSource;
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Setter
 @Entity
 @Table(name = "image_hosting_provider_configs")
-public class ImageHostingProviderConfigEntity extends AuditableEntity {
+public class ImageHostingProviderConfigEntity extends AuditableEntity implements ImageHostingConfigSource {
 
     @Setter(AccessLevel.NONE)
     @NotNull
@@ -44,4 +45,9 @@ public class ImageHostingProviderConfigEntity extends AuditableEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "config", nullable = false, columnDefinition = "jsonb")
     private Map<String, Object> config;
+
+    @Override
+    public String getProviderCode() {
+        return imageHostingProviderEntity.getCode();
+    }
 }
