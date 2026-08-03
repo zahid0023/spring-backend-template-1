@@ -46,13 +46,13 @@ shape anywhere in this document — it's checked for presence only.
 
 ### ImageHostingProvider
 
-| Field           | Type    | Required | Constraints                                                                      | Description                                                                          |
-|-----------------|---------|----------|----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| `id`            | Long    | —        | read-only                                                                        | Auto-generated identifier                                                            |
-| `code`          | String  | Yes      | max 50 chars, unique among active records; set at creation, immutable            | Short provider code (e.g., `AWS_S3`, `CLOUDINARY`, `CLOUDFLARE_R2`)                  |
-| `name`          | String  | Yes      | max 100 chars                                                                    | Display name (e.g., `Amazon S3`)                                                     |
-| `description`   | String  | Yes      | not null (defaults to `""`)                                                      | Free-text description                                                                |
-| `sort_order`    | Integer | Yes      | default 0                                                                        | Display order                                                                        |
+| Field         | Type    | Required | Constraints                                                           | Description                                                         |
+|---------------|---------|----------|-----------------------------------------------------------------------|---------------------------------------------------------------------|
+| `id`          | Long    | —        | read-only                                                             | Auto-generated identifier                                           |
+| `code`        | String  | Yes      | max 50 chars, unique among active records; set at creation, immutable | Short provider code (e.g., `AWS_S3`, `CLOUDINARY`, `CLOUDFLARE_R2`) |
+| `name`        | String  | Yes      | max 100 chars                                                         | Display name (e.g., `Amazon S3`)                                    |
+| `description` | String  | Yes      | not null (defaults to `""`)                                           | Free-text description                                               |
+| `sort_order`  | Integer | Yes      | default 0                                                             | Display order                                                       |
 
 > **Note:** `ImageHostingProvider` responses (both `GET /{id}` and `GET` list) never include the provider's
 > config fields — there is no `config_fields` field on this DTO at all. To read a provider's
@@ -73,11 +73,11 @@ shape anywhere in this document — it's checked for presence only.
 
 ### ImageHostingProviderConfig
 
-| Field    | Type          | Required | Constraints                                                                      | Description                                                                    |
-|----------|---------------|----------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| `id`     | Long          | —        | read-only                                                                          | Auto-generated identifier                                                     |
+| Field    | Type          | Required | Constraints                                                                       | Description                                                                      |
+|----------|---------------|----------|-----------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| `id`     | Long          | —        | read-only                                                                         | Auto-generated identifier                                                        |
 | `name`   | String        | Yes      | max 100 chars; unique among the owning provider's active configs; set at creation | Human-readable label for this configured instance (e.g., `Cloudinary Marketing`) |
-| `config` | Object (JSON) | Yes      | not null; stored as `jsonb`, arbitrary shape                                      | The actual configuration/credential values for this instance                  |
+| `config` | Object (JSON) | Yes      | not null; stored as `jsonb`, arbitrary shape                                      | The actual configuration/credential values for this instance                     |
 
 > **Note:** the response DTO never includes which provider a config belongs to — that's implicit in the
 > `{provider-id}` path segment you called. See [Configs](#configs) below.
@@ -541,10 +541,10 @@ same `name` is allowed across different providers.
 
 #### Request Fields
 
-| Field    | Type   | Required | Validation                                                            |
-|----------|--------|----------|--------------------------------------------------------------------------|
-| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs    |
-| `config` | Object | Yes      | Not null; arbitrary JSON object                                         |
+| Field    | Type   | Required | Validation                                                           |
+|----------|--------|----------|----------------------------------------------------------------------|
+| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs |
+| `config` | Object | Yes      | Not null; arbitrary JSON object                                      |
 
 #### Response `201 Created`
 
@@ -584,13 +584,13 @@ case-insensitive partial match.
 > **Note:** Query parameters bind directly onto `ImageHostingProviderConfigFilterRequest`'s Java field names,
 > so they are **camelCase** — not the snake_case used in JSON request/response bodies.
 
-| Parameter | Type   | Default         | Constraints                  | Description                                 |
-|-----------|--------|-----------------|-------------------------------|----------------------------------------------|
-| `name`    | String | —               | —                              | Filter by name (partial, case-insensitive)   |
-| `page`    | int    | `0`             | >= 0                           | Zero-based page index                        |
-| `size`    | int    | `10`            | 1 – 50                          | Number of items per page                     |
-| `sortBy`  | String | `id` (implicit) | `name` (`id` NOT selectable)   | Field to sort by                             |
-| `sortDir` | String | `ASC`           | `ASC`, `DESC`                   | Sort direction                               |
+| Parameter | Type   | Default         | Constraints                  | Description                                |
+|-----------|--------|-----------------|------------------------------|--------------------------------------------|
+| `name`    | String | —               | —                            | Filter by name (partial, case-insensitive) |
+| `page`    | int    | `0`             | >= 0                         | Zero-based page index                      |
+| `size`    | int    | `10`            | 1 – 50                       | Number of items per page                   |
+| `sortBy`  | String | `id` (implicit) | `name` (`id` NOT selectable) | Field to sort by                           |
+| `sortDir` | String | `ASC`           | `ASC`, `DESC`                | Sort direction                             |
 
 #### Response `200 OK`
 
@@ -665,10 +665,10 @@ returns `409 CONFLICT`.
 
 #### Request Fields
 
-| Field    | Type   | Required | Validation                                                            |
-|----------|--------|----------|--------------------------------------------------------------------------|
-| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs    |
-| `config` | Object | Yes      | Not null; arbitrary JSON object                                         |
+| Field    | Type   | Required | Validation                                                           |
+|----------|--------|----------|----------------------------------------------------------------------|
+| `name`   | String | Yes      | Not blank, max 100 chars; unique among the provider's active configs |
+| `config` | Object | Yes      | Not null; arbitrary JSON object                                      |
 
 #### Response `200 OK`
 
@@ -720,9 +720,9 @@ All errors follow a common structure:
 }
 ```
 
-| HTTP Status | Error Code                 | Cause                                                                                                                                                                                                                                                                       |
-|-------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value on `GET /image-hosting-providers` or `GET /configs`                                    |
-| 404         | `ENTITY_NOT_FOUND`         | Provider not found; config field not found; or config not found (unknown `id`, or an `id` that belongs to a different provider than the one in the path)                                                                                                                     |
-| 409         | `CONFLICT`                 | `code` already in use by another active provider (`create` provider); two entries in `config_fields` share the same `key` (`create` provider); the provider already has a config field for the given `key` (`create` config field, pre-checked at the application level); or `name` already in use by another active config for the same provider (`create`/`update` config) |
+| HTTP Status | Error Code                 | Cause                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|-------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 400         | `INVALID_ARGUMENT`         | Missing or blank `Accept-Language` header (checked globally, before any endpoint runs — see the intro above); missing/invalid required fields; or an unsupported `sortBy` query value on `GET /image-hosting-providers` or `GET /configs`                                                                                                                                                                                                                 |
+| 404         | `ENTITY_NOT_FOUND`         | Provider not found; config field not found; or config not found (unknown `id`, or an `id` that belongs to a different provider than the one in the path)                                                                                                                                                                                                                                                                                                  |
+| 409         | `CONFLICT`                 | `code` already in use by another active provider (`create` provider); two entries in `config_fields` share the same `key` (`create` provider); the provider already has a config field for the given `key` (`create` config field, pre-checked at the application level); or `name` already in use by another active config for the same provider (`create`/`update` config)                                                                              |
 | 409         | `DATA_INTEGRITY_VIOLATION` | Last-resort DB-level unique constraint on `(image_hosting_provider_id, key)` for config fields, should not normally be reachable now that the duplicate is pre-checked at the application level. **Configs have no equivalent DB-level constraint** — the migration for `image_hosting_provider_configs` defines no `unique` constraint on `(image_hosting_provider_id, name)`, so their `409 CONFLICT` above is enforced purely at the application level |
