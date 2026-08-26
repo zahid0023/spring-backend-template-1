@@ -3,7 +3,7 @@ package com.example.springbackendtemplate1.auth.config;
 import com.example.springbackendtemplate1.auth.dto.request.RegistrationRequest;
 import com.example.springbackendtemplate1.auth.dto.request.permission.CreatePermissionRequest;
 import com.example.springbackendtemplate1.auth.dto.request.role.CreateRoleRequest;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.entity.UserEntity;
 import com.example.springbackendtemplate1.auth.service.PermissionService;
 import com.example.springbackendtemplate1.auth.service.RoleService;
 import com.example.springbackendtemplate1.auth.service.UserService;

@@ -1,4 +1,4 @@
-package com.example.springbackendtemplate1.auth.model.enitty;
+package com.example.springbackendtemplate1.auth.model.entity;
 
 import com.example.springbackendtemplate1.commons.model.entity.AuditableEntity;
 import jakarta.persistence.Column;

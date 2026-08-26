@@ -1,8 +1,8 @@
 package com.example.springbackendtemplate1.auth.service;
 
 import com.example.springbackendtemplate1.auth.dto.request.permission.CreatePermissionRequest;
-import com.example.springbackendtemplate1.auth.model.enitty.PermissionEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.entity.PermissionEntity;
+import com.example.springbackendtemplate1.auth.model.entity.UserEntity;
 import com.example.springbackendtemplate1.commons.dto.response.SuccessResponse;
 
 import java.util.List;

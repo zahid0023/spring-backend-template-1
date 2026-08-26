@@ -1,6 +1,6 @@
 package com.example.springbackendtemplate1.auth.model.dto;
 
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.entity.UserEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

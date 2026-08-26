@@ -121,3 +121,213 @@ $$
 
     END
 $$;
+
+
+-- ============================================================
+-- Audit history: append-only snapshot of every insert/update/
+-- delete on unit_types, written by a trigger so it can't be
+-- bypassed by any caller.
+-- ============================================================
+
+create table if not exists unit_type_history
+(
+    id           bigserial primary key,
+
+    -- The unit_types row this history entry is a snapshot of. Not a FK: a
+    -- history row must survive its parent row being hard-deleted.
+    unit_type_id bigint                       not null,
+
+    -- Which kind of change produced this snapshot.
+    operation    varchar(10)                  not null check (operation in ('INSERT', 'UPDATE', 'DELETE')),
+
+    -- Snapshot of unit_types.code at the time of the change.
+    code         varchar(50),
+
+    -- Snapshot of unit_types.sort_order at the time of the change.
+    sort_order   integer,
+
+    -- Snapshot of unit_types.is_active at the time of the change.
+    is_active    boolean,
+
+    -- Snapshot of unit_types.is_deleted at the time of the change.
+    is_deleted   boolean,
+
+    -- Who/when this history row was written — same person/time as the
+    -- created_by/updated_by/deleted_by that triggered it, depending on operation.
+    created_by   bigint references users (id) not null,
+    created_at   timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency with every other table; always equal
+    -- to created_by/created_at since a history row is never actually updated.
+    updated_by   bigint references users (id) not null,
+    updated_at   timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency; never increments, since updates are
+    -- blocked entirely (see trg_unit_type_history_immutable below).
+    version      bigint                       not null default 0,
+    -- Kept for column-naming consistency; always null, since deletes are
+    -- blocked entirely (see trg_unit_type_history_immutable below).
+    deleted_by   bigint references users (id),
+    deleted_at   timestamp with time zone
+);
+
+create index if not exists idx_unit_type_history_unit_type
+    on unit_type_history (unit_type_id);
+
+create or replace function trg_unit_types_audit()
+    returns trigger as
+$$
+begin
+    if (tg_op = 'INSERT') then
+        insert into unit_type_history (unit_type_id, operation, code, sort_order, is_active, is_deleted,
+                                        created_by, updated_by)
+        values (new.id, 'INSERT', new.code, new.sort_order, new.is_active, new.is_deleted, new.created_by,
+                new.created_by);
+        return new;
+    elsif (tg_op = 'UPDATE') then
+        insert into unit_type_history (unit_type_id, operation, code, sort_order, is_active, is_deleted,
+                                        created_by, updated_by)
+        values (new.id, 'UPDATE', new.code, new.sort_order, new.is_active, new.is_deleted, new.updated_by,
+                new.updated_by);
+        return new;
+    elsif (tg_op = 'DELETE') then
+        insert into unit_type_history (unit_type_id, operation, code, sort_order, is_active, is_deleted,
+                                        created_by, updated_by)
+        values (old.id, 'DELETE', old.code, old.sort_order, old.is_active, old.is_deleted, old.deleted_by,
+                old.deleted_by);
+        return old;
+    end if;
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_unit_types_audit on unit_types;
+create trigger trg_unit_types_audit
+    after insert or update or delete
+    on unit_types
+    for each row
+execute function trg_unit_types_audit();
+
+create or replace function fn_unit_type_history_immutable()
+    returns trigger as
+$$
+begin
+    raise exception 'unit_type_history rows are append-only and cannot be updated or deleted';
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_unit_type_history_immutable on unit_type_history;
+create trigger trg_unit_type_history_immutable
+    before update or delete
+    on unit_type_history
+    for each row
+execute function fn_unit_type_history_immutable();
+
+
+-- ============================================================
+-- Audit history: append-only snapshot of every insert/update/
+-- delete on unit_type_locales, written by a trigger so it
+-- can't be bypassed by any caller.
+-- ============================================================
+
+create table if not exists unit_type_locale_history
+(
+    id                  bigserial primary key,
+
+    -- The unit_type_locales row this history entry is a snapshot of. Not
+    -- a FK: a history row must survive its parent row being hard-deleted.
+    unit_type_locale_id bigint                       not null,
+
+    -- Which kind of change produced this snapshot.
+    operation           varchar(10)                  not null check (operation in ('INSERT', 'UPDATE', 'DELETE')),
+
+    -- Snapshot of unit_type_locales.unit_type_id at the time of the change.
+    unit_type_id        bigint,
+
+    -- Snapshot of unit_type_locales.locale_id at the time of the change.
+    locale_id           bigint,
+
+    -- Snapshot of unit_type_locales.name at the time of the change.
+    name                varchar(100),
+
+    -- Snapshot of unit_type_locales.description at the time of the change.
+    description         text,
+
+    -- Snapshot of unit_type_locales.sort_order at the time of the change.
+    sort_order          integer,
+
+    -- Snapshot of unit_type_locales.is_active at the time of the change.
+    is_active           boolean,
+
+    -- Snapshot of unit_type_locales.is_deleted at the time of the change.
+    is_deleted           boolean,
+
+    -- Who/when this history row was written — same person/time as the
+    -- created_by/updated_by/deleted_by that triggered it, depending on operation.
+    created_by          bigint references users (id) not null,
+    created_at          timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency with every other table; always equal
+    -- to created_by/created_at since a history row is never actually updated.
+    updated_by          bigint references users (id) not null,
+    updated_at          timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency; never increments, since updates are
+    -- blocked entirely (see trg_unit_type_locale_history_immutable below).
+    version             bigint                       not null default 0,
+    -- Kept for column-naming consistency; always null, since deletes are
+    -- blocked entirely (see trg_unit_type_locale_history_immutable below).
+    deleted_by          bigint references users (id),
+    deleted_at          timestamp with time zone
+);
+
+create index if not exists idx_unit_type_locale_history_unit_type_locale
+    on unit_type_locale_history (unit_type_locale_id);
+
+create or replace function trg_unit_type_locales_audit()
+    returns trigger as
+$$
+begin
+    if (tg_op = 'INSERT') then
+        insert into unit_type_locale_history (unit_type_locale_id, operation, unit_type_id, locale_id, name,
+                                               description, sort_order, is_active, is_deleted, created_by,
+                                               updated_by)
+        values (new.id, 'INSERT', new.unit_type_id, new.locale_id, new.name, new.description, new.sort_order,
+                new.is_active, new.is_deleted, new.created_by, new.created_by);
+        return new;
+    elsif (tg_op = 'UPDATE') then
+        insert into unit_type_locale_history (unit_type_locale_id, operation, unit_type_id, locale_id, name,
+                                               description, sort_order, is_active, is_deleted, created_by,
+                                               updated_by)
+        values (new.id, 'UPDATE', new.unit_type_id, new.locale_id, new.name, new.description, new.sort_order,
+                new.is_active, new.is_deleted, new.updated_by, new.updated_by);
+        return new;
+    elsif (tg_op = 'DELETE') then
+        insert into unit_type_locale_history (unit_type_locale_id, operation, unit_type_id, locale_id, name,
+                                               description, sort_order, is_active, is_deleted, created_by,
+                                               updated_by)
+        values (old.id, 'DELETE', old.unit_type_id, old.locale_id, old.name, old.description, old.sort_order,
+                old.is_active, old.is_deleted, old.deleted_by, old.deleted_by);
+        return old;
+    end if;
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_unit_type_locales_audit on unit_type_locales;
+create trigger trg_unit_type_locales_audit
+    after insert or update or delete
+    on unit_type_locales
+    for each row
+execute function trg_unit_type_locales_audit();
+
+create or replace function fn_unit_type_locale_history_immutable()
+    returns trigger as
+$$
+begin
+    raise exception 'unit_type_locale_history rows are append-only and cannot be updated or deleted';
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_unit_type_locale_history_immutable on unit_type_locale_history;
+create trigger trg_unit_type_locale_history_immutable
+    before update or delete
+    on unit_type_locale_history
+    for each row
+execute function fn_unit_type_locale_history_immutable();

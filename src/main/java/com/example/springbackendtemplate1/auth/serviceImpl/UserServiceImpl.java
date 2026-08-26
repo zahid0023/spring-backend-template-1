@@ -2,8 +2,8 @@ package com.example.springbackendtemplate1.auth.serviceImpl;
 
 import com.example.springbackendtemplate1.auth.dto.request.RegistrationRequest;
 import com.example.springbackendtemplate1.auth.model.dto.CustomUserDetails;
-import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.entity.RoleEntity;
+import com.example.springbackendtemplate1.auth.model.entity.UserEntity;
 import com.example.springbackendtemplate1.auth.model.mapper.UserMapper;
 import com.example.springbackendtemplate1.auth.repository.RoleRepository;
 import com.example.springbackendtemplate1.auth.repository.UserRepository;

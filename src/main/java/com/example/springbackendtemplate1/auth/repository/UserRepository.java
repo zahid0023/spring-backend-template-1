@@ -1,7 +1,7 @@
 package com.example.springbackendtemplate1.auth.repository;
 
-import com.example.springbackendtemplate1.auth.model.enitty.RoleEntity;
-import com.example.springbackendtemplate1.auth.model.enitty.UserEntity;
+import com.example.springbackendtemplate1.auth.model.entity.RoleEntity;
+import com.example.springbackendtemplate1.auth.model.entity.UserEntity;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

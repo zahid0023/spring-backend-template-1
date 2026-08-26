@@ -49,6 +49,13 @@ create table if not exists currencies
     deleted_at     timestamp with time zone
 );
 
+-- Only one active, non-deleted currency can be the platform default.
+create unique index if not exists uq_currencies_single_default
+    on currencies (is_default)
+    where is_default = true
+        and is_active = true
+        and is_deleted = false;
+
 create table if not exists currency_locales
 (
     id          bigserial primary key,
@@ -126,3 +133,225 @@ $$
 
     END
 $$;
+
+
+-- ============================================================
+-- Audit history: append-only snapshot of every insert/update/
+-- delete on currencies, written by a trigger so it can't be
+-- bypassed by any caller.
+-- ============================================================
+
+create table if not exists currency_history
+(
+    id             bigserial primary key,
+
+    -- The currencies row this history entry is a snapshot of. Not a FK: a
+    -- history row must survive its parent row being hard-deleted.
+    currency_id    bigint                       not null,
+
+    -- Which kind of change produced this snapshot.
+    operation      varchar(10)                  not null check (operation in ('INSERT', 'UPDATE', 'DELETE')),
+
+    -- Snapshot of currencies.country_id at the time of the change.
+    country_id     bigint,
+
+    -- Snapshot of currencies.code at the time of the change.
+    code           char(3),
+
+    -- Snapshot of currencies.sort_order at the time of the change.
+    sort_order     integer,
+
+    -- Snapshot of currencies.numeric_code at the time of the change.
+    numeric_code   char(3),
+
+    -- Snapshot of currencies.symbol at the time of the change.
+    symbol         varchar(10),
+
+    -- Snapshot of currencies.decimal_places at the time of the change.
+    decimal_places smallint,
+
+    -- Snapshot of currencies.is_default at the time of the change.
+    is_default     boolean,
+
+    -- Snapshot of currencies.is_active at the time of the change.
+    is_active      boolean,
+
+    -- Snapshot of currencies.is_deleted at the time of the change.
+    is_deleted     boolean,
+
+    -- Who/when this history row was written — same person/time as the
+    -- created_by/updated_by/deleted_by that triggered it, depending on operation.
+    created_by     bigint references users (id) not null,
+    created_at     timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency with every other table; always equal
+    -- to created_by/created_at since a history row is never actually updated.
+    updated_by     bigint references users (id) not null,
+    updated_at     timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency; never increments, since updates are
+    -- blocked entirely (see trg_currency_history_immutable below).
+    version        bigint                       not null default 0,
+    -- Kept for column-naming consistency; always null, since deletes are
+    -- blocked entirely (see trg_currency_history_immutable below).
+    deleted_by     bigint references users (id),
+    deleted_at     timestamp with time zone
+);
+
+create index if not exists idx_currency_history_currency
+    on currency_history (currency_id);
+
+create or replace function trg_currencies_audit()
+    returns trigger as
+$$
+begin
+    if (tg_op = 'INSERT') then
+        insert into currency_history (currency_id, operation, country_id, code, sort_order, numeric_code, symbol,
+                                       decimal_places, is_default, is_active, is_deleted, created_by, updated_by)
+        values (new.id, 'INSERT', new.country_id, new.code, new.sort_order, new.numeric_code, new.symbol,
+                new.decimal_places, new.is_default, new.is_active, new.is_deleted, new.created_by, new.created_by);
+        return new;
+    elsif (tg_op = 'UPDATE') then
+        insert into currency_history (currency_id, operation, country_id, code, sort_order, numeric_code, symbol,
+                                       decimal_places, is_default, is_active, is_deleted, created_by, updated_by)
+        values (new.id, 'UPDATE', new.country_id, new.code, new.sort_order, new.numeric_code, new.symbol,
+                new.decimal_places, new.is_default, new.is_active, new.is_deleted, new.updated_by, new.updated_by);
+        return new;
+    elsif (tg_op = 'DELETE') then
+        insert into currency_history (currency_id, operation, country_id, code, sort_order, numeric_code, symbol,
+                                       decimal_places, is_default, is_active, is_deleted, created_by, updated_by)
+        values (old.id, 'DELETE', old.country_id, old.code, old.sort_order, old.numeric_code, old.symbol,
+                old.decimal_places, old.is_default, old.is_active, old.is_deleted, old.deleted_by, old.deleted_by);
+        return old;
+    end if;
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_currencies_audit on currencies;
+create trigger trg_currencies_audit
+    after insert or update or delete
+    on currencies
+    for each row
+execute function trg_currencies_audit();
+
+create or replace function fn_currency_history_immutable()
+    returns trigger as
+$$
+begin
+    raise exception 'currency_history rows are append-only and cannot be updated or deleted';
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_currency_history_immutable on currency_history;
+create trigger trg_currency_history_immutable
+    before update or delete
+    on currency_history
+    for each row
+execute function fn_currency_history_immutable();
+
+
+-- ============================================================
+-- Audit history: append-only snapshot of every insert/update/
+-- delete on currency_locales, written by a trigger so it can't
+-- be bypassed by any caller.
+-- ============================================================
+
+create table if not exists currency_locale_history
+(
+    id                 bigserial primary key,
+
+    -- The currency_locales row this history entry is a snapshot of. Not a
+    -- FK: a history row must survive its parent row being hard-deleted.
+    currency_locale_id bigint                       not null,
+
+    -- Which kind of change produced this snapshot.
+    operation          varchar(10)                  not null check (operation in ('INSERT', 'UPDATE', 'DELETE')),
+
+    -- Snapshot of currency_locales.currency_id at the time of the change.
+    currency_id        bigint,
+
+    -- Snapshot of currency_locales.locale_id at the time of the change.
+    locale_id          bigint,
+
+    -- Snapshot of currency_locales.name at the time of the change.
+    name               varchar(200),
+
+    -- Snapshot of currency_locales.short_name at the time of the change.
+    short_name         varchar(100),
+
+    -- Snapshot of currency_locales.sort_order at the time of the change.
+    sort_order         integer,
+
+    -- Snapshot of currency_locales.is_active at the time of the change.
+    is_active          boolean,
+
+    -- Snapshot of currency_locales.is_deleted at the time of the change.
+    is_deleted         boolean,
+
+    -- Who/when this history row was written — same person/time as the
+    -- created_by/updated_by/deleted_by that triggered it, depending on operation.
+    created_by         bigint references users (id) not null,
+    created_at         timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency with every other table; always equal
+    -- to created_by/created_at since a history row is never actually updated.
+    updated_by         bigint references users (id) not null,
+    updated_at         timestamp with time zone     not null default current_timestamp,
+    -- Kept for column-naming consistency; never increments, since updates are
+    -- blocked entirely (see trg_currency_locale_history_immutable below).
+    version            bigint                       not null default 0,
+    -- Kept for column-naming consistency; always null, since deletes are
+    -- blocked entirely (see trg_currency_locale_history_immutable below).
+    deleted_by         bigint references users (id),
+    deleted_at         timestamp with time zone
+);
+
+create index if not exists idx_currency_locale_history_currency_locale
+    on currency_locale_history (currency_locale_id);
+
+create or replace function trg_currency_locales_audit()
+    returns trigger as
+$$
+begin
+    if (tg_op = 'INSERT') then
+        insert into currency_locale_history (currency_locale_id, operation, currency_id, locale_id, name,
+                                              short_name, sort_order, is_active, is_deleted, created_by, updated_by)
+        values (new.id, 'INSERT', new.currency_id, new.locale_id, new.name, new.short_name, new.sort_order,
+                new.is_active, new.is_deleted, new.created_by, new.created_by);
+        return new;
+    elsif (tg_op = 'UPDATE') then
+        insert into currency_locale_history (currency_locale_id, operation, currency_id, locale_id, name,
+                                              short_name, sort_order, is_active, is_deleted, created_by, updated_by)
+        values (new.id, 'UPDATE', new.currency_id, new.locale_id, new.name, new.short_name, new.sort_order,
+                new.is_active, new.is_deleted, new.updated_by, new.updated_by);
+        return new;
+    elsif (tg_op = 'DELETE') then
+        insert into currency_locale_history (currency_locale_id, operation, currency_id, locale_id, name,
+                                              short_name, sort_order, is_active, is_deleted, created_by, updated_by)
+        values (old.id, 'DELETE', old.currency_id, old.locale_id, old.name, old.short_name, old.sort_order,
+                old.is_active, old.is_deleted, old.deleted_by, old.deleted_by);
+        return old;
+    end if;
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_currency_locales_audit on currency_locales;
+create trigger trg_currency_locales_audit
+    after insert or update or delete
+    on currency_locales
+    for each row
+execute function trg_currency_locales_audit();
+
+create or replace function fn_currency_locale_history_immutable()
+    returns trigger as
+$$
+begin
+    raise exception 'currency_locale_history rows are append-only and cannot be updated or deleted';
+end;
+$$ language plpgsql;
+
+drop trigger if exists trg_currency_locale_history_immutable on currency_locale_history;
+create trigger trg_currency_locale_history_immutable
+    before update or delete
+    on currency_locale_history
+    for each row
+execute function fn_currency_locale_history_immutable();
